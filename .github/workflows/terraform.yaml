@@ -10,9 +10,11 @@ jobs:
   terraform:
     name: "Terraform"
     runs-on: ubuntu-latest
+    env:
+      tf_actions_working_dir: './infrastructure'
     defaults:
       run:
-        working-directory: './infrastructure'
+        working-directory: ${{ env.tf_actions_working_dir }}
     permissions:
       pull-requests: write
     steps:
