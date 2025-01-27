@@ -45,7 +45,7 @@ resource "hcloud_server" "aeon-server" {
   location    = "fsn1"
   user_data   = data.ct_config.flatcar-ignition.rendered
   public_net {
-    ipv4_enabled = false
+    ipv4_enabled = true
     ipv6_enabled = true
   }
 }
