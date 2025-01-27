@@ -1,0 +1,26 @@
+variant: flatcar
+version: 1.0.0
+
+storage:
+  directories:
+    - path: /var/www
+systemd:
+  units:
+    - name: nginx.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=AEON NGINX
+        After=docker.service coreos-metadata.service
+        Requires=docker.service coreos-metadata.service
+        [Service]
+        EnvironmentFile=/run/metadata/flatcar
+        TimeoutStartSec=0
+        ExecStartPre=-/usr/bin/docker rm --force nginx1
+        ExecStartPre=-/usr/bin/bash -c "echo \"Hello from ${appname}\" > /var/www/index.html"
+        ExecStart=/usr/bin/docker run --name nginx1 --volume "/var/www:/usr/share/nginx/html:ro" --pull always --log-driver=journald --net host docker.io/nginx:1
+        ExecStop=/usr/bin/docker stop nginx1
+        Restart=always
+        RestartSec=5s
+        [Install]
+        WantedBy=multi-user.target
