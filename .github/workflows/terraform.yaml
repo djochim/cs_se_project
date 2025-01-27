@@ -11,7 +11,7 @@ jobs:
     name: "Terraform"
     runs-on: ubuntu-latest
     env:
-      tf_actions_working_dir: './infrastructure'
+      tf_actions_working_dir: 'infrastructure'
     defaults:
       run:
         working-directory: ${{ env.tf_actions_working_dir }}
@@ -25,8 +25,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           # terraform_version: 0.13.0:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-          tf_actions_working_dir: './infrastructure'
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}=
 
       - name: Terraform Format
         id: fmt

@@ -43,7 +43,7 @@ resource "hcloud_server" "aeon-server" {
   image       = "212121145"
   server_type = "cx22"
   location = "fsn1"
-  user_data = data.ct_config.machine-ignition.rendered
+  user_data = data.ct_config.flatcar-ignition.rendered
   public_net {
     ipv4_enabled = false
     ipv6_enabled = true
