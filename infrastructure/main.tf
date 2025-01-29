@@ -47,8 +47,7 @@ resource "hcloud_server" "aeon-server" {
 }
 
 provider "cloudflare" {
-  email = var.cloudflare_email
-  token = var.cloudflare_token
+  api_token = var.cloudflare_token
 }
 
 resource "cloudflare_record" "www" {
