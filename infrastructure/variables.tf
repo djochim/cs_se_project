@@ -25,5 +25,29 @@ variable "server_location" {
 
 # OS configuration
 variable "appname" {
+  type        = string
+  description = "Flatcar appname"
   default = "aeon"
+}
+
+# cloudflare
+variable "cloudflare_email" {
+  type        = string
+  sensitive = true
+  description = "Cloudflare API Email"
+}
+variable "cloudflare_token" {
+  type        = string
+  sensitive = true
+  description = "Cloudflare API token"
+}
+variable "domain" {
+  type        = string
+  description = "Server domain"
+  default = "jochim.dev"
+}
+variable "ip" {
+  type        = string
+  description = "Server domain"
+  default = "49.13.218.105"
 }

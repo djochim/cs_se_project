@@ -8,20 +8,15 @@ terraform {
       source  = "poseidon/ct"
       version = "0.13.0"
     }
-    namecheap = {
-      source = "namecheap/namecheap"
-      version = ">= 2.0.0"
+    cloudflare = {
+      source = "cloudflare/cloudflare"
+      version = "5.0.0-rc1"
     }
   }
 }
 
 provider "ct" {
   # Configuration options
-}
-
-provider "hcloud" {
-  # Configuration options
-  token = var.hcloud_token
 }
 
 data "ct_config" "flatcar-ignition" {
@@ -31,6 +26,11 @@ data "ct_config" "flatcar-ignition" {
 data "template_file" "flatcar-cl-config" {
   template = file("${path.module}/flatcar-config.yaml.tmpl")
   vars     = { appname = var.appname }
+}
+
+provider "hcloud" {
+  # Configuration options
+  token = var.hcloud_token
 }
 
 # Create a new server running debian
@@ -44,4 +44,17 @@ resource "hcloud_server" "aeon-server" {
     ipv4_enabled = true
     ipv6_enabled = true
   }
+}
+
+provider "cloudflare" {
+  email = var.cloudflare_email
+  token = var.cloudflare_token
+}
+
+resource "cloudflare_record" "www" {
+  domain  = var.domain
+  name    = "www"
+  value   = var.ip
+  type    = "A"
+  proxied = true
 }
