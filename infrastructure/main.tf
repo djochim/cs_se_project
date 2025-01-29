@@ -50,10 +50,10 @@ provider "cloudflare" {
   api_token = var.cloudflare_token
 }
 
-resource "cloudflare_record" "www" {
-  domain  = var.domain
-  name    = "www"
-  value   = var.ip
+resource "cloudflare_dns_record" "main_dns" {
+  name    = var.domain
+  content  = var.ip
+  ttl = 1
   type    = "A"
   proxied = true
 }
