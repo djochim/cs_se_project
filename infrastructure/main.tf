@@ -51,6 +51,7 @@ provider "cloudflare" {
 }
 
 resource "cloudflare_dns_record" "main_dns" {
+  zone_id = var.cloudflare_zone_id
   name    = var.domain
   content  = var.ip
   ttl = 1
