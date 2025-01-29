@@ -31,10 +31,10 @@ variable "appname" {
 }
 
 # cloudflare
-variable "cloudflare_email" {
+variable "cloudflare_zone_id" {
   type        = string
   sensitive = true
-  description = "Cloudflare API Email"
+  description = "Cloudflare API zone_id"
 }
 variable "cloudflare_token" {
   type        = string
