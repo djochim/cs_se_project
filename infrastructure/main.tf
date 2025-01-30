@@ -12,6 +12,10 @@ terraform {
       source = "cloudflare/cloudflare"
       version = "5.0.0-rc1"
     }
+    tls = {
+      source = "hashicorp/tls"
+      version = "4.0.6"
+    }
   }
 }
 
@@ -46,6 +50,16 @@ resource "hcloud_server" "aeon-server" {
   }
 }
 
+provider "tls" {
+  # Configuration options
+}
+
+# ECDSA key with P384 elliptic curve
+resource "tls_private_key" "ecdsa-p384-example" {
+  algorithm   = "ECDSA"
+  ecdsa_curve = "P384"
+}
+
 provider "cloudflare" {
   api_token = var.cloudflare_token
 }
@@ -57,4 +71,41 @@ resource "cloudflare_dns_record" "main_dns" {
   ttl = 1
   type    = "A"
   proxied = true
+}
+
+resource "cloudflare_zone_setting" "tls1_3" {
+  zone_id = var.cloudflare_zone_id
+  setting_id = "tls_1_3"
+  value = "on"
+}
+
+resource "cloudflare_zone_setting" "min_tls_version" {
+  zone_id = var.cloudflare_zone_id
+  setting_id = "min_tls_version"
+  value = "1.2"
+}
+
+resource "cloudflare_origin_ca_certificate" "origin-cert" {
+  csr                  = tls_cert_request.api-cert-request.cert_request_pem
+  hostnames            = ["*.jochim.dev", "jochim.dev"]
+  request_type         = "origin-rsa"
+  requested_validity   = 365
+}
+
+# resource "cloudflare_zone_setting" "ssl" {
+#   zone_id = var.cloudflare_zone_id
+#   setting_id = "ssl"
+#   value = "strict"
+# }
+
+resource "cloudflare_zone_setting" "https_rewrites" {
+  zone_id = var.cloudflare_zone_id
+  setting_id = "automatic_https_rewrites"
+  value = "on"
+}
+
+resource "cloudflare_zone_setting" "waf" {
+  zone_id = var.cloudflare_zone_id
+  setting_id = "waf"
+  value = "on"
 }
