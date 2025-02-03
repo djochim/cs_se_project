@@ -1,53 +1,53 @@
 # Hetzner cloud
 variable "hcloud_token" {
   type        = string
-  sensitive = true
+  sensitive   = true
   description = "Hetzner cloud API token"
 }
 
 variable "server_name" {
   type        = string
   description = "Hetzner cloud server name"
-  default = "aeon-server"
+  default     = "aeon-server"
 }
 
 variable "server_type" {
   type        = string
   description = "Hetzner cloud server type"
-  default = "cx22"
+  default     = "cx22"
 }
 
 variable "server_location" {
   type        = string
   description = "Hetzner cloud server location"
-  default = "fsn1"
+  default     = "fsn1"
 }
 
 # OS configuration
 variable "appname" {
   type        = string
   description = "Flatcar appname"
-  default = "aeon"
+  default     = "aeon"
 }
 
 # cloudflare
 variable "cloudflare_zone_id" {
   type        = string
-  sensitive = true
+  sensitive   = true
   description = "Cloudflare API zone_id"
 }
 variable "cloudflare_token" {
   type        = string
-  sensitive = true
+  sensitive   = true
   description = "Cloudflare API token"
 }
 variable "domain" {
   type        = string
   description = "Server domain"
-  default = "jochim.dev"
+  default     = "jochim.dev"
 }
 variable "ip" {
   type        = string
   description = "Server domain"
-  default = "49.13.218.105"
+  default     = "49.13.218.105"
 }
