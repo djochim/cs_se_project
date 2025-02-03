@@ -57,7 +57,7 @@ data "template_file" "flatcar-cl-config" {
   vars = {
     appname           = var.appname
     private_key       = base64encode(tls_private_key.api-cert-private-key.private_key_pem)
-    certificate       = base64encode(tls_locally_signed_cert.server_cert.cert_pem)
+    certificate       = base64encode(cloudflare_origin_ca_certificate.origin-cert.certificate)
     nginx_conf_base64 = base64encode(file("${path.module}/nginx.conf"))
   }
 }
