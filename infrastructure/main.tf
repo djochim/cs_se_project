@@ -83,7 +83,7 @@ resource "hcloud_server" "aeon-server" {
 resource "cloudflare_dns_record" "main_dns" {
   zone_id = var.cloudflare_zone_id
   name    = var.domain
-  content = var.ip
+  content = hcloud_server.aeon-server.ipv4_address
   ttl     = 1
   type    = "A"
   proxied = true
