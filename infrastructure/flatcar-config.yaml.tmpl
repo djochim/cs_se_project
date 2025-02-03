@@ -4,6 +4,30 @@ version: 1.0.0
 storage:
   directories:
     - path: /var/www
+  files:
+    - path: "/etc/ssl/private/server.key"
+      mode: 0600
+      overwrite: true
+      contents:
+        source: "data:text/plain;base64,${private_key}"
+      user:
+        name: "root"
+      group:
+        name: "root"
+    - path: /etc/ssl/certs/server.crt
+      mode: 0644
+      overwrite: true
+      contents:
+        source: "data:text/plain;base64,${certificate}"
+      user:
+        name: "root"
+      group:
+        name: "root"
+    - path: /etc/nginx/nginx.conf
+      mode: 0644
+      overwrite: true
+      contents:
+        source: "data:text/plain;base64,${nginx_conf_base64}"
 systemd:
   units:
     - name: nginx.service
@@ -13,14 +37,21 @@ systemd:
         Description=AEON NGINX
         After=docker.service coreos-metadata.service
         Requires=docker.service coreos-metadata.service
+
         [Service]
-        EnvironmentFile=/run/metadata/flatcar
         TimeoutStartSec=0
         ExecStartPre=-/usr/bin/docker rm --force nginx1
         ExecStartPre=-/usr/bin/bash -c "echo \"Hello from ${appname}\" > /var/www/index.html"
-        ExecStart=/usr/bin/docker run --name nginx1 --volume "/var/www:/usr/share/nginx/html:ro" --pull always --log-driver=journald --net host docker.io/nginx:1
+        ExecStart=/usr/bin/docker run --name nginx1 \
+                  --volume "/var/www:/usr/share/nginx/html:ro" \
+                  --volume "/etc/ssl/certs/server.crt:/etc/nginx/certs/server.crt:ro" \
+                  --volume "/etc/ssl/private/server.key:/etc/nginx/certs/server.key:ro" \
+                  --volume "/etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro" \
+                  --pull always --log-driver=journald --net host docker.io/nginx:1 \
+                  nginx -c /etc/nginx/nginx.conf
         ExecStop=/usr/bin/docker stop nginx1
         Restart=always
         RestartSec=5s
+
         [Install]
         WantedBy=multi-user.target
