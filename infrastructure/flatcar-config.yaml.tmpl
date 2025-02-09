@@ -4,15 +4,6 @@ version: 1.0.0
 storage:
   directories:
     - path: /var/www
-  users:
-    - name: developer
-      ssh_authorized_keys:
-        - "${developer_ssh}"
-      groups: [ sudo, docker ]
-    - name: pipeline
-      ssh_authorized_keys:
-        - "${pipeline_ssh}"
-      groups: [ docker ]
   files:
     - path: /etc/ssh/sshd_config.d/hardening.conf
       contents:
@@ -42,6 +33,15 @@ storage:
       overwrite: true
       contents:
         source: "data:text/plain;base64,${nginx_conf_base64}"
+users:
+  - name: developer
+    ssh_authorized_keys:
+      - "${developer_ssh}"
+    groups: [ sudo, docker ]
+  - name: pipeline
+    ssh_authorized_keys:
+      - "${pipeline_ssh}"
+    groups: [ docker ]
 systemd:
   units:
     - name: nginx.service
