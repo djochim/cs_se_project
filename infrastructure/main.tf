@@ -24,7 +24,7 @@ provider "tls" {
 }
 
 # ECDSA key for ssh access
-resource "tls_private_key" "pipeline-ssh" {
+resource "tls_private_key" "pipeline_ssh" {
   algorithm   = "ECDSA"
   ecdsa_curve = "P521"
 }
@@ -63,7 +63,7 @@ data "template_file" "flatcar-cl-config" {
   vars = {
     appname           = var.appname
     developer_ssh     = var.developer_ssh
-    pipeline_ssh      = tls_private_key.pipeline-ssh.public_key_openssh
+    pipeline_ssh      = tls_private_key.pipeline_ssh.public_key_openssh
     private_key       = base64encode(tls_private_key.api-cert-private-key.private_key_pem)
     certificate       = base64encode(cloudflare_origin_ca_certificate.origin-cert.certificate)
     nginx_conf_base64 = base64encode(file("${path.module}/nginx.conf"))
