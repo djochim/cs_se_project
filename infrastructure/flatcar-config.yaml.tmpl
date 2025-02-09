@@ -33,15 +33,18 @@ storage:
       overwrite: true
       contents:
         source: "data:text/plain;base64,${nginx_conf_base64}"
-users:
-  - name: developer
-    ssh_authorized_keys:
-      - "${developer_ssh}"
-    groups: [ sudo, docker ]
-  - name: pipeline
-    ssh_authorized_keys:
-      - "${pipeline_ssh}"
-    groups: [ docker ]
+passwd:
+  users:
+    - name: developer
+      ssh_authorized_keys:
+        - "${developer_ssh}"
+      groups: [ sudo, docker ]
+      no_create_home: false
+    - name: pipeline
+      ssh_authorized_keys:
+        - "${pipeline_ssh}"
+      groups: [ docker ]
+      no_create_home: false
 systemd:
   units:
     - name: nginx.service
