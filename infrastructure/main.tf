@@ -23,6 +23,12 @@ provider "tls" {
   # Configuration options
 }
 
+# ECDSA key for ssh access
+resource "tls_private_key" "pipeline-ssh" {
+  algorithm   = "ECDSA"
+  ecdsa_curve = "P521"
+}
+
 # ECDSA key with P384 elliptic curve
 resource "tls_private_key" "api-cert-private-key" {
   algorithm   = "ECDSA"
@@ -56,6 +62,8 @@ data "template_file" "flatcar-cl-config" {
   template = file("${path.module}/flatcar-config.yaml.tmpl")
   vars = {
     appname           = var.appname
+    developer_ssh     = var.developer_ssh
+    pipeline_ssh      = tls_private_key.pipeline_ssh.public_key_openssh
     private_key       = base64encode(tls_private_key.api-cert-private-key.private_key_pem)
     certificate       = base64encode(cloudflare_origin_ca_certificate.origin-cert.certificate)
     nginx_conf_base64 = base64encode(file("${path.module}/nginx.conf"))
@@ -110,11 +118,5 @@ resource "cloudflare_zone_setting" "ssl" {
 resource "cloudflare_zone_setting" "https_rewrites" {
   zone_id    = var.cloudflare_zone_id
   setting_id = "automatic_https_rewrites"
-  value      = "on"
-}
-
-resource "cloudflare_zone_setting" "waf" {
-  zone_id    = var.cloudflare_zone_id
-  setting_id = "waf"
   value      = "on"
 }

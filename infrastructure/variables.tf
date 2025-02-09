@@ -30,6 +30,12 @@ variable "appname" {
   default     = "aeon"
 }
 
+variable "developer_ssh" {
+  type        = string
+  sensitive   = true
+  description = "SSH public key for developer access"
+}
+
 # cloudflare
 variable "cloudflare_zone_id" {
   type        = string
