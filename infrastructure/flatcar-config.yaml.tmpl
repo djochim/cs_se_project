@@ -38,7 +38,7 @@ passwd:
     - name: developer
       ssh_authorized_keys:
         - "${developer_ssh}"
-      groups: [ sudo, docker ]
+      groups: [ sudo, docker, systemd-journal ]
       no_create_home: false
     - name: pipeline
       ssh_authorized_keys:
