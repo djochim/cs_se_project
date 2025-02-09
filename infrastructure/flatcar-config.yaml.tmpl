@@ -4,6 +4,15 @@ version: 1.0.0
 storage:
   directories:
     - path: /var/www
+  users:
+    - name: developer
+      ssh_authorized_keys:
+        - "ssh-rsa ${developer_ssh}"
+      groups: [ sudo, docker ]
+    - name: pipeline
+      ssh_authorized_keys:
+        - "ssh-rsa ${pipeline_ssh}"
+      groups: [ docker ]
   files:
     - path: "/etc/ssl/private/server.key"
       mode: 0600
