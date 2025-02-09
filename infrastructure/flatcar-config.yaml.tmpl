@@ -14,6 +14,11 @@ storage:
         - "${pipeline_ssh}"
       groups: [ docker ]
   files:
+    - path: /etc/ssh/sshd_config.d/hardening.conf
+      contents:
+        inline: |
+          PasswordAuthentication no
+          PermitRootLogin no
     - path: "/etc/ssl/private/server.key"
       mode: 0600
       overwrite: true
