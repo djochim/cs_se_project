@@ -11,7 +11,7 @@ storage:
           PasswordAuthentication no
           PermitRootLogin no
     - path: "/etc/ssl/private/server.key"
-      mode: 0600
+      mode: 0644
       overwrite: true
       contents:
         source: "data:text/plain;base64,${private_key}"
