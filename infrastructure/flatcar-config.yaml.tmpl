@@ -15,24 +15,22 @@ storage:
       overwrite: true
       contents:
         source: "data:text/plain;base64,${private_key}"
-      user:
-        name: "root"
       group:
-        name: "root"
+        name: "docker"
     - path: /etc/ssl/certs/server.crt
       mode: 0644
       overwrite: true
       contents:
         source: "data:text/plain;base64,${certificate}"
-      user:
-        name: "root"
       group:
-        name: "root"
+        name: "docker"
     - path: /etc/nginx/nginx.conf
       mode: 0644
       overwrite: true
       contents:
         source: "data:text/plain;base64,${nginx_conf_base64}"
+      group:
+        name: "docker"
 passwd:
   users:
     - name: developer
