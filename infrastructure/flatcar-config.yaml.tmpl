@@ -24,6 +24,13 @@ storage:
         source: "data:text/plain;base64,${certificate}"
       group:
         name: "docker"
+    - path: /etc/nginx/certs/cf-origin-ca.pem
+      mode: 0644
+      overwrite: true
+      contents:
+        source: "data:text/plain;base64,${origin_ca}"
+      group:
+        name: "docker"
     - path: /etc/nginx/nginx.conf
       mode: 0644
       overwrite: true
@@ -61,6 +68,7 @@ systemd:
                   --volume "/var/www:/usr/share/nginx/html:ro" \
                   --volume "/etc/nginx/certs/server.crt:/etc/nginx/certs/server.crt:ro" \
                   --volume "/etc/nginx/certs/server.key:/etc/nginx/certs/server.key:ro" \
+                  --volume "/etc/nginx/certs/cf-origin-ca.pem:/etc/nginx/cf-origin-ca.pem:ro" \
                   --volume "/etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro" \
                   --pull always --log-driver=journald --net host docker.io/nginx:1
         ExecStop=/usr/bin/docker stop nginx1

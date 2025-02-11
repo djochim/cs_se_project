@@ -66,6 +66,7 @@ data "template_file" "flatcar-cl-config" {
     pipeline_ssh      = tls_private_key.pipeline_ssh.public_key_openssh
     private_key       = base64encode(tls_private_key.api-cert-private-key.private_key_pem)
     certificate       = base64encode(cloudflare_origin_ca_certificate.origin-cert.certificate)
+    origin_ca     = base64encode(file("${path.module}/cf-origin-ca.pem"))
     nginx_conf_base64 = base64encode(file("${path.module}/nginx.conf"))
   }
 }
