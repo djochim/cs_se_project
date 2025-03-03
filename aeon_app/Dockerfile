@@ -1,5 +1,5 @@
 # Stage 1: Cache Gradle dependencies
-FROM gradle:jdk22-jammy AS cache
+FROM gradle:8.12.1-jdk21 AS cache
 RUN mkdir -p /home/gradle/cache_home
 ENV GRADLE_USER_HOME=/home/gradle/cache_home
 COPY build.gradle.kts gradle.properties settings.gradle.kts /home/gradle/app/
@@ -11,7 +11,7 @@ WORKDIR /home/gradle/app
 RUN gradle build -i --stacktrace
 
 # Stage 2: Build Application
-FROM gradle:jdk22-jammy AS build
+FROM gradle:8.12.1-jdk21 AS build
 COPY --from=cache /home/gradle/cache_home /home/gradle/.gradle
 COPY . /usr/src/app/
 WORKDIR /usr/src/app
@@ -21,7 +21,7 @@ WORKDIR /home/gradle/src
 RUN gradle server:buildFatJar --no-daemon
 
 # Stage 3: Create the Runtime Image
-FROM amazoncorretto:22 AS runtime
+FROM amazoncorretto:21 AS runtime
 EXPOSE 8070
 
 RUN mkdir /app
