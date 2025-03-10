@@ -30,21 +30,21 @@ resource "tls_private_key" "pipeline_ssh" {
 }
 
 # ECDSA key with P384 elliptic curve
-resource "tls_private_key" "api-cert-private-key" {
+resource "tls_private_key" "api_cert_private_key" {
   algorithm   = "ECDSA"
   ecdsa_curve = "P384"
 }
 
-resource "tls_cert_request" "api-cert-request" {
-  private_key_pem = tls_private_key.api-cert-private-key.private_key_pem
+resource "tls_cert_request" "api_cert_request" {
+  private_key_pem = tls_private_key.api_cert_private_key.private_key_pem
 }
 
 provider "cloudflare" {
   api_token = var.cloudflare_token
 }
 
-resource "cloudflare_origin_ca_certificate" "origin-cert" {
-  csr                = tls_cert_request.api-cert-request.cert_request_pem
+resource "cloudflare_origin_ca_certificate" "origin_cert" {
+  csr                = tls_cert_request.api_cert_request.cert_request_pem
   hostnames          = ["*.jochim.dev", "jochim.dev"]
   request_type       = "origin-rsa"
   requested_validity = 365
@@ -54,22 +54,22 @@ provider "ct" {
   # Configuration options
 }
 
-data "ct_config" "flatcar-ignition" {
-  content = data.template_file.flatcar-cl-config.rendered
+data "ct_config" "flatcar_ignition" {
+  content = data.template_file.flatcar_cl_config.rendered
 }
 
-data "template_file" "flatcar-cl-config" {
+data "template_file" "flatcar_cl_config" {
   template = file("${path.module}/flatcar-config.yaml.tmpl")
   vars = {
     appname           = var.appname
     developer_ssh     = var.developer_ssh
     pipeline_ssh      = tls_private_key.pipeline_ssh.public_key_openssh
-    private_key       = base64encode(tls_private_key.api-cert-private-key.private_key_pem)
-    certificate       = base64encode(cloudflare_origin_ca_certificate.origin-cert.certificate)
-    origin_ca     = base64encode(file("${path.module}/cf-origin-ca.pem"))
+    private_key       = base64encode(tls_private_key.api_cert_private_key.private_key_pem)
+    certificate       = base64encode(cloudflare_origin_ca_certificate.origin_cert.certificate)
+    origin_ca         = base64encode(file("${path.module}/cf-origin-ca.pem"))
     nginx_conf_base64 = base64encode(file("${path.module}/nginx.conf"))
-    github_email = var.github_email
-    github_auth = var.github_token
+    github_email      = var.github_email
+    github_auth       = var.github_token
   }
 }
 
@@ -79,12 +79,12 @@ provider "hcloud" {
 }
 
 # Create a new server running debian
-resource "hcloud_server" "aeon-server" {
+resource "hcloud_server" "aeon_server" {
   name        = var.server_name
   image       = "212121145"
   server_type = var.server_type
   location    = var.server_location
-  user_data   = data.ct_config.flatcar-ignition.rendered
+  user_data   = data.ct_config.flatcar_ignition.rendered
   public_net {
     ipv4_enabled = true
     ipv6_enabled = true
@@ -94,7 +94,7 @@ resource "hcloud_server" "aeon-server" {
 resource "cloudflare_dns_record" "main_dns" {
   zone_id = var.cloudflare_zone_id
   name    = var.domain
-  content = hcloud_server.aeon-server.ipv4_address
+  content = hcloud_server.aeon_server.ipv4_address
   ttl     = 1
   type    = "A"
   proxied = true
