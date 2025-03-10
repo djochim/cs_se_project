@@ -69,7 +69,7 @@ data "template_file" "flatcar-cl-config" {
     origin_ca     = base64encode(file("${path.module}/cf-origin-ca.pem"))
     nginx_conf_base64 = base64encode(file("${path.module}/nginx.conf"))
     github_email = var.github_email
-    github_token = var.github_token
+    github_auth = var.github_token
   }
 }
 
