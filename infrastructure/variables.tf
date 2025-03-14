@@ -57,3 +57,15 @@ variable "ip" {
   description = "Server domain"
   default     = "49.13.218.105"
 }
+
+variable "github_email" {
+  type        = string
+  description = "Github Email"
+  default     = "github@joch.im"
+}
+
+variable "github_token" {
+  type        = string
+  description = "Github Token"
+  sensitive   = true
+}
