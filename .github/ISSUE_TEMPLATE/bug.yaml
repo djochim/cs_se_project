@@ -1,0 +1,61 @@
+name: Bug
+description: File a bug report.
+title: "[Bug]: "
+labels: ["bug", "triage"]
+projects: ["djochim/1"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which component of the server is effected
+      options:
+        - APP
+        - Android
+        - iOS
+        - Server
+        - Infrastructure
+      multiple: true
+      default: 0
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: What is the priority? From P1 (100 Downtime) to P5 (Small Bug that impacts only limited number of customers)
+      options:
+        - P1
+        - P2
+        - P3
+        - P4
+        - P5
+      default: 4
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to Reproduce
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to Reproduce
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Result
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Result
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
