@@ -1,61 +1,25 @@
-name: Bug Report
-description: File a bug report.
-title: "[Bug]: "
-labels: ["bug", "triage"]
+name: Epic
+title: "[EPIC]: "
+labels: ["epic", "refine"]
 projects: ["djochim/1"]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Thanks for taking the time to fill out this bug report!
-  - type: dropdown
-    id: component
-    attributes:
-      label: Component
-      description: Which component of the server is effected
-      options:
-        - APP
-        - Android
-        - iOS
-        - Server
-        - Infrastructure
-      multiple: true
-      default: 0
-    validations:
-      required: true
-  - type: dropdown
-    id: priority
-    attributes:
-      label: Priority
-      description: What is the priority? From P1 (100 Downtime) to P5 (Small Bug that impacts only limited number of customers)
-      options:
-        - P1
-        - P2
-        - P3
-        - P4
-        - P5
-      default: 4
-    validations:
-      required: true
   - type: textarea
-    id: reproduce
+    id: description
     attributes:
-      label: Steps to Reproduce
+      label: Description
+      description: High-level explanation of what this Epic is about and why it's important
   - type: textarea
-    id: reproduce
+    id: objectives
     attributes:
-      label: Steps to Reproduce
+      label: Objectives & Value
+      description: What problem does it solve? How does it benefit users and the business?
   - type: textarea
-    id: expected
+    id: acceptance
     attributes:
-      label: Expected Result
+      label: Acceptance Criteria
+      description: Define the high-level conditions that must be met for this Epic to be considered complete
   - type: textarea
-    id: actual
+    id: technical
     attributes:
-      label: Actual Result
-  - type: textarea
-    id: logs
-    attributes:
-      label: Logs
-      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
-      render: shell
+      label: Technical Considerations
+      description: List key architectural or implementation details
