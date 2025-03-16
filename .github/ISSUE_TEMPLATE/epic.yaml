@@ -1,5 +1,6 @@
 name: Epic
 title: "[EPIC]: "
+description: Define an Epic
 labels: ["epic", "refine"]
 projects: ["djochim/1"]
 body:
