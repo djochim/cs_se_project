@@ -1,0 +1,16 @@
+name: Task
+description: Define a Task.
+title: "[TASK]: "
+labels: ["task"]
+projects: ["djochim/1"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Short explanation of what the task is about and why it matters
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: List the conditions that must be met for this story to be considered complete

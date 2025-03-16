@@ -1,0 +1,26 @@
+name: Epic
+title: "[EPIC]: "
+description: Define an Epic
+labels: ["epic", "refine"]
+projects: ["djochim/1"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: High-level explanation of what this Epic is about and why it's important
+  - type: textarea
+    id: objectives
+    attributes:
+      label: Objectives & Value
+      description: What problem does it solve? How does it benefit users and the business?
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: Define the high-level conditions that must be met for this Epic to be considered complete
+  - type: textarea
+    id: technical
+    attributes:
+      label: Technical Considerations
+      description: List key architectural or implementation details

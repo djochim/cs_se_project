@@ -10,6 +10,18 @@ storage:
         inline: |
           PasswordAuthentication no
           PermitRootLogin no
+    - path: /home/core/.docker/config.json
+      mode: 0644
+      contents:
+        inline: |
+          {
+            "auths": {
+              "ghrc.io": {
+                "auth": "${github_auth}",
+                "email": "${github_email}"
+              }
+            }
+          }
     - path: "/etc/nginx/certs/server.key"
       mode: 0644
       overwrite: true
@@ -38,27 +50,10 @@ storage:
         source: "data:text/plain;base64,${nginx_conf_base64}"
       group:
         name: "docker"
-    - path: /home/core/.docker/config.json
-      mode: 0644
-      contents:
-        inline: |
-          {
-            "auths": {
-              "ghrc.io": {
-                "auth": "${github_auth}",
-                "email": "${github_email}"
-              }
-            }
-          }
 passwd:
   users:
     - name: developer
       ssh_authorized_keys:
         - "${developer_ssh}"
       groups: [ sudo, docker, systemd-journal ]
-      no_create_home: false
-    - name: pipeline
-      ssh_authorized_keys:
-        - "${pipeline_ssh}"
-      groups: [ docker ]
       no_create_home: false
