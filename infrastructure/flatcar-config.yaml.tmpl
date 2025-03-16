@@ -54,11 +54,6 @@ passwd:
   users:
     - name: developer
       ssh_authorized_keys:
-        - "${developer_ssh}"
+        - test
       groups: [ sudo, docker, systemd-journal ]
-      no_create_home: false
-    - name: pipeline
-      ssh_authorized_keys:
-        - "${pipeline_ssh}"
-      groups: [ docker ]
       no_create_home: false
