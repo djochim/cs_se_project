@@ -54,6 +54,6 @@ passwd:
   users:
     - name: developer
       ssh_authorized_keys:
-        - test
+        - "${developer_ssh}"
       groups: [ sudo, docker, systemd-journal ]
       no_create_home: false
