@@ -52,6 +52,11 @@ variable "domain" {
   description = "Server domain"
   default     = "jochim.dev"
 }
+variable "aeon_subdomain" {
+  type        = string
+  description = "Server subdomain"
+  default     = "aeon"
+}
 variable "ip" {
   type        = string
   description = "Server domain"

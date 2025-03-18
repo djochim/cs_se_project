@@ -100,6 +100,15 @@ resource "cloudflare_dns_record" "main_dns" {
   proxied = true
 }
 
+resource "cloudflare_dns_record" "aeon_dns" {
+  zone_id = var.cloudflare_zone_id
+  name    = var.aeon_subdomain
+  content = hcloud_server.aeon_server.ipv4_address
+  ttl     = 1
+  type    = "A"
+  proxied = true
+}
+
 resource "cloudflare_zone_setting" "tls1_3" {
   zone_id    = var.cloudflare_zone_id
   setting_id = "tls_1_3"
