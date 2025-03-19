@@ -22,7 +22,7 @@ RUN gradle server:buildFatJar --no-daemon
 
 # Stage 3: Create the Runtime Image
 FROM amazoncorretto:21 AS runtime
-EXPOSE 8070
+EXPOSE 8080
 
 RUN mkdir /app
 
