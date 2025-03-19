@@ -23,14 +23,16 @@ services:
     environment:
       - MONGO_URL=mongodb:27017
       - MONGO_INITDB_ROOT_PASSWORD=pass
+      - OPEN_API_KEY=${OPEN_API_KEY}
     networks:
       - aeon-net
     pull_policy: always
 
   ngnix-proxy:
-    image: nginx:1.23.2-alpine
+    image: nginx:1.27.4-alpine
     ports:
-      - "8080:8080"
+      - "80:80"
+      - "443:443"
     networks:
       - aeon-net
     volumes:
