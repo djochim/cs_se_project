@@ -32,7 +32,6 @@ dependencies {
 	implementation(libs.ktor.server.netty)
 	implementation(libs.ktor.server.content)
 	implementation(libs.ktor.server.websocket)
-	implementation(libs.ktor.server.config)
 	implementation(libs.mongo.kotlin.coroutine)
 	implementation(libs.mongo.bson)
 	implementation(libs.koin.ktor)

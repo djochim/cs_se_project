@@ -20,7 +20,7 @@ services:
     pull_policy: always
 
   aeon1:
-    image: ghcr.io/djochim/cs_se_project:pr-34
+    image: ghcr.io/djochim/cs_se_project:release
     environment:
       - MONGO_URL=mongodb:27017
       - MONGO_USER=${MONGO_USER}
