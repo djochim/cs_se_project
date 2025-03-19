@@ -22,7 +22,6 @@ services:
     networks:
       - aeon
 
-
 networks:
   aeon:
 

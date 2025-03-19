@@ -2,8 +2,8 @@ services:
   mongodb:
     image: mongodb/mongodb-community-server:6.0-ubi8
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=user
-      - MONGO_INITDB_ROOT_PASSWORD=pass
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONOG_PASS}
     volumes:
       - data:/data/db
     networks:
@@ -13,7 +13,8 @@ services:
     image: ghcr.io/teambitvictory/bitauth:release
     environment:
       - MONGO_URL=mongodb:27017
-      - MONGO_INITDB_ROOT_PASSWORD=pass
+      - MONGO_USER=${MONGO_USER}
+      - MONOG_PASS=${MONOG_PASS}
     networks:
       - aeon-net
     pull_policy: always
@@ -22,7 +23,8 @@ services:
     image: ghcr.io/djochim/cs_se_project:pr-34
     environment:
       - MONGO_URL=mongodb:27017
-      - MONGO_INITDB_ROOT_PASSWORD=pass
+      - MONGO_USER=${MONGO_USER}
+      - MONOG_PASS=${MONOG_PASS}
       - OPEN_API_KEY=${OPEN_API_KEY}
     networks:
       - aeon-net
