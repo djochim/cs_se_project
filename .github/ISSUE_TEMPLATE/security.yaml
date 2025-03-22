@@ -29,11 +29,11 @@ body:
       label: Risk level
       description: What is the priority? From P1 (100 Downtime) to P5 (Small Bug that impacts only limited number of customers)
       options:
-        - Severe
-        - Significant
+        - Extreme
+        - Very High
+        - High
         - Moderate
-        - Minor
-        - Negligible
+        - Low
       default: 4
     validations:
       required: true
