@@ -55,5 +55,6 @@ jobs:
             host: ${{ secrets.SERVER_IP }}
             username: developer
             key: ${{ secrets.DEVELOPER_SSH }}
+            passphrase: ${{ secrets.DEVELOPER_SSH_PASS }}
             #fingerprint: ${{ secrets.SSH_FINGERPRINT_NEW }}
             script: cd aeon && echo "${{ secrets.REPOSITORY_SECRET }}" | docker login ghcr.io -u ${{ secrets.REPOSITORY_USER }} --password-stdin && docker-compose up -d
