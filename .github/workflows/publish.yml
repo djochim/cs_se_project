@@ -57,4 +57,4 @@ jobs:
             key: ${{ secrets.DEVELOPER_SSH }}
             passphrase: ${{ secrets.DEVELOPER_SSH_PASS }}
             #fingerprint: ${{ secrets.SSH_FINGERPRINT_NEW }}
-            script: cd aeon && echo "${{ secrets.REPOSITORY_SECRET }}" | docker login ghcr.io -u ${{ secrets.REPOSITORY_USER }} --password-stdin && export OPEN_API_KEY="${{ secrets.REPOSITORY_SECRET }}" && export MONGO_USER="${{ secrets.MONGO_USER }}" export MONOG_PASS="${{ secrets.MONGO_SECRET }}" && docker-compose up -d
+            script: cd aeon && echo "${{ secrets.REPOSITORY_SECRET }}" | docker login ghcr.io -u ${{ secrets.REPOSITORY_USER }} --password-stdin && export OPEN_API_KEY="${{ secrets.REPOSITORY_SECRET }}" && export MONGO_USER="${{ secrets.MONGO_USER }}" export MONOG_PASS="${{ secrets.MONGO_SECRET }}" && whoami && ls
