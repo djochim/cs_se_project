@@ -4,7 +4,7 @@ name: Create and publish a Docker image
 # Configures this workflow to run every time a change is pushed to the branch called `release`.
 on:
   push:
-    branches: [ 'release' ]
+    branches: [ 'main' ]
 
 # Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
 env:
@@ -49,3 +49,19 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+      # connect to server
+      - uses: appleboy/ssh-action@master
+        with:
+            host: ${{ secrets.SERVER_IP }}
+            username: developer
+            key: ${{ secrets.DEVELOPER_SSH }}
+            passphrase: ${{ secrets.DEVELOPER_SSH_PASS }}
+            #fingerprint: ${{ secrets.SSH_FINGERPRINT_NEW }}
+            script: |
+              cd aeon
+              export PATH=$PATH:/opt/bin 
+              echo "${{ secrets.REPOSITORY_SECRET }}" | docker login ghcr.io -u ${{ secrets.REPOSITORY_USER }} --password-stdin
+              export OPEN_API_KEY="${{ secrets.REPOSITORY_SECRET }}"
+              export MONGO_USER="${{ secrets.MONGO_USER }}"
+              export MONOG_PASS="${{ secrets.MONGO_SECRET }}"
+              docker-compose up -d
