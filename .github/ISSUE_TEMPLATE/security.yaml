@@ -1,0 +1,47 @@
+name: Security Risk
+description: Create a security risk.
+title: "[SEC]: "
+labels: ["risk", "security"]
+projects: ["djochim/1"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this security risk report!
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which component of the server is effected
+      options:
+        - APP
+        - Android
+        - iOS
+        - Server
+        - Infrastructure
+      multiple: true
+      default: 0
+    validations:
+      required: true
+  - type: dropdown
+    id: risklevel
+    attributes:
+      label: Risk level
+      description: What is the priority? From P1 (100 Downtime) to P5 (Small Bug that impacts only limited number of customers)
+      options:
+        - Severe
+        - Significant
+        - Moderate
+        - Minor
+        - Negligible
+      default: 4
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+  - type: textarea
+    id: mitigation
+    attributes:
+      label: Mitigation
