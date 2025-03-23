@@ -2,6 +2,7 @@ package dev.bitvictory.aeon
 
 import com.typesafe.config.ConfigFactory
 import dev.bitvictory.aeon.application.applicationModule
+import dev.bitvictory.aeon.infrastructure.environment.OtelEnvironment
 import dev.bitvictory.aeon.presentation.api.system
 import io.ktor.serialization.kotlinx.protobuf.protobuf
 import io.ktor.server.application.Application
@@ -10,6 +11,7 @@ import io.ktor.server.config.HoconApplicationConfig
 import io.ktor.server.engine.applicationEnvironment
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.routing.routing
+import io.opentelemetry.instrumentation.ktor.v3_0.KtorServerTelemetry
 import kotlinx.serialization.ExperimentalSerializationApi
 import org.koin.ktor.plugin.Koin
 import org.slf4j.LoggerFactory
@@ -25,6 +27,9 @@ fun Application.module() {
 	}
 	install(Koin) {
 		modules(applicationModule())
+	}
+	install(KtorServerTelemetry) {
+		setOpenTelemetry(OtelEnvironment.openTelemetry)
 	}
 
 	install(ContentNegotiation) {

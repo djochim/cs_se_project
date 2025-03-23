@@ -13,6 +13,9 @@ androidx-material = "1.12.0"
 androidx-test-junit = "1.2.1"
 compose-multiplatform = "1.7.1"
 coroutine = "1.9.0"
+otel = "1.48.0"
+otelktor = "2.14.0-alpha"
+otelsemcov = "1.30.0"
 junit = "4.13.2"
 kotlin = "2.0.21"
 koin = "3.4.3"
@@ -45,6 +48,7 @@ koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutine" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerialization" }
+ktor-otel = { module = "io.opentelemetry.instrumentation:opentelemetry-ktor-3.0", version.ref = "otelktor" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-content = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
@@ -62,6 +66,10 @@ mongo-bson = { module = "org.mongodb:bson-kotlinx", version.ref = "mongo" }
 markdown-renderer = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "markdown" }
 compose-navigation = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation" }
 openai-client = { module = "com.aallam.openai:openai-client", version.ref = "openai" }
+otel-bom = { module = "io.opentelemetry:opentelemetry-bom", version.ref = "otel" }
+otel-sdk-configure = { module = "io.opentelemetry:opentelemetry-sdk-extension-autoconfigure" }
+otel-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp" }
+otel-semconv = { module = "io.opentelemetry.semconv:opentelemetry-semconv", version.ref = "otelsemcov" }
 
 
 [plugins]

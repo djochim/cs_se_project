@@ -47,6 +47,28 @@ services:
         target: /etc/nginx/nginx.conf
         read_only: true
 
+  
+  alloy:
+    image: grafana/alloy:latest
+    command: [
+      "run",
+      "/etc/alloy/config.alloy",
+    ]
+    environment:
+      - OTEL_USERNAME=1157398
+      - FLEET_USERNAME=1157398
+      - LOKI_USERNAME=1115197
+      - PROMETHEUS_USERNAME=2239039
+      - GRAFANA_CLOUD_API_KEY=${GRAFANA_CLOUD_API_KEY}
+    volumes:
+      - type: bind
+        source: ./monitoring/alloy.conf
+        target: /etc/alloy/config.alloy
+        read_only: true
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
 
 networks:
   aeon-net:
