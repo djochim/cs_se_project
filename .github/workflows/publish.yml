@@ -64,7 +64,7 @@ jobs:
             key: ${{ secrets.DEVELOPER_SSH }}
             passphrase: ${{ secrets.DEVELOPER_SSH_PASS }}
             script: |
-              mkdir aeon
+              mkdir -p aeon
 
       - name: Copy requred files
         uses: appleboy/scp-action@v0.1.7
