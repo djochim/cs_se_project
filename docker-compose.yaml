@@ -62,7 +62,7 @@ services:
       - GRAFANA_CLOUD_API_KEY=${GRAFANA_CLOUD_API_KEY}
     volumes:
       - type: bind
-        source: ./alloy.conf
+        source: ./monitoring/alloy.conf
         target: /etc/alloy/config.alloy
         read_only: true
       - type: bind
