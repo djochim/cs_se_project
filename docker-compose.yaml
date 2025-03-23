@@ -15,6 +15,8 @@ services:
       - MONGO_URL=mongodb:27017
       - MONGO_USER=${MONGO_USER}
       - MONOG_PASS=${MONOG_PASS}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4317/
+      - OTEL_METRICS_EXPORTER=none
     networks:
       - aeon-net
     pull_policy: always
@@ -26,6 +28,8 @@ services:
       - MONGO_USER=${MONGO_USER}
       - MONOG_PASS=${MONOG_PASS}
       - OPEN_API_KEY=${OPEN_API_KEY}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4317/
+      - OTEL_METRICS_EXPORTER=none
     networks:
       - aeon-net
     pull_policy: always
@@ -60,6 +64,8 @@ services:
       - LOKI_USERNAME=1115197
       - PROMETHEUS_USERNAME=2239039
       - GRAFANA_CLOUD_API_KEY=${GRAFANA_CLOUD_API_KEY}
+    networks:
+      - aeon-net
     volumes:
       - type: bind
         source: ./monitoring/alloy.conf
