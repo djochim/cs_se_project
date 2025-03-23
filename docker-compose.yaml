@@ -41,6 +41,7 @@ services:
       - "443:443"
     networks:
       - aeon-net
+    restart: always
     volumes:
       - type: bind
         source: /etc/nginx/certs
@@ -51,13 +52,13 @@ services:
         target: /etc/nginx/nginx.conf
         read_only: true
 
-  
   alloy:
     image: grafana/alloy:latest
     command: [
       "run",
       "/etc/alloy/config.alloy",
     ]
+    restart: always
     environment:
       - OTEL_USERNAME=1157398
       - FLEET_USERNAME=1157398
