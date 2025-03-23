@@ -9,6 +9,10 @@ services:
       - data:/data/db
     networks:
       - aeon-net
+    labels:
+      - "logging=alloy"
+      - "loki_job=mongodb"
+      - "loki_env=production"
 
   bitauth1:
     image: ghcr.io/teambitvictory/bitauth:release
@@ -21,6 +25,10 @@ services:
     networks:
       - aeon-net
     pull_policy: always
+    labels:
+      - "logging=alloy"
+      - "loki_job=bitauth"
+      - "loki_env=production"
 
   aeon1:
     image: ghcr.io/djochim/cs_se_project:release
@@ -34,6 +42,10 @@ services:
     networks:
       - aeon-net
     pull_policy: always
+    labels:
+      - "logging=alloy"
+      - "loki_job=aeon"
+      - "loki_env=production"
 
   ngnix-proxy:
     image: nginx:1.27.4-alpine
@@ -51,6 +63,10 @@ services:
         source: /etc/nginx/nginx.conf
         target: /etc/nginx/nginx.conf
         read_only: true
+    labels:
+      - "logging=alloy"
+      - "loki_job=ngnix"
+      - "loki_env=production"
 
   alloy:
     image: grafana/alloy:latest
@@ -76,6 +92,10 @@ services:
         source: /var/run/docker.sock
         target: /var/run/docker.sock
         read_only: true
+    labels:
+      - "logging=alloy"
+      - "loki_job=alloy"
+      - "loki_env=production"
 
 networks:
   aeon-net:
