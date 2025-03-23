@@ -3,7 +3,7 @@ name: Create and publish a Docker image
 
 # Configures this workflow to run every time a change is pushed to the branch called `release`.
 on:
-  push:
+  pull_request:
     branches: [ 'main' ]
 
 # Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
@@ -49,6 +49,36 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  prepare_server:
+    runs-on: ubuntu-latest
+    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: prepare folders
+        uses: appleboy/ssh-action@master
+        with:
+            host: ${{ secrets.SERVER_IP }}
+            username: developer
+            key: ${{ secrets.DEVELOPER_SSH }}
+            passphrase: ${{ secrets.DEVELOPER_SSH_PASS }}
+            script: |
+              mkdir aeon
+
+      - name: Copy requred files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: developer
+          key: ${{ secrets.DEVELOPER_SSH }}
+          passphrase: ${{ secrets.DEVELOPER_SSH_PASS }}
+          source: "monitoring/alloy.conf,docker-compose.yaml"
+          target: aeon
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
       # connect to server
       - uses: appleboy/ssh-action@master
         with:
@@ -56,7 +86,6 @@ jobs:
             username: developer
             key: ${{ secrets.DEVELOPER_SSH }}
             passphrase: ${{ secrets.DEVELOPER_SSH_PASS }}
-            #fingerprint: ${{ secrets.SSH_FINGERPRINT_NEW }}
             script: |
               cd aeon
               export PATH=$PATH:/opt/bin 
@@ -64,4 +93,5 @@ jobs:
               export OPEN_API_KEY="${{ secrets.REPOSITORY_SECRET }}"
               export MONGO_USER="${{ secrets.MONGO_USER }}"
               export MONOG_PASS="${{ secrets.MONGO_SECRET }}"
+              export GRAFANA_CLOUD_API_KEY="${{ secrets.GRAFANA_CLOUD_API_KEY }}"
               docker-compose up -d
