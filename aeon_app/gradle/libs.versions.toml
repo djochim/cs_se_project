@@ -22,6 +22,7 @@ koin = "3.4.3"
 kotlinxDatetime = "0.6.0"
 kotlinxSerialization = "1.5.1"
 ktor = "3.0.0"
+klogging = "0.9.4"
 logback = "1.5.12"
 mongo = "5.2.1"
 markdown = "0.29.0"
@@ -61,6 +62,8 @@ ktor-server-core = { module = "io.ktor:ktor-server-core-jvm", version.ref = "kto
 ktor-server-netty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
 ktor-server-tests = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
 ktor-server-websocket = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor" }
+ktor-server-logging = { module = "io.klogging:slf4j-klogging", version.ref = "klogging" }
+ktor-server-logging-calls = { module = "io.ktor:ktor-server-call-logging", version.ref = "ktor" }
 mongo-kotlin-coroutine = { module = "org.mongodb:mongodb-driver-kotlin-coroutine", version.ref = "mongo" }
 mongo-bson = { module = "org.mongodb:bson-kotlinx", version.ref = "mongo" }
 markdown-renderer = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "markdown" }
