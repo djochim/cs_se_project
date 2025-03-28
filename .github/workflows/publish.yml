@@ -49,6 +49,47 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  prepare_server:
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    runs-on: ubuntu-latest
+    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: prepare folders
+        uses: appleboy/ssh-action@master
+        with:
+            host: ${{ secrets.SERVER_IP }}
+            username: developer
+            key: ${{ secrets.DEVELOPER_SSH }}
+            passphrase: ${{ secrets.DEVELOPER_SSH_PASS }}
+            script: |
+              mkdir -p aeon
+
+      - name: Copy requred files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: developer
+          key: ${{ secrets.DEVELOPER_SSH }}
+          passphrase: ${{ secrets.DEVELOPER_SSH_PASS }}
+          source: "monitoring/alloy.conf,docker-compose.yaml"
+          target: aeon
+
+  deploy:
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    runs-on: ubuntu-latest
+    needs: [build-and-push-image, prepare_server]
+    steps:
       # connect to server
       - uses: appleboy/ssh-action@master
         with:
@@ -56,7 +97,6 @@ jobs:
             username: developer
             key: ${{ secrets.DEVELOPER_SSH }}
             passphrase: ${{ secrets.DEVELOPER_SSH_PASS }}
-            #fingerprint: ${{ secrets.SSH_FINGERPRINT_NEW }}
             script: |
               cd aeon
               export PATH=$PATH:/opt/bin 
@@ -64,4 +104,5 @@ jobs:
               export OPEN_API_KEY="${{ secrets.REPOSITORY_SECRET }}"
               export MONGO_USER="${{ secrets.MONGO_USER }}"
               export MONOG_PASS="${{ secrets.MONGO_SECRET }}"
+              export GRAFANA_CLOUD_API_KEY="${{ secrets.GRAFANA_CLOUD_API_KEY }}"
               docker-compose up -d

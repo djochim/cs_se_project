@@ -1,0 +1,51 @@
+services:
+  mongodb:
+    image: mongodb/mongodb-community-server:6.0-ubi8
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=user
+      - MONGO_INITDB_ROOT_PASSWORD=pass
+    volumes:
+      - data:/data/db
+    networks:
+      - aeon-net
+
+  bitauth1:
+    image: ghcr.io/teambitvictory/bitauth:release
+    environment:
+      - MONGO_URL=mongodb:27017
+      - MONGO_USER=user
+      - MONOG_PASS=pass
+    networks:
+      - aeon-net
+    pull_policy: always
+
+  aeon1:
+    image: ghcr.io/djochim/cs_se_project:release
+    environment:
+      - MONGO_URL=mongodb:27017
+      - MONGO_USER=user
+      - MONOG_PASS=pass
+      - OPEN_API_KEY=${OPEN_API_KEY}
+    networks:
+      - aeon-net
+    pull_policy: always
+
+  ngnix-proxy:
+    image: nginx:1.27.4-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - aeon-net
+    volumes:
+      - type: bind
+        source: ./nginx.conf
+        target: /etc/nginx/nginx.conf
+        read_only: true
+
+
+networks:
+  aeon-net:
+
+volumes:
+  data:
