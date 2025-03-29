@@ -1,0 +1,114 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36" version="26.1.1">
+  <diagram name="Seite-1" id="4RX0FcacjATqTiscdXWX">
+    <mxGraphModel dx="2072" dy="1097" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="k5wqPtVkNWBD3hjp_iGi-3" value="" style="html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="200" y="50" width="500" height="480" as="geometry" />
+        </mxCell>
+        <mxCell id="k5wqPtVkNWBD3hjp_iGi-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="k5wqPtVkNWBD3hjp_iGi-1" target="k5wqPtVkNWBD3hjp_iGi-5">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="170" y="290" />
+              <mxPoint x="170" y="105" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="k5wqPtVkNWBD3hjp_iGi-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="k5wqPtVkNWBD3hjp_iGi-1" target="k5wqPtVkNWBD3hjp_iGi-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="k5wqPtVkNWBD3hjp_iGi-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="k5wqPtVkNWBD3hjp_iGi-1" target="k5wqPtVkNWBD3hjp_iGi-12">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="170" y="290" />
+              <mxPoint x="170" y="320" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="k5wqPtVkNWBD3hjp_iGi-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="k5wqPtVkNWBD3hjp_iGi-1" target="k5wqPtVkNWBD3hjp_iGi-9">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="170" y="290" />
+              <mxPoint x="170" y="465" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="k5wqPtVkNWBD3hjp_iGi-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="k5wqPtVkNWBD3hjp_iGi-1" target="k5wqPtVkNWBD3hjp_iGi-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="k5wqPtVkNWBD3hjp_iGi-26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="k5wqPtVkNWBD3hjp_iGi-1" target="k5wqPtVkNWBD3hjp_iGi-10">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="135" y="420" />
+              <mxPoint x="380" y="420" />
+              <mxPoint x="380" y="465" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="k5wqPtVkNWBD3hjp_iGi-27" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="k5wqPtVkNWBD3hjp_iGi-1" target="k5wqPtVkNWBD3hjp_iGi-14">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="170" y="290" />
+              <mxPoint x="170" y="250" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="k5wqPtVkNWBD3hjp_iGi-1" value="User&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1">
+          <mxGeometry x="120" y="260" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="k5wqPtVkNWBD3hjp_iGi-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="k5wqPtVkNWBD3hjp_iGi-2" target="k5wqPtVkNWBD3hjp_iGi-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="k5wqPtVkNWBD3hjp_iGi-2" value="Admin" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1">
+          <mxGeometry x="780" y="260" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="k5wqPtVkNWBD3hjp_iGi-5" value="Login to the system" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="250" y="70" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="k5wqPtVkNWBD3hjp_iGi-6" value="View data, that the system collects about my person" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="330" y="160" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="k5wqPtVkNWBD3hjp_iGi-7" value="Delete data that the system has collected about me" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="430" y="80" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="k5wqPtVkNWBD3hjp_iGi-8" value="Store recipes from text, websites and images" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="330" y="340" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="k5wqPtVkNWBD3hjp_iGi-9" value="Get health related feedback to images" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="220" y="430" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="k5wqPtVkNWBD3hjp_iGi-10" value="Extract recipes from images" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="430" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="k5wqPtVkNWBD3hjp_iGi-12" value="Chat with the health assistant" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="250" y="260" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="k5wqPtVkNWBD3hjp_iGi-14" value="View images that were generated" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="425" y="240" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="k5wqPtVkNWBD3hjp_iGi-15" value="Register new users" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="540" y="340" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="k5wqPtVkNWBD3hjp_iGi-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="k5wqPtVkNWBD3hjp_iGi-2" target="k5wqPtVkNWBD3hjp_iGi-5">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="795" y="30" />
+              <mxPoint x="320" y="30" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="k5wqPtVkNWBD3hjp_iGi-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="k5wqPtVkNWBD3hjp_iGi-1" target="k5wqPtVkNWBD3hjp_iGi-7">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="170" y="290" />
+              <mxPoint x="170" y="150" />
+              <mxPoint x="410" y="150" />
+              <mxPoint x="410" y="115" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
