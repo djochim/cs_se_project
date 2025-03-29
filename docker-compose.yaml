@@ -22,6 +22,9 @@ services:
       - MONOG_PASS=${MONOG_PASS}
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4317/
       - OTEL_METRICS_EXPORTER=none
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - ONLY_ADMIN_REGISTRATION=true
     networks:
       - aeon-net
     pull_policy: always

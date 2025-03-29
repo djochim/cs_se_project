@@ -105,4 +105,6 @@ jobs:
               export MONGO_USER="${{ secrets.MONGO_USER }}"
               export MONOG_PASS="${{ secrets.MONGO_SECRET }}"
               export GRAFANA_CLOUD_API_KEY="${{ secrets.GRAFANA_CLOUD_API_KEY }}"
+              export ADMIN_EMAIL="${{ secrets.ADMIN_EMAIL }}"
+              export ADMIN_PASSWORD="${{ secrets.ADMIN_PASSWORD }}"
               docker-compose up -d
