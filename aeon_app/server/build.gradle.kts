@@ -34,6 +34,8 @@ dependencies {
 	implementation(libs.ktor.server.websocket)
 	implementation(libs.ktor.server.logging)
 	implementation(libs.ktor.server.logging.calls)
+	implementation(libs.ktor.server.auth.core)
+	implementation(libs.ktor.server.auth.jwt)
 	implementation(libs.ktor.otel)
 	implementation(libs.mongo.kotlin.coroutine)
 	implementation(libs.mongo.bson)
