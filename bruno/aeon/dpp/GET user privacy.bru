@@ -1,0 +1,15 @@
+meta {
+  name: GET user privacy
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/user/privacy/information
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{admin_token}}
+}

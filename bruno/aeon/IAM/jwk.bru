@@ -1,0 +1,23 @@
+meta {
+  name: jwk
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:8070/system/jwk
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "{{admin_user}}",
+    "password": "{{admin_pw}}"
+  }
+}
+
+vars:post-response {
+  admin_user_id: res.body.userId
+  admin_token: res.body.accessToken
+}

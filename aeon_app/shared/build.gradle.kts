@@ -48,6 +48,7 @@ kotlin {
 			api(libs.ktor.serialization.json)
 			api(libs.ktor.serialization.protobuf)
 			api(libs.ktor.client.logging)
+			api(libs.ktor.client.auth)
 			api(libs.kotlinx.coroutines.core)
 		}
 		androidMain.dependencies {

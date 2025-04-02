@@ -4,9 +4,11 @@ import dev.bitvictory.aeon.model.AeonErrorResponse
 import dev.bitvictory.aeon.model.AeonResponse
 import dev.bitvictory.aeon.model.AeonSuccessResponse
 import dev.bitvictory.aeon.model.ErrorType
-import dev.bitvictory.aeon.model.api.system.SystemHealthDTO
+import dev.bitvictory.aeon.model.api.user.auth.LoginDTO
+import dev.bitvictory.aeon.model.api.user.auth.LoginRefreshDTO
+import dev.bitvictory.aeon.model.api.user.auth.TokenDTO
+import dev.bitvictory.aeon.storage.SharedSettingsHelper
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -14,34 +16,26 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
-import io.ktor.client.statement.HttpResponse
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
-import io.ktor.http.isSuccess
-import io.ktor.serialization.kotlinx.protobuf.protobuf
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.io.IOException
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.protobuf.ProtoBuf
 
-class AeonApiClient(
+class AuthClient(
 	private val baseUrl: String,
+	private val sharedSettingsHelper: SharedSettingsHelper
 ) {
 
-	companion object {
-		const val ADVISORY_ENDPOINT = "advisories"
-	}
-
-	@OptIn(ExperimentalSerializationApi::class)
 	private val client = HttpClient {
 		install(Logging) {
 			level = LogLevel.ALL
 			sanitizeHeader { header -> header == HttpHeaders.Authorization }
 		}
 		install(ContentNegotiation) {
-			protobuf(protobuf = ProtoBuf {
-				encodeDefaults = true
-			})
+			json()
 		}
 		install(HttpTimeout) {
 			requestTimeoutMillis = 10_000
@@ -55,33 +49,43 @@ class AeonApiClient(
 			}
 		}
 		defaultRequest {
-			contentType(ContentType.Application.ProtoBuf)
+			contentType(ContentType.Application.Json)
 		}
 		followRedirects = true
 		expectSuccess = false
 	}
 
-	suspend fun getStatus(): AeonResponse<SystemHealthDTO> {
+	fun isLoggedIn() = sharedSettingsHelper.token != null
+
+	suspend fun login(login: LoginDTO): AeonResponse<TokenDTO> {
 		try {
-			val response = client.get("$baseUrl/system/health")
-			return response.aeonBody()
+			val response = client.get("$baseUrl/login")
+			return response.aeonBody<TokenDTO>().also {
+				if (it is AeonSuccessResponse) {
+					sharedSettingsHelper.token = it.data
+				}
+			}
 		} catch (e: IOException) {
 			e.printStackTrace()
 			return AeonErrorResponse(500, "Error connecting to the server", ErrorType.UNAVAILABLE_SERVER)
 		}
 	}
 
-}
+	suspend fun refreshLogin(refresh: LoginRefreshDTO): AeonResponse<TokenDTO> {
+		try {
+			val response = client.post("$baseUrl/login/refresh") {
+				contentType(ContentType.Application.Json)
+				setBody(refresh)
+			}
+			return response.aeonBody<TokenDTO>().also {
+				if (it is AeonSuccessResponse) {
+					sharedSettingsHelper.token = it.data
+				}
+			}
+		} catch (e: IOException) {
+			e.printStackTrace()
+			return AeonErrorResponse(500, "Error connecting to the server", ErrorType.UNAVAILABLE_SERVER)
+		}
+	}
 
-suspend inline fun <reified T> HttpResponse.aeonBody(): AeonResponse<T> {
-	if (this.status.isSuccess()) {
-		return AeonSuccessResponse(this.body())
-	}
-	if (this.status.value in 500..599) {
-		return AeonErrorResponse(this.status.value, this.status.description, ErrorType.SERVER_ERROR)
-	}
-	if (this.status.value in 400..499) {
-		return AeonErrorResponse(this.status.value, this.status.description, ErrorType.CLIENT_ERROR)
-	}
-	return AeonErrorResponse(this.status.value, this.status.description, ErrorType.UNKNOWN_ERROR)
 }
