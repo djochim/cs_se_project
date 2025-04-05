@@ -62,7 +62,7 @@ class AeonApiClient(
 			bearer {
 				loadTokens {
 					userService.userState.value.let {
-						BearerTokens(it.token, it.refreshToken)
+						BearerTokens(it.accessToken, it.refreshToken)
 					}
 				}
 				refreshTokens {

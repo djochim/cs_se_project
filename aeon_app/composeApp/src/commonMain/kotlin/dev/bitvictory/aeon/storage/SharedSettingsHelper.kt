@@ -4,6 +4,8 @@ import com.russhwolf.settings.ExperimentalSettingsApi
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.serialization.decodeValueOrNull
 import com.russhwolf.settings.serialization.encodeValue
+import com.russhwolf.settings.serialization.removeValue
+import dev.bitvictory.aeon.model.api.user.UserDTO
 import dev.bitvictory.aeon.model.api.user.auth.TokenDTO
 import kotlinx.serialization.ExperimentalSerializationApi
 
@@ -17,10 +19,23 @@ class SharedSettingsHelper(
 		}
 		set(value) {
 			if (value == null) {
-				encryptedSettings.remove(TOKEN_NAME)
+				encryptedSettings.removeValue<TokenDTO>(TOKEN_NAME)
 				return
 			}
 			encryptedSettings.encodeValue(TokenDTO.serializer(), TOKEN_NAME, value)
+		}
+
+	@OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
+	var user: UserDTO?
+		get() {
+			return encryptedSettings.decodeValueOrNull(UserDTO.serializer(), USER_NAME)
+		}
+		set(value) {
+			if (value == null) {
+				encryptedSettings.removeValue<UserDTO>(USER_NAME)
+				return
+			}
+			encryptedSettings.encodeValue(UserDTO.serializer(), USER_NAME, value)
 		}
 
 	companion object {
@@ -29,5 +44,6 @@ class SharedSettingsHelper(
 		const val encryptedSettingsName = "encryptedSettings"
 		const val unencryptedSettingsName = "unencryptedSettings"
 		const val TOKEN_NAME = "TOKEN"
+		const val USER_NAME = "USER"
 	}
 }

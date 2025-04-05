@@ -4,6 +4,7 @@ import dev.bitvictory.aeon.client.AeonApiClient
 import dev.bitvictory.aeon.client.AuthClient
 import dev.bitvictory.aeon.screens.HomeViewModel
 import dev.bitvictory.aeon.screens.login.LoginViewModel
+import dev.bitvictory.aeon.screens.profile.ProfileViewModel
 import dev.bitvictory.aeon.service.UserService
 import dev.bitvictory.aeon.storage.SharedSettingsHelper
 import org.koin.core.context.startKoin
@@ -33,7 +34,7 @@ private val coreModule = module {
 }
 
 private val clientModule = module {
-	single { AuthClient("http://192.168.2.101:8070/v1") }
+	single { AuthClient("http://192.168.2.101:8070/v1", get()) }
 	single { AeonApiClient("http://192.168.2.101:8080", get()) }
 }
 
@@ -44,6 +45,7 @@ private val serviceModel = module {
 private val uiModule = module {
 	viewModel { HomeViewModel(get()) }
 	viewModel { LoginViewModel(get()) }
+	viewModel { ProfileViewModel(get()) }
 }
 
 expect val platformModule: Module

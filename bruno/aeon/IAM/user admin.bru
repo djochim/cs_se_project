@@ -1,0 +1,20 @@
+meta {
+  name: user admin
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{auth_base_url}}/users
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{admin_token}}
+}
+
+vars:post-response {
+  admin_user_id: res.body.userId
+  admin_token: res.body.accessToken
+}

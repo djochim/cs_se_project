@@ -3,6 +3,7 @@ package dev.bitvictory.aeon.service
 import dev.bitvictory.aeon.client.AuthClient
 import dev.bitvictory.aeon.model.AeonResponse
 import dev.bitvictory.aeon.model.AeonSuccessResponse
+import dev.bitvictory.aeon.model.api.user.UserDTO
 import dev.bitvictory.aeon.model.api.user.auth.LoginDTO
 import dev.bitvictory.aeon.model.api.user.auth.LoginRefreshDTO
 import dev.bitvictory.aeon.model.api.user.auth.TokenDTO
@@ -21,8 +22,9 @@ class UserService(
 
 	init {
 		val tokenDTO = sharedSettingsHelper.token
+		val userDTO = sharedSettingsHelper.user
 		if (tokenDTO != null) {
-			updateStateWithToken(tokenDTO)
+			_userState.value = _userState.value.copy(token = tokenDTO, user = userDTO)
 		}
 	}
 
@@ -33,6 +35,7 @@ class UserService(
 		if (loginResult is AeonSuccessResponse) {
 			sharedSettingsHelper.token = loginResult.data
 			updateStateWithToken(loginResult.data)
+			getUser()
 		}
 		return loginResult
 	}
@@ -48,11 +51,29 @@ class UserService(
 
 	fun logout() {
 		sharedSettingsHelper.token = null
+		sharedSettingsHelper.user = null
 		clearState()
 	}
 
+	private suspend fun getUser(): AeonResponse<UserDTO> {
+		return if (sharedSettingsHelper.user != null) {
+			AeonSuccessResponse(sharedSettingsHelper.user!!)
+		} else {
+			val userResult = authClient.getUser()
+			if (userResult is AeonSuccessResponse) {
+				sharedSettingsHelper.user = userResult.data
+				updateStateWithUser(userResult.data)
+			}
+			userResult
+		}
+	}
+
 	private fun updateStateWithToken(tokenDTO: TokenDTO) {
-		_userState.value = UserState(tokenDTO.userId, tokenDTO.accessToken, tokenDTO.refreshToken, "")
+		_userState.value = _userState.value.copy(token = tokenDTO)
+	}
+
+	private fun updateStateWithUser(userDTO: UserDTO) {
+		_userState.value = _userState.value.copy(user = userDTO)
 	}
 
 	private fun clearState() {

@@ -7,4 +7,6 @@ abstract class AbstractViewModel(private val userService: UserService): ViewMode
 
 	fun isAuthenticated() = userService.isAuthenticated()
 
+	fun logout(): Unit = userService.logout()
+
 }
