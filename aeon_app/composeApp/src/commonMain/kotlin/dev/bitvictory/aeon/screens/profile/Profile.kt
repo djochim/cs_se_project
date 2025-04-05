@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
@@ -18,8 +19,8 @@ import org.koin.compose.koinInject
 @Serializable
 object Profile
 
-fun NavGraphBuilder.profileDestination(onLogout: () -> Unit) {
-	composable<Profile> { ProfileScreen(onLogout) }
+fun NavGraphBuilder.profileDestination(onLogout: () -> Unit, onPrivacyInformation: () -> Unit) {
+	composable<Profile> { ProfileScreen(onLogout, onPrivacyInformation) }
 }
 
 @Composable
@@ -35,7 +36,7 @@ fun ProfileSetting(label: String, value: String) {
 }
 
 @Composable
-fun ProfileScreen(onLogout: () -> Unit, profileViewModel: ProfileViewModel = koinInject()) {
+fun ProfileScreen(onLogout: () -> Unit, onPrivacyInformation: () -> Unit, profileViewModel: ProfileViewModel = koinInject()) {
 
 	val userState = profileViewModel.userState.collectAsState()
 
@@ -43,6 +44,9 @@ fun ProfileScreen(onLogout: () -> Unit, profileViewModel: ProfileViewModel = koi
 		Text("Profile", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(bottom = 8.dp))
 		ProfileSetting("Name", userState.value.name)
 		ProfileSetting("Email", userState.value.email)
+		TextButton(onClick = { onPrivacyInformation() }, modifier = Modifier.fillMaxWidth()) {
+			Text("Privacy Information")
+		}
 		OutlinedButton(
 			onClick = {
 				profileViewModel.logout()

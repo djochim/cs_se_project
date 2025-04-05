@@ -20,6 +20,8 @@ import androidx.navigation.compose.rememberNavController
 import dev.bitvictory.aeon.components.NavigationSuiteItems
 import dev.bitvictory.aeon.navigation.MenuItem
 import dev.bitvictory.aeon.screens.login.navigateToLogin
+import dev.bitvictory.aeon.screens.privacyinfo.navigateToPrivacyInformation
+import dev.bitvictory.aeon.screens.privacyinfo.privacyInformationDestination
 import dev.bitvictory.aeon.screens.profile.Profile
 import dev.bitvictory.aeon.screens.profile.profileDestination
 import kotlinx.serialization.Serializable
@@ -64,8 +66,13 @@ fun MainScreen(
 		) {
 			homeDestination()
 			recipesDestination()
-			profileDestination {
+			profileDestination(onLogout = {
 				rootNavHost.navigateToLogin()
+			}, onPrivacyInformation = {
+				mainNavController.navigateToPrivacyInformation()
+			})
+			privacyInformationDestination {
+				mainNavController.popBackStack()
 			}
 		}
 	}
