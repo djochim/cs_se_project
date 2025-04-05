@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -27,10 +26,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import coil3.compose.AsyncImage
+import dev.bitvictory.aeon.components.StateButton
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.koinInject
@@ -57,6 +58,12 @@ fun LoginScreen(onLoginSuccess: () -> Unit, loginViewModel: LoginViewModel = koi
 	val passwordFocusRequester = remember { FocusRequester() }
 	val buttonFocusRequester = remember { FocusRequester() }
 
+	val uiState = loginViewModel.uiState.collectAsStateWithLifecycle()
+
+	if (uiState.value.success) {
+		onLoginSuccess()
+	}
+
 	Column(
 		Modifier.fillMaxWidth().fillMaxHeight().padding(8.dp),
 		horizontalAlignment = Alignment.CenterHorizontally,
@@ -81,8 +88,8 @@ fun LoginScreen(onLoginSuccess: () -> Unit, loginViewModel: LoginViewModel = koi
 		)
 
 		OutlinedTextField(
-			value = "",
-			onValueChange = { },
+			value = uiState.value.email,
+			onValueChange = { loginViewModel.changeEmail(it) },
 			maxLines = 1,
 			label = { Text("Email Address") },
 			modifier = Modifier.padding(bottom = 12.dp).fillMaxWidth()
@@ -95,11 +102,15 @@ fun LoginScreen(onLoginSuccess: () -> Unit, loginViewModel: LoginViewModel = koi
 				onNext = {
 					focusManager.moveFocus(FocusDirection.Down)
 				}
-			)
+			),
+			isError = uiState.value.emailError.isNotEmpty()
 		)
+		if (uiState.value.emailError.isNotEmpty()) {
+			Text(uiState.value.emailError, color = MaterialTheme.colorScheme.error, modifier = Modifier.fillMaxWidth().align(Alignment.Start))
+		}
 		OutlinedTextField(
-			value = "",
-			onValueChange = { },
+			value = uiState.value.password,
+			onValueChange = { loginViewModel.changePassword(it) },
 			maxLines = 1,
 			label = { Text("Password") },
 			modifier = Modifier.padding(bottom = 12.dp).fillMaxWidth()
@@ -114,16 +125,24 @@ fun LoginScreen(onLoginSuccess: () -> Unit, loginViewModel: LoginViewModel = koi
 					keyboardController?.hide()
 				}
 			),
-			visualTransformation = PasswordVisualTransformation()
+			visualTransformation = PasswordVisualTransformation(),
+			isError = uiState.value.passwordError.isNotEmpty()
 		)
-		Button(
-			onClick = {
-				onLoginSuccess()
-			},
-			Modifier.fillMaxWidth()
-				.focusRequester(buttonFocusRequester)
-		) {
-			Text("Sign In")
+		if (uiState.value.passwordError.isNotEmpty()) {
+			Text(uiState.value.passwordError, color = MaterialTheme.colorScheme.error, modifier = Modifier.fillMaxWidth().align(Alignment.Start))
 		}
+		if (uiState.value.error.isNotEmpty()) {
+			Text(uiState.value.error, color = MaterialTheme.colorScheme.error, modifier = Modifier.fillMaxWidth().align(Alignment.Start))
+		}
+		StateButton(
+			onClick = {
+				loginViewModel.login()
+			},
+			modifier = Modifier.fillMaxWidth()
+				.focusRequester(buttonFocusRequester),
+			initialText = "Sign In",
+			loadingText = "Signing In...",
+			isLoading = uiState.value.isLoading
+		)
 	}
 }

@@ -33,12 +33,12 @@ private val coreModule = module {
 }
 
 private val clientModule = module {
-	single { AuthClient("http://localhost:8070/v1", get()) }
-	single { AeonApiClient("http://localhost:8080", get(), get()) }
+	single { AuthClient("http://192.168.2.101:8070/v1") }
+	single { AeonApiClient("http://192.168.2.101:8080", get()) }
 }
 
 private val serviceModel = module {
-	single { UserService(get()) }
+	single { UserService(get(), get()) }
 }
 
 private val uiModule = module {

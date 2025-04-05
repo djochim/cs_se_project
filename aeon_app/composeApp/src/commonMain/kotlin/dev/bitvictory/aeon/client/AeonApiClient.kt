@@ -4,11 +4,11 @@ import dev.bitvictory.aeon.exceptions.AuthException
 import dev.bitvictory.aeon.model.AeonErrorResponse
 import dev.bitvictory.aeon.model.AeonResponse
 import dev.bitvictory.aeon.model.AeonSuccessResponse
+import dev.bitvictory.aeon.model.Error
 import dev.bitvictory.aeon.model.ErrorType
 import dev.bitvictory.aeon.model.api.system.SystemHealthDTO
-import dev.bitvictory.aeon.model.api.user.auth.LoginRefreshDTO
 import dev.bitvictory.aeon.model.api.user.privacy.PrivacyInformationDTO
-import dev.bitvictory.aeon.storage.SharedSettingsHelper
+import dev.bitvictory.aeon.service.UserService
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpRequestRetry
@@ -33,8 +33,7 @@ import kotlinx.serialization.protobuf.ProtoBuf
 
 class AeonApiClient(
 	private val baseUrl: String,
-	private val authClient: AuthClient,
-	private val sharedSettingsHelper: SharedSettingsHelper
+	private val userService: UserService,
 ) {
 
 	@OptIn(ExperimentalSerializationApi::class)
@@ -62,13 +61,12 @@ class AeonApiClient(
 		install(Auth) {
 			bearer {
 				loadTokens {
-					sharedSettingsHelper.token?.let {
-						BearerTokens(it.accessToken, it.refreshToken)
-					} ?: throw AuthException("No token available")
+					userService.userState.value.let {
+						BearerTokens(it.token, it.refreshToken)
+					}
 				}
 				refreshTokens {
-					val refreshToken = sharedSettingsHelper.token?.refreshToken ?: throw AuthException("No refresh token")
-					when (val response = authClient.refreshLogin(LoginRefreshDTO(refreshToken))) {
+					when (val response = userService.refreshLogin()) {
 						is AeonSuccessResponse ->
 							BearerTokens(response.data.accessToken, response.data.refreshToken)
 
@@ -90,7 +88,7 @@ class AeonApiClient(
 			return response.aeonBody()
 		} catch (e: IOException) {
 			e.printStackTrace()
-			return AeonErrorResponse(500, "Error connecting to the server", ErrorType.UNAVAILABLE_SERVER)
+			return AeonErrorResponse(500, Error(message = "Error connecting to the server"), ErrorType.UNAVAILABLE_SERVER)
 		}
 	}
 
@@ -100,7 +98,7 @@ class AeonApiClient(
 			return response.aeonBody()
 		} catch (e: IOException) {
 			e.printStackTrace()
-			return AeonErrorResponse(500, "Error connecting to the server", ErrorType.UNAVAILABLE_SERVER)
+			return AeonErrorResponse(500, Error(message = "Error connecting to the server"), ErrorType.UNAVAILABLE_SERVER)
 		}
 	}
 
@@ -110,11 +108,18 @@ suspend inline fun <reified T> HttpResponse.aeonBody(): AeonResponse<T> {
 	if (this.status.isSuccess()) {
 		return AeonSuccessResponse(this.body())
 	}
+	var _error: Error? = null
+	try {
+		_error = this.body<Error>()
+	} catch (e: Exception) {
+		e.printStackTrace()
+	}
+	val error = _error ?: Error(message = this.status.description)
 	if (this.status.value in 500..599) {
-		return AeonErrorResponse(this.status.value, this.status.description, ErrorType.SERVER_ERROR)
+		return AeonErrorResponse(this.status.value, error, ErrorType.SERVER_ERROR)
 	}
 	if (this.status.value in 400..499) {
-		return AeonErrorResponse(this.status.value, this.status.description, ErrorType.CLIENT_ERROR)
+		return AeonErrorResponse(this.status.value, error, ErrorType.CLIENT_ERROR)
 	}
-	return AeonErrorResponse(this.status.value, this.status.description, ErrorType.UNKNOWN_ERROR)
+	return AeonErrorResponse(this.status.value, error, ErrorType.UNKNOWN_ERROR)
 }

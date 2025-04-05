@@ -2,12 +2,11 @@ package dev.bitvictory.aeon.client
 
 import dev.bitvictory.aeon.model.AeonErrorResponse
 import dev.bitvictory.aeon.model.AeonResponse
-import dev.bitvictory.aeon.model.AeonSuccessResponse
+import dev.bitvictory.aeon.model.Error
 import dev.bitvictory.aeon.model.ErrorType
 import dev.bitvictory.aeon.model.api.user.auth.LoginDTO
 import dev.bitvictory.aeon.model.api.user.auth.LoginRefreshDTO
 import dev.bitvictory.aeon.model.api.user.auth.TokenDTO
-import dev.bitvictory.aeon.storage.SharedSettingsHelper
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.HttpTimeout
@@ -15,7 +14,6 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
-import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -23,10 +21,10 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.io.IOException
+import kotlinx.serialization.json.Json
 
 class AuthClient(
-	private val baseUrl: String,
-	private val sharedSettingsHelper: SharedSettingsHelper
+	private val baseUrl: String
 ) {
 
 	private val client = HttpClient {
@@ -35,7 +33,15 @@ class AuthClient(
 			sanitizeHeader { header -> header == HttpHeaders.Authorization }
 		}
 		install(ContentNegotiation) {
-			json()
+			json(json = Json {
+				encodeDefaults = true
+				isLenient = true
+				allowSpecialFloatingPointValues = true
+				allowStructuredMapKeys = true
+				prettyPrint = false
+				useArrayPolymorphism = false
+				ignoreUnknownKeys = true
+			})
 		}
 		install(HttpTimeout) {
 			requestTimeoutMillis = 10_000
@@ -54,20 +60,17 @@ class AuthClient(
 		followRedirects = true
 		expectSuccess = false
 	}
-
-	fun isLoggedIn() = sharedSettingsHelper.token != null
-
+	
 	suspend fun login(login: LoginDTO): AeonResponse<TokenDTO> {
 		try {
-			val response = client.get("$baseUrl/login")
-			return response.aeonBody<TokenDTO>().also {
-				if (it is AeonSuccessResponse) {
-					sharedSettingsHelper.token = it.data
-				}
+			val response = client.post("$baseUrl/login") {
+				contentType(ContentType.Application.Json)
+				setBody(login)
 			}
+			return response.aeonBody<TokenDTO>()
 		} catch (e: IOException) {
 			e.printStackTrace()
-			return AeonErrorResponse(500, "Error connecting to the server", ErrorType.UNAVAILABLE_SERVER)
+			return AeonErrorResponse(500, Error(message = "Error connecting to the server"), ErrorType.UNAVAILABLE_SERVER)
 		}
 	}
 
@@ -77,14 +80,10 @@ class AuthClient(
 				contentType(ContentType.Application.Json)
 				setBody(refresh)
 			}
-			return response.aeonBody<TokenDTO>().also {
-				if (it is AeonSuccessResponse) {
-					sharedSettingsHelper.token = it.data
-				}
-			}
+			return response.aeonBody<TokenDTO>()
 		} catch (e: IOException) {
 			e.printStackTrace()
-			return AeonErrorResponse(500, "Error connecting to the server", ErrorType.UNAVAILABLE_SERVER)
+			return AeonErrorResponse(500, Error(message = "Error connecting to the server"), ErrorType.UNAVAILABLE_SERVER)
 		}
 	}
 

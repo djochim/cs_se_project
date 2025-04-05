@@ -20,11 +20,11 @@ fun MainNavigation() {
 	val mainNavController = rememberNavController()
 	val userService = koinInject<UserService>()
 
-	val isLoggedIn by userService.isLoggedIn.collectAsState()
+	val userState by userService.userState.collectAsState()
 
 	NavHost(
 		navController = mainNavController,
-		startDestination = if (isLoggedIn) Main else Login,
+		startDestination = if (userState.isAuthenticated()) Main else Login,
 		modifier = Modifier.fillMaxSize()
 	) {
 		mainDestination(navHost = mainNavController)
