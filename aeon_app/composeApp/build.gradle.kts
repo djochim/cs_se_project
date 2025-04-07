@@ -1,11 +1,16 @@
+import kotlinx.kover.gradle.plugin.dsl.AggregationType
+import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
+import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 
 plugins {
 	alias(libs.plugins.kotlinMultiplatform)
 	alias(libs.plugins.androidApplication)
 	alias(libs.plugins.composeMultiplatform)
 	alias(libs.plugins.composeCompiler)
+	alias(libs.plugins.kover)
 	kotlin("plugin.serialization") version "2.0.0"
 }
 
@@ -15,6 +20,9 @@ kotlin {
 		compilerOptions {
 			jvmTarget.set(JvmTarget.JVM_11)
 		}
+
+		@OptIn(ExperimentalKotlinGradlePluginApi::class)
+		instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
 	}
 
 	listOf(
@@ -59,7 +67,17 @@ kotlin {
 			implementation(libs.coil)
 			implementation(libs.coil.compose)
 		}
+		commonTest.dependencies {
+			implementation(libs.kotlin.test)
+			implementation(libs.kotest.assert)
+			@OptIn(ExperimentalComposeLibrary::class)
+			implementation(compose.uiTest)
+		}
 	}
+}
+
+tasks.withType<Test> {
+	exclude("**/*ComposeTest*")
 }
 
 android {
@@ -72,10 +90,13 @@ android {
 		targetSdk = libs.versions.android.targetSdk.get().toInt()
 		versionCode = 1
 		versionName = "1.0"
+		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 	}
 	packaging {
 		resources {
 			excludes += "/META-INF/{AL2.0,LGPL2.1}"
+			excludes += "/META-INF/LICENSE.md"
+			excludes += "/META-INF/LICENSE-notice.md"
 		}
 	}
 	buildTypes {
@@ -89,8 +110,25 @@ android {
 	}
 }
 
+kover {
+	reports {
+		total {
+			verify {
+				rule("Minimal line coverage in percent") {
+					minBound(30, aggregationForGroup = AggregationType.COVERED_PERCENTAGE, coverageUnits = CoverageUnit.LINE)
+				}
+				rule("Minimal banch coverage in percent") {
+					minBound(80, aggregationForGroup = AggregationType.COVERED_PERCENTAGE, coverageUnits = CoverageUnit.BRANCH)
+				}
+			}
+		}
+	}
+}
+
+
 dependencies {
+	androidTestImplementation(libs.androidx.ui.test)
+	debugImplementation(libs.androidx.ui.test.manifest)
 	implementation(libs.androidx.security.crypto.ktx)
-	debugImplementation(compose.uiTooling)
 }
 

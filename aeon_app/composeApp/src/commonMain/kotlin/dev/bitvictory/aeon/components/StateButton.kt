@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -27,22 +28,23 @@ fun StateButton(
 	Button(
 		onClick = { if (!isLoading) onClick() },
 		enabled = !isLoading,
-		modifier = modifier,
+		modifier = modifier.testTag("stateButton.button"),
 	) {
 		Row(
 			horizontalArrangement = Arrangement.Center,
 			verticalAlignment = Alignment.CenterVertically
 		) {
 			if (isLoading) {
-				Text(text = loadingText)
+				Text(text = loadingText, modifier = Modifier.testTag("stateButton.text"))
 				Spacer(modifier = Modifier.padding(4.dp))
 				Icon(
 					imageVector = Icons.Default.Cached,
 					contentDescription = "Loading Icon",
-					tint = MaterialTheme.colorScheme.onTertiary
+					tint = MaterialTheme.colorScheme.onTertiary,
+					modifier = Modifier.testTag("stateButton.icon")
 				)
 			} else {
-				Text(text = initialText)
+				Text(text = initialText, modifier = Modifier.testTag("stateButton.text"))
 			}
 		}
 	}
