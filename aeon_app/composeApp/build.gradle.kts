@@ -11,7 +11,9 @@ plugins {
 	alias(libs.plugins.composeMultiplatform)
 	alias(libs.plugins.composeCompiler)
 	alias(libs.plugins.kover)
-	kotlin("plugin.serialization") version "2.0.0"
+	alias(libs.plugins.mokkery)
+	kotlin("plugin.allopen") version libs.versions.kotlin.get()
+	kotlin("plugin.serialization") version libs.versions.kotlin.get()
 }
 
 kotlin {
@@ -72,6 +74,7 @@ kotlin {
 			implementation(libs.kotest.assert)
 			@OptIn(ExperimentalComposeLibrary::class)
 			implementation(compose.uiTest)
+//			implementation(libs.mockative )
 		}
 	}
 }
@@ -121,10 +124,15 @@ kover {
 					minBound(80, aggregationForGroup = AggregationType.COVERED_PERCENTAGE, coverageUnits = CoverageUnit.BRANCH)
 				}
 			}
+			filters {
+				excludes {
+					packages("aeon.composeapp.generated", "dev.bitvictory.aeon.dependencyinjection", "dev.bitvictory.aeon.theme")
+					annotatedBy("androidx.compose.runtime.Composable")
+				}
+			}
 		}
 	}
 }
-
 
 dependencies {
 	androidTestImplementation(libs.androidx.ui.test)

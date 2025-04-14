@@ -12,33 +12,35 @@ import dev.bitvictory.aeon.navigation.MenuItem
 
 @Composable
 fun NavigationSuiteItems(
-    currentDestination: NavDestination?,
-    navHost: NavHostController,
-    items: List<MenuItem>
+	currentDestination: NavDestination?,
+	navHost: NavHostController,
+	items: List<MenuItem>
 ): NavigationSuiteScope.() -> Unit = {
-    items.forEach {
-        val isCurrent =
-            currentDestination?.hierarchy?.any { current -> current.route == it.destination } == true
-        item(
-            icon = {
-                Icon(
-                    it.icon(isCurrent),
-                    contentDescription = it.name
-                )
-            },
-            label = { Text(it.name) },
-            selected = isCurrent,
-            onClick = { navigateWithBackStackHandling(it.destination, navHost) }
-        )
-    }
+	items.forEach {
+		val isCurrent =
+			currentDestination?.hierarchy?.any { current -> current.route == it.destination } == true
+		item(
+			icon = {
+				Icon(
+					it.icon(isCurrent),
+					contentDescription = it.name
+				)
+			},
+			label = { Text(it.name) },
+			selected = isCurrent,
+			onClick = { navigateWithBackStackHandling(it.destination, navHost) }
+		)
+	}
 }
 
 fun navigateWithBackStackHandling(route: Any, navHost: NavHostController) {
-    navHost.navigate(route) {
-        popUpTo(navHost.graph.findStartDestination().id) {
-            saveState = true
-        }
-        launchSingleTop = true
-        restoreState = true
-    }
+	navHost.navigate(route) {
+		popUpTo(
+			navHost.graph.findStartDestination()
+		) {
+			saveState = true
+		}
+		launchSingleTop = true
+		restoreState = true
+	}
 }

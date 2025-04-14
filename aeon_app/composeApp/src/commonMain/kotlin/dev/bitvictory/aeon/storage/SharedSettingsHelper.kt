@@ -9,11 +9,16 @@ import dev.bitvictory.aeon.model.api.user.UserDTO
 import dev.bitvictory.aeon.model.api.user.auth.TokenDTO
 import kotlinx.serialization.ExperimentalSerializationApi
 
+interface LocalKeyValueStore {
+	var token: TokenDTO?
+	var user: UserDTO?
+}
+
 class SharedSettingsHelper(
 	private val encryptedSettings: Settings
-) {
+): LocalKeyValueStore {
 	@OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
-	var token: TokenDTO?
+	override var token: TokenDTO?
 		get() {
 			return encryptedSettings.decodeValueOrNull(TokenDTO.serializer(), TOKEN_NAME)
 		}
@@ -26,7 +31,7 @@ class SharedSettingsHelper(
 		}
 
 	@OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
-	var user: UserDTO?
+	override var user: UserDTO?
 		get() {
 			return encryptedSettings.decodeValueOrNull(UserDTO.serializer(), USER_NAME)
 		}

@@ -33,15 +33,17 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.io.IOException
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 
+@OptIn(ExperimentalSerializationApi::class)
 class AuthClient(
 	private val baseUrl: String,
 	private val sharedSettingsHelper: SharedSettingsHelper
-) {
+): IAMApi {
 
 	private val _tokenRefreshEvents = MutableSharedFlow<AeonResponse<TokenDTO>>()
-	val tokenRefreshEvents: SharedFlow<AeonResponse<TokenDTO>> = _tokenRefreshEvents
+	override val tokenRefreshEvents: SharedFlow<AeonResponse<TokenDTO>> = _tokenRefreshEvents
 
 	private val client = HttpClient {
 		install(Logging) {
@@ -101,7 +103,7 @@ class AuthClient(
 		expectSuccess = false
 	}
 
-	suspend fun login(login: LoginDTO): AeonResponse<TokenDTO> {
+	override suspend fun login(login: LoginDTO): AeonResponse<TokenDTO> {
 		try {
 			val response = client.post("$baseUrl/login") {
 				contentType(ContentType.Application.Json)
@@ -114,7 +116,7 @@ class AuthClient(
 		}
 	}
 
-	suspend fun refreshLogin(refresh: LoginRefreshDTO): AeonResponse<TokenDTO> {
+	override suspend fun refreshLogin(refresh: LoginRefreshDTO): AeonResponse<TokenDTO> {
 		try {
 			val response = client.post("$baseUrl/login/refresh") {
 				contentType(ContentType.Application.Json)
@@ -127,7 +129,7 @@ class AuthClient(
 		}
 	}
 
-	suspend fun getUser(): AeonResponse<UserDTO> {
+	override suspend fun getUser(): AeonResponse<UserDTO> {
 		try {
 			val response = client.get("$baseUrl/users")
 			return response.aeonBody<UserDTO>()
@@ -137,7 +139,7 @@ class AuthClient(
 		}
 	}
 
-	suspend fun updateUser(user: UpdateUserRequest): AeonResponse<Any> {
+	override suspend fun updateUser(user: UpdateUserRequest): AeonResponse<Any> {
 		try {
 			val response = client.patch("$baseUrl/users") {
 				contentType(ContentType.Application.Json)

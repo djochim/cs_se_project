@@ -34,7 +34,7 @@ import kotlinx.serialization.protobuf.ProtoBuf
 class AeonApiClient(
 	private val baseUrl: String,
 	private val userService: UserService,
-) {
+): AeonApi {
 
 	@OptIn(ExperimentalSerializationApi::class)
 	private val client = HttpClient {
@@ -82,7 +82,7 @@ class AeonApiClient(
 		expectSuccess = false
 	}
 
-	suspend fun getPrivacyInformation(): AeonResponse<PrivacyInformationDTO> {
+	override suspend fun getPrivacyInformation(): AeonResponse<PrivacyInformationDTO> {
 		try {
 			val response = client.get("$baseUrl/user/privacy/information")
 			return response.aeonBody()
@@ -92,7 +92,7 @@ class AeonApiClient(
 		}
 	}
 
-	suspend fun getStatus(): AeonResponse<SystemHealthDTO> {
+	override suspend fun getStatus(): AeonResponse<SystemHealthDTO> {
 		try {
 			val response = client.get("$baseUrl/system/health")
 			return response.aeonBody()
