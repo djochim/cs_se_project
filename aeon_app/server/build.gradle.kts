@@ -1,6 +1,10 @@
+import kotlinx.kover.gradle.plugin.dsl.AggregationType
+import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
+
 plugins {
 	alias(libs.plugins.kotlinJvm)
 	alias(libs.plugins.ktor)
+	alias(libs.plugins.kover)
 	application
 	kotlin("plugin.serialization") version "2.0.0"
 }
@@ -20,6 +24,25 @@ ktor {
 	}
 }
 
+tasks.withType<Test> {
+	useJUnitPlatform()
+}
+
+kover {
+	reports {
+		total {
+			verify {
+				rule("Minimal line coverage in percent") {
+					minBound(30, aggregationForGroup = AggregationType.COVERED_PERCENTAGE, coverageUnits = CoverageUnit.LINE)
+				}
+				rule("Minimal banch coverage in percent") {
+					minBound(80, aggregationForGroup = AggregationType.COVERED_PERCENTAGE, coverageUnits = CoverageUnit.BRANCH)
+				}
+			}
+		}
+	}
+}
+
 dependencies {
 	implementation(platform(libs.otel.bom))
 	api(projects.shared)
@@ -34,6 +57,8 @@ dependencies {
 	implementation(libs.ktor.server.websocket)
 	implementation(libs.ktor.server.logging)
 	implementation(libs.ktor.server.logging.calls)
+	implementation(libs.ktor.server.auth.core)
+	implementation(libs.ktor.server.auth.jwt)
 	implementation(libs.ktor.otel)
 	implementation(libs.mongo.kotlin.coroutine)
 	implementation(libs.mongo.bson)
@@ -44,4 +69,10 @@ dependencies {
 	implementation(libs.otel.semconv)
 	testImplementation(libs.ktor.server.tests)
 	testImplementation(libs.kotlin.test)
+	testImplementation(libs.junit.api)
+	testImplementation(libs.junit.engine)
+	testImplementation(libs.junit.params)
+	testImplementation(libs.kotlin.test.junit)
+	testImplementation(libs.kotest.assert)
+	testImplementation(libs.mockk)
 }
