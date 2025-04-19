@@ -1,17 +1,17 @@
 package dev.bitvictory.aeon.client
 
 import dev.bitvictory.aeon.exceptions.AuthException
+import dev.bitvictory.aeon.model.AeonError
 import dev.bitvictory.aeon.model.AeonErrorResponse
 import dev.bitvictory.aeon.model.AeonResponse
 import dev.bitvictory.aeon.model.AeonSuccessResponse
-import dev.bitvictory.aeon.model.Error
 import dev.bitvictory.aeon.model.ErrorType
 import dev.bitvictory.aeon.model.api.user.UpdateUserRequest
 import dev.bitvictory.aeon.model.api.user.UserDTO
 import dev.bitvictory.aeon.model.api.user.auth.LoginDTO
 import dev.bitvictory.aeon.model.api.user.auth.LoginRefreshDTO
 import dev.bitvictory.aeon.model.api.user.auth.TokenDTO
-import dev.bitvictory.aeon.storage.SharedSettingsHelper
+import dev.bitvictory.aeon.storage.LocalKeyValueStore
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.HttpTimeout
@@ -39,7 +39,7 @@ import kotlinx.serialization.json.Json
 @OptIn(ExperimentalSerializationApi::class)
 class AuthClient(
 	private val baseUrl: String,
-	private val sharedSettingsHelper: SharedSettingsHelper
+	private val localKeyValueStore: LocalKeyValueStore
 ): IAMApi {
 
 	private val _tokenRefreshEvents = MutableSharedFlow<AeonResponse<TokenDTO>>()
@@ -75,14 +75,14 @@ class AuthClient(
 		install(Auth) {
 			bearer {
 				loadTokens {
-					sharedSettingsHelper.token.let {
+					localKeyValueStore.token.let {
 						val token = it
 						if (token == null) null else
 							BearerTokens(token.accessToken, token.refreshToken)
 					}
 				}
 				refreshTokens {
-					val token = sharedSettingsHelper.token?.refreshToken
+					val token = localKeyValueStore.token?.refreshToken
 					if (token == null) {
 						null
 					} else {
@@ -112,7 +112,7 @@ class AuthClient(
 			return response.aeonBody<TokenDTO>()
 		} catch (e: IOException) {
 			e.printStackTrace()
-			return AeonErrorResponse(500, Error(message = "Error connecting to the server"), ErrorType.UNAVAILABLE_SERVER)
+			return AeonErrorResponse(500, AeonError(message = "Error connecting to the server"), ErrorType.UNAVAILABLE_SERVER)
 		}
 	}
 
@@ -125,7 +125,7 @@ class AuthClient(
 			return response.aeonBody<TokenDTO>()
 		} catch (e: IOException) {
 			e.printStackTrace()
-			return AeonErrorResponse(500, Error(message = "Error connecting to the server"), ErrorType.UNAVAILABLE_SERVER)
+			return AeonErrorResponse(500, AeonError(message = "Error connecting to the server"), ErrorType.UNAVAILABLE_SERVER)
 		}
 	}
 
@@ -135,7 +135,7 @@ class AuthClient(
 			return response.aeonBody<UserDTO>()
 		} catch (e: IOException) {
 			e.printStackTrace()
-			return AeonErrorResponse(500, Error(message = "Error connecting to the server"), ErrorType.UNAVAILABLE_SERVER)
+			return AeonErrorResponse(500, AeonError(message = "Error connecting to the server"), ErrorType.UNAVAILABLE_SERVER)
 		}
 	}
 
@@ -148,7 +148,7 @@ class AuthClient(
 			return response.aeonBody<Any>()
 		} catch (e: IOException) {
 			e.printStackTrace()
-			return AeonErrorResponse(500, Error(message = "Error connecting to the server"), ErrorType.UNAVAILABLE_SERVER)
+			return AeonErrorResponse(500, AeonError(message = "Error connecting to the server"), ErrorType.UNAVAILABLE_SERVER)
 		}
 	}
 

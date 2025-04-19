@@ -1,10 +1,10 @@
 package dev.bitvictory.aeon.client
 
 import dev.bitvictory.aeon.exceptions.AuthException
+import dev.bitvictory.aeon.model.AeonError
 import dev.bitvictory.aeon.model.AeonErrorResponse
 import dev.bitvictory.aeon.model.AeonResponse
 import dev.bitvictory.aeon.model.AeonSuccessResponse
-import dev.bitvictory.aeon.model.Error
 import dev.bitvictory.aeon.model.ErrorType
 import dev.bitvictory.aeon.model.api.system.SystemHealthDTO
 import dev.bitvictory.aeon.model.api.user.privacy.PrivacyInformationDTO
@@ -88,7 +88,7 @@ class AeonApiClient(
 			return response.aeonBody()
 		} catch (e: IOException) {
 			e.printStackTrace()
-			return AeonErrorResponse(500, Error(message = "Error connecting to the server"), ErrorType.UNAVAILABLE_SERVER)
+			return AeonErrorResponse(500, AeonError(message = "Error connecting to the server"), ErrorType.UNAVAILABLE_SERVER)
 		}
 	}
 
@@ -98,7 +98,7 @@ class AeonApiClient(
 			return response.aeonBody()
 		} catch (e: IOException) {
 			e.printStackTrace()
-			return AeonErrorResponse(500, Error(message = "Error connecting to the server"), ErrorType.UNAVAILABLE_SERVER)
+			return AeonErrorResponse(500, AeonError(message = "Error connecting to the server"), ErrorType.UNAVAILABLE_SERVER)
 		}
 	}
 
@@ -108,13 +108,13 @@ suspend inline fun <reified T> HttpResponse.aeonBody(): AeonResponse<T> {
 	if (this.status.isSuccess()) {
 		return AeonSuccessResponse(this.body())
 	}
-	var _error: Error? = null
+	var _error: AeonError? = null
 	try {
-		_error = this.body<Error>()
+		_error = this.body<AeonError>()
 	} catch (e: Exception) {
 		e.printStackTrace()
 	}
-	val error = _error ?: Error(message = this.status.description)
+	val error = _error ?: AeonError(message = this.status.description)
 	if (this.status.value in 500..599) {
 		return AeonErrorResponse(this.status.value, error, ErrorType.SERVER_ERROR)
 	}

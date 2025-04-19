@@ -13,13 +13,26 @@ import dev.bitvictory.aeon.storage.LocalKeyValueStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
+interface IUserService {
+	val userState: StateFlow<UserState>
+	fun isAuthenticated(): Boolean
+
+	suspend fun login(loginDTO: LoginDTO): AeonResponse<TokenDTO>
+
+	suspend fun refreshLogin(): AeonResponse<TokenDTO>
+
+	suspend fun logout()
+
+	suspend fun getUser(): AeonResponse<UserDTO>
+}
+
 class UserService(
 	private val iamApi: IAMApi,
 	private val localKeyValueStore: LocalKeyValueStore
-) {
+): IUserService {
 
 	private val _userState = MutableStateFlow(UserState())
-	val userState: StateFlow<UserState> = _userState
+	override val userState: StateFlow<UserState> = _userState
 
 	init {
 		val tokenDTO = localKeyValueStore.token
@@ -29,9 +42,9 @@ class UserService(
 		}
 	}
 
-	fun isAuthenticated() = userState.value.isAuthenticated()
+	override fun isAuthenticated() = userState.value.isAuthenticated()
 
-	suspend fun login(loginDTO: LoginDTO): AeonResponse<TokenDTO> {
+	override suspend fun login(loginDTO: LoginDTO): AeonResponse<TokenDTO> {
 		val loginResult = iamApi.login(loginDTO)
 		if (loginResult is AeonSuccessResponse) {
 			localKeyValueStore.token = loginResult.data
@@ -41,7 +54,7 @@ class UserService(
 		return loginResult
 	}
 
-	suspend fun refreshLogin(): AeonResponse<TokenDTO> {
+	override suspend fun refreshLogin(): AeonResponse<TokenDTO> {
 		val loginResult = iamApi.refreshLogin(LoginRefreshDTO(refreshToken = userState.value.refreshToken))
 		if (loginResult is AeonSuccessResponse) {
 			localKeyValueStore.token = loginResult.data
@@ -52,13 +65,13 @@ class UserService(
 		return loginResult
 	}
 
-	suspend fun logout() {
+	override suspend fun logout() {
 		localKeyValueStore.token = null
 		localKeyValueStore.user = null
 		clearState()
 	}
 
-	private suspend fun getUser(): AeonResponse<UserDTO> {
+	override suspend fun getUser(): AeonResponse<UserDTO> {
 		return if (localKeyValueStore.user != null) {
 			AeonSuccessResponse(localKeyValueStore.user!!)
 		} else {

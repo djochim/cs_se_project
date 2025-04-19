@@ -1,9 +1,9 @@
 package dev.bitvictory.aeon.service
 
 import dev.bitvictory.aeon.client.AeonApi
+import dev.bitvictory.aeon.model.AeonError
 import dev.bitvictory.aeon.model.AeonErrorResponse
 import dev.bitvictory.aeon.model.AeonSuccessResponse
-import dev.bitvictory.aeon.model.Error
 import dev.bitvictory.aeon.model.ErrorType
 import dev.bitvictory.aeon.model.api.user.privacy.PrivacyInformationDTO
 import dev.bitvictory.aeon.model.api.user.privacy.PrivacyInformationEntryDTO
@@ -48,12 +48,12 @@ class PrivacyServiceTest {
 	@Test
 	fun getPrivacyInformation_failed() {
 		runBlocking {
-			everySuspend { aeonApi.getPrivacyInformation() } returns AeonErrorResponse(500, Error(message = "error"), ErrorType.CLIENT_ERROR)
+			everySuspend { aeonApi.getPrivacyInformation() } returns AeonErrorResponse(500, AeonError(message = "error"), ErrorType.CLIENT_ERROR)
 
 			val result = privacyService.getPrivacyInformation()
 
 			result.shouldBeInstanceOf<AeonErrorResponse<PrivacyInformationDTO>>()
-			result.error.shouldBeInstanceOf<Error>()
+			result.error.shouldBeInstanceOf<AeonError>()
 			result.error.message shouldBe "error"
 		}
 

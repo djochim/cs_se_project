@@ -1,9 +1,9 @@
 package dev.bitvictory.aeon.service
 
 import dev.bitvictory.aeon.client.IAMApi
+import dev.bitvictory.aeon.model.AeonError
 import dev.bitvictory.aeon.model.AeonErrorResponse
 import dev.bitvictory.aeon.model.AeonSuccessResponse
-import dev.bitvictory.aeon.model.Error
 import dev.bitvictory.aeon.model.ErrorType
 import dev.bitvictory.aeon.model.api.user.UserDTO
 import dev.bitvictory.aeon.model.api.user.auth.LoginDTO
@@ -51,8 +51,6 @@ class UserServiceTest {
 
 	@Test
 	fun `getUserState initial state`() {
-		// Verify that `userState` emits the correct initial `UserState` when no token is present in
-		// `localKeyValueStore`.
 		every { localKeyValueStore.user } returns null
 		every { localKeyValueStore.token } returns null
 		val userService = UserService(iamApi, localKeyValueStore)
@@ -153,7 +151,7 @@ class UserServiceTest {
 		every { localKeyValueStore.user } returns null
 		every { localKeyValueStore.token } returns null
 
-		everySuspend { iamApi.login(any()) } returns AeonErrorResponse(400, Error(Uuid.NIL.toHexString(), "error"), ErrorType.SERVER_ERROR)
+		everySuspend { iamApi.login(any()) } returns AeonErrorResponse(400, AeonError(Uuid.NIL.toHexString(), "error"), ErrorType.SERVER_ERROR)
 
 		val userService = UserService(iamApi, localKeyValueStore)
 
@@ -184,7 +182,7 @@ class UserServiceTest {
 
 		val tokenDTO = TokenDTO("userId", "access", "refresh")
 		everySuspend { iamApi.login(any()) } returns AeonSuccessResponse(tokenDTO)
-		everySuspend { iamApi.getUser() } returns AeonErrorResponse(500, Error(Uuid.NIL.toHexString(), "error"), ErrorType.SERVER_ERROR)
+		everySuspend { iamApi.getUser() } returns AeonErrorResponse(500, AeonError(Uuid.NIL.toHexString(), "error"), ErrorType.SERVER_ERROR)
 
 		val userService = UserService(iamApi, localKeyValueStore)
 
@@ -216,7 +214,7 @@ class UserServiceTest {
 
 		val tokenDTO = TokenDTO("userId", "access", "refresh")
 		everySuspend { iamApi.login(any()) } returns AeonSuccessResponse(tokenDTO)
-		everySuspend { iamApi.getUser() } returns AeonErrorResponse(401, Error(Uuid.NIL.toHexString(), "error"), ErrorType.AUTHENTICATION_ERROR)
+		everySuspend { iamApi.getUser() } returns AeonErrorResponse(401, AeonError(Uuid.NIL.toHexString(), "error"), ErrorType.AUTHENTICATION_ERROR)
 
 		val userService = UserService(iamApi, localKeyValueStore)
 
@@ -249,7 +247,7 @@ class UserServiceTest {
 		every { localKeyValueStore.user } returns userDTO
 		every { localKeyValueStore.token } returns tokenDTO
 
-		everySuspend { iamApi.refreshLogin(any()) } returns AeonErrorResponse(500, Error(Uuid.NIL.toHexString(), "error"), ErrorType.UNKNOWN_ERROR)
+		everySuspend { iamApi.refreshLogin(any()) } returns AeonErrorResponse(500, AeonError(Uuid.NIL.toHexString(), "error"), ErrorType.UNKNOWN_ERROR)
 
 		val userService = UserService(iamApi, localKeyValueStore)
 
