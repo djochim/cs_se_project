@@ -11,8 +11,14 @@ import java.util.concurrent.*
 object AuthenticationEnvironment {
 
 	private val appConfig by lazy { HoconApplicationConfig(ConfigFactory.load()) }
+	private val iamUrl by lazy {
+		appConfig.property("auth.iamUrl").getString()
+	}
+	private val jwkEndpoint by lazy {
+		appConfig.property("auth.jwkEndpoint").getString()
+	}
 	private val jwkUrl by lazy {
-		appConfig.property("auth.jwkUrl").getString()
+		iamUrl + jwkEndpoint
 	}
 	const val jwkIssuer = "aeon.app"
 	val jwkRealm by lazy { "realm" }
