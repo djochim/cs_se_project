@@ -6,11 +6,11 @@ import dev.bitvictory.aeon.model.AeonErrorResponse
 import dev.bitvictory.aeon.model.AeonResponse
 import dev.bitvictory.aeon.model.AeonSuccessResponse
 import dev.bitvictory.aeon.model.ErrorType
+import dev.bitvictory.aeon.model.aeonBody
 import dev.bitvictory.aeon.model.api.system.SystemHealthDTO
 import dev.bitvictory.aeon.model.api.user.privacy.PrivacyInformationDTO
 import dev.bitvictory.aeon.service.UserService
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.auth.Auth
@@ -21,11 +21,9 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
-import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
-import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.protobuf.protobuf
 import kotlinx.io.IOException
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -102,24 +100,4 @@ class AeonApiClient(
 		}
 	}
 
-}
-
-suspend inline fun <reified T> HttpResponse.aeonBody(): AeonResponse<T> {
-	if (this.status.isSuccess()) {
-		return AeonSuccessResponse(this.body())
-	}
-	var _error: AeonError? = null
-	try {
-		_error = this.body<AeonError>()
-	} catch (e: Exception) {
-		e.printStackTrace()
-	}
-	val error = _error ?: AeonError(message = this.status.description)
-	if (this.status.value in 500..599) {
-		return AeonErrorResponse(this.status.value, error, ErrorType.SERVER_ERROR)
-	}
-	if (this.status.value in 400..499) {
-		return AeonErrorResponse(this.status.value, error, ErrorType.CLIENT_ERROR)
-	}
-	return AeonErrorResponse(this.status.value, error, ErrorType.UNKNOWN_ERROR)
 }
