@@ -64,6 +64,7 @@ dependencies {
 	implementation(libs.ktor.otel)
 	implementation(libs.mongo.kotlin.coroutine)
 	implementation(libs.mongo.bson)
+	implementation(libs.koin.core)
 	implementation(libs.koin.ktor)
 	implementation(libs.openai.client)
 	implementation(libs.otel.sdk.configure)

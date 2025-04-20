@@ -61,7 +61,7 @@ kotlin {
 			implementation(compose.materialIconsExtended)
 			implementation(libs.multiplatform.settings)
 			implementation(libs.multiplatform.settings.serialization)
-			implementation(libs.koin.core)
+			implementation(libs.koin.android.core)
 			implementation(libs.koin.compose)
 			implementation(libs.koin.compose.viewmodel)
 			implementation(libs.koin.compose.viewmodel.navigation)

@@ -26,7 +26,6 @@ import io.ktor.client.request.get
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
-import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.io.IOException
 import kotlinx.serialization.json.Json
@@ -71,8 +70,8 @@ class AuthClient(
 
 	suspend fun getUser(userContext: UserContext): AeonResponse<UserDTO> {
 		try {
-			val response = client.get("$baseUrl/users") {
-				headersOf("Authorization", "Bearer ${userContext.tokenOrThrow()}")
+			val response = client.get("$baseUrl/v1/users") {
+				headers.append("Authorization", userContext.tokenOrThrow())
 			}
 			return response.aeonBody<UserDTO>()
 		} catch (e: IOException) {
@@ -94,7 +93,7 @@ class AuthClient(
 			PersonalDataCategoryEntry(PersonalDataCategoryEntryName("email"), PersonalDataCategoryEntryValue(user.email)),
 			PersonalDataCategoryEntry(PersonalDataCategoryEntryName("name"), PersonalDataCategoryEntryValue(user.name)),
 		)
-		return PersonalData(listOf(PersonalDataCategory(name, entries)))
+		return PersonalData(listOf(PersonalDataCategory(name, entries.filter { it.value.s.isNotBlank() })))
 	}
 
 }

@@ -11,7 +11,7 @@ import java.util.concurrent.*
 object AuthenticationEnvironment {
 
 	private val appConfig by lazy { HoconApplicationConfig(ConfigFactory.load()) }
-	private val iamUrl by lazy {
+	val iamUrl by lazy {
 		appConfig.property("auth.iamUrl").getString()
 	}
 	private val jwkEndpoint by lazy {

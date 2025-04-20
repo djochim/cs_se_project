@@ -16,8 +16,3 @@ body:json {
     "password": "{{admin_pw}}"
   }
 }
-
-vars:post-response {
-  admin_user_id: res.body.userId
-  admin_token: res.body.accessToken
-}
