@@ -1,11 +1,13 @@
 package dev.bitvictory.aeon.configuration
 
+import dev.bitvictory.aeon.infrastructure.environment.OtelEnvironment
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.request.httpMethod
 import io.ktor.server.request.path
 import io.opentelemetry.api.trace.Span
+import io.opentelemetry.instrumentation.ktor.v3_0.KtorServerTelemetry
 
 fun Application.configureObservability() {
 	install(CallLogging) {
@@ -28,8 +30,8 @@ fun Application.configureObservability() {
 		}
 	}
 
-//	install(KtorServerTelemetry) {
-//		setOpenTelemetry(OtelEnvironment.openTelemetry)
-//	}
+	install(KtorServerTelemetry) {
+		setOpenTelemetry(OtelEnvironment.openTelemetry)
+	}
 
 }
