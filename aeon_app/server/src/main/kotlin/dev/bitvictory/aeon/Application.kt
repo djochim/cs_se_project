@@ -5,6 +5,7 @@ import dev.bitvictory.aeon.application.applicationModule
 import dev.bitvictory.aeon.configuration.LoggingConfig
 import dev.bitvictory.aeon.configuration.configureAuthentication
 import dev.bitvictory.aeon.configuration.configureContentNegotiation
+import dev.bitvictory.aeon.configuration.configureErrorHandling
 import dev.bitvictory.aeon.configuration.configureObservability
 import dev.bitvictory.aeon.presentation.api.system
 import dev.bitvictory.aeon.presentation.api.user
@@ -33,6 +34,7 @@ fun Application.module() {
 		modules(applicationModule())
 	}
 
+	configureErrorHandling()
 	configureContentNegotiation()
 	configureAuthentication()
 

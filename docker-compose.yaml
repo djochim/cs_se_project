@@ -42,6 +42,7 @@ services:
       - OPEN_API_KEY=${OPEN_API_KEY}
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4317/
       - OTEL_METRICS_EXPORTER=none
+      - JWK_URL=bitauth1:8070
     networks:
       - aeon-net
     pull_policy: always

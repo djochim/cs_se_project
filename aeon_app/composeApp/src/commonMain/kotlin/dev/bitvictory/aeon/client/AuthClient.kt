@@ -6,6 +6,7 @@ import dev.bitvictory.aeon.model.AeonErrorResponse
 import dev.bitvictory.aeon.model.AeonResponse
 import dev.bitvictory.aeon.model.AeonSuccessResponse
 import dev.bitvictory.aeon.model.ErrorType
+import dev.bitvictory.aeon.model.aeonBody
 import dev.bitvictory.aeon.model.api.user.UpdateUserRequest
 import dev.bitvictory.aeon.model.api.user.UserDTO
 import dev.bitvictory.aeon.model.api.user.auth.LoginDTO

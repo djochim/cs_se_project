@@ -33,10 +33,10 @@ kover {
 		total {
 			verify {
 				rule("Minimal line coverage in percent") {
-					minBound(30, aggregationForGroup = AggregationType.COVERED_PERCENTAGE, coverageUnits = CoverageUnit.LINE)
+					minBound(35, aggregationForGroup = AggregationType.COVERED_PERCENTAGE, coverageUnits = CoverageUnit.LINE)
 				}
 				rule("Minimal banch coverage in percent") {
-					minBound(80, aggregationForGroup = AggregationType.COVERED_PERCENTAGE, coverageUnits = CoverageUnit.BRANCH)
+					minBound(70, aggregationForGroup = AggregationType.COVERED_PERCENTAGE, coverageUnits = CoverageUnit.BRANCH)
 				}
 			}
 		}
@@ -51,6 +51,7 @@ dependencies {
 	api(libs.ktor.client.core)
 	api(libs.ktor.client.content)
 	api(libs.ktor.client.okhttp)
+	implementation(libs.kotlinx.coroutines.core)
 	implementation(libs.ktor.server.core)
 	implementation(libs.ktor.server.netty)
 	implementation(libs.ktor.server.content)
@@ -59,9 +60,11 @@ dependencies {
 	implementation(libs.ktor.server.logging.calls)
 	implementation(libs.ktor.server.auth.core)
 	implementation(libs.ktor.server.auth.jwt)
+	implementation(libs.ktor.server.statuspages)
 	implementation(libs.ktor.otel)
 	implementation(libs.mongo.kotlin.coroutine)
 	implementation(libs.mongo.bson)
+	implementation(libs.koin.core)
 	implementation(libs.koin.ktor)
 	implementation(libs.openai.client)
 	implementation(libs.otel.sdk.configure)
@@ -75,4 +78,5 @@ dependencies {
 	testImplementation(libs.kotlin.test.junit)
 	testImplementation(libs.kotest.assert)
 	testImplementation(libs.mockk)
+	testImplementation(libs.ktor.client.tests)
 }

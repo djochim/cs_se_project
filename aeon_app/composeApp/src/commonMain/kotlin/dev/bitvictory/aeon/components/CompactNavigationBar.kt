@@ -6,7 +6,6 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScope
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import dev.bitvictory.aeon.navigation.MenuItem
 
@@ -35,11 +34,6 @@ fun NavigationSuiteItems(
 
 fun navigateWithBackStackHandling(route: Any, navHost: NavHostController) {
 	navHost.navigate(route) {
-		popUpTo(
-			navHost.graph.findStartDestination()
-		) {
-			saveState = true
-		}
 		launchSingleTop = true
 		restoreState = true
 	}

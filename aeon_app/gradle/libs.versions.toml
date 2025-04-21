@@ -20,11 +20,12 @@ otelktor = "2.14.0-alpha"
 otelsemcov = "1.30.0"
 junit = "5.12.0"
 kermit = "2.0.4"
-kotlin = "2.1.10"
-koin = "4.0.3"
+kotlin = "2.1.20"
+koin = "3.4.3"
+koinAndroid = "4.0.3"
 kotlinxDatetime = "0.6.0"
 kotlinxSerialization = "1.8.0"
-ktor = "3.1.1"
+ktor = "3.1.2"
 kover = "0.9.1"
 kotest = "5.9.1"
 mockk = "1.13.17"
@@ -70,11 +71,10 @@ coil = { module = "io.coil-kt.coil3:coil-svg", version.ref = "coil" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
-koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
-koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
-koin-compose-viewmodel-navigation = { module = "io.insert-koin:koin-compose-viewmodel-navigation", version.ref = "koin" }
-koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
-koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+koin-android-core = { module = "io.insert-koin:koin-core", version.ref = "koinAndroid" }
+koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koinAndroid" }
+koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koinAndroid" }
+koin-compose-viewmodel-navigation = { module = "io.insert-koin:koin-compose-viewmodel-navigation", version.ref = "koinAndroid" }
 koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutine" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
@@ -86,6 +86,7 @@ ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "kto
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
+ktor-client-tests = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-serialization-protobuf = { module = "io.ktor:ktor-serialization-kotlinx-protobuf", version.ref = "ktor" }
 ktor-server-content = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
@@ -97,6 +98,7 @@ ktor-server-logging = { module = "io.klogging:slf4j-klogging", version.ref = "kl
 ktor-server-logging-calls = { module = "io.ktor:ktor-server-call-logging", version.ref = "ktor" }
 ktor-server-auth-core = { module = "io.ktor:ktor-server-auth", version.ref = "ktor" }
 ktor-server-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = "ktor" }
+ktor-server-statuspages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
 mongo-kotlin-coroutine = { module = "org.mongodb:mongodb-driver-kotlin-coroutine", version.ref = "mongo" }
 mongo-bson = { module = "org.mongodb:bson-kotlinx", version.ref = "mongo" }
 markdown-renderer = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "markdown" }

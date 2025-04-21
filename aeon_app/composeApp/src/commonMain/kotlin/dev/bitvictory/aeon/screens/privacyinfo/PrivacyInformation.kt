@@ -23,6 +23,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import dev.bitvictory.aeon.model.api.user.privacy.PrivacyInformationGroupDTO
 import kotlinx.serialization.Serializable
 import org.koin.compose.koinInject
 
@@ -50,8 +51,9 @@ fun PrivacyInformationScreen(onClose: () -> Unit = {}, profileViewModel: Privacy
 			) {
 				Icon(Icons.Outlined.Close, contentDescription = "Close privacy information")
 			}
-			Text("Privacy Information", style = MaterialTheme.typography.headlineMedium)
+			Text("Privacy Information", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(vertical = 10.dp))
 		}
+		Text("We value your privacy. Here’s the personal information we currently store for your account:", style = MaterialTheme.typography.bodyLarge)
 		if (uiState.value.privacyInformation == null && uiState.value.error == null) {
 			Text("Loading privacy information...", style = MaterialTheme.typography.bodyMedium)
 		} else if (uiState.value.error != null) {
@@ -60,20 +62,35 @@ fun PrivacyInformationScreen(onClose: () -> Unit = {}, profileViewModel: Privacy
 			if (uiState.value.groups.isEmpty()) {
 				Text("No privacy information found", style = MaterialTheme.typography.bodyMedium)
 			} else {
-				// list of privacy information
-				LazyColumn(
-					contentPadding = PaddingValues(8.dp),
-					verticalArrangement = Arrangement.spacedBy(8.dp),
-					modifier = Modifier.semantics { traversalIndex = 1f },
-				) {
-					items(uiState.value.groups) {
-						Text(it.name)
-						it.entries.forEach { entry ->
-							Text("${entry.key}: ${entry.value}", modifier = Modifier.padding(start = 8.dp))
-						}
-					}
-				}
+				PrivacyInformationData(uiState.value.groups)
 			}
 		}
 	}
+}
+
+@Composable
+fun PrivacyInformationData(privacyInformation: List<PrivacyInformationGroupDTO>) {
+	LazyColumn(
+		contentPadding = PaddingValues(8.dp),
+		verticalArrangement = Arrangement.spacedBy(8.dp),
+		modifier = Modifier.semantics { traversalIndex = 1f },
+	) {
+		items(privacyInformation) {
+			PrivacyInformationGroup(it)
+		}
+	}
+}
+
+@Composable
+fun PrivacyInformationGroup(group: PrivacyInformationGroupDTO) {
+	Text(group.name, style = MaterialTheme.typography.bodyLarge)
+	Column {
+		group.entries.forEach {
+			Row(modifier = Modifier.padding(start = 8.dp, top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+				Text("- ${it.key}: ", style = MaterialTheme.typography.labelMedium)
+				Text(it.value, style = MaterialTheme.typography.bodyMedium)
+			}
+		}
+	}
+
 }
