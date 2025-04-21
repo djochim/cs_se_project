@@ -17,3 +17,12 @@ fun ApplicationCall.userContext(): UserContext {
 	val userContext = UserContext(user, this.request.headers["Authorization"]?.apply { removePrefix("Bearer ") })
 	return userContext
 }
+
+fun ApplicationCall.userPrincipal(): User {
+	val user = this.principal<User>()
+	if (user == null) {
+		throw AuthenticationException("Authenticated user object could not be found")
+	} else {
+		return user
+	}
+}
