@@ -6,12 +6,15 @@ import dev.bitvictory.aeon.core.domain.entities.user.personaldata.PersonalDataCa
 import dev.bitvictory.aeon.core.domain.entities.user.personaldata.PersonalDataCategoryEntry
 import dev.bitvictory.aeon.core.domain.entities.user.personaldata.PersonalDataCategoryEntryName
 import dev.bitvictory.aeon.core.domain.entities.user.personaldata.PersonalDataCategoryEntryValue
+import dev.bitvictory.aeon.core.domain.entities.user.personaldata.PersonalDataCategoryKey
 import dev.bitvictory.aeon.core.domain.entities.user.personaldata.PersonalDataCategoryName
+import dev.bitvictory.aeon.core.domain.entities.user.personaldata.PersonalDataChangeRequest
 import dev.bitvictory.aeon.core.domain.usecases.user.PersonaDataProvider
 import dev.bitvictory.aeon.model.AeonErrorResponse
 import dev.bitvictory.aeon.model.AeonResponse
 import dev.bitvictory.aeon.model.AeonSuccessResponse
 import dev.bitvictory.aeon.model.aeonBody
+import dev.bitvictory.aeon.model.api.user.UpdateUserRequest
 import dev.bitvictory.aeon.model.api.user.UserDTO
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpRequestRetry
@@ -21,10 +24,13 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
+import io.ktor.client.request.patch
+import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 
 class AuthClient private constructor(): PersonaDataProvider {
@@ -81,6 +87,18 @@ class AuthClient private constructor(): PersonaDataProvider {
 		return response.aeonBody<UserDTO>()
 	}
 
+	suspend fun patchUser(userContext: UserContext, updateUserRequest: UpdateUserRequest): AeonResponse<Unit> {
+		val response = client.patch("$baseUrl/v1/users") {
+			headers.append(HttpHeaders.Authorization, userContext.tokenOrThrow())
+			setBody(updateUserRequest)
+		}
+		return response.aeonBody<Unit>()
+	}
+
+	override suspend fun getCategories(): List<PersonalDataCategoryKey> {
+		return listOf(PersonalDataCategoryKey.PROFILE)
+	}
+
 	override suspend fun getPersonalData(userContext: UserContext): PersonalData {
 		when (val user = getUser(userContext)) {
 			is AeonSuccessResponse -> return mapUserToPersonalData(user.data)
@@ -88,13 +106,42 @@ class AuthClient private constructor(): PersonaDataProvider {
 		}
 	}
 
+	@OptIn(ExperimentalSerializationApi::class)
+	override suspend fun patchPersonalData(userContext: UserContext, personalDataChangeRequest: PersonalDataChangeRequest) {
+		var newName: PersonalDataCategoryEntryValue? = null
+		var newEmail: PersonalDataCategoryEntryValue? = null
+		personalDataChangeRequest.changes.forEach {
+			when (it.name) {
+				PersonalDataCategoryEntryName("name") -> newName = it.value
+				PersonalDataCategoryEntryName("email") -> newEmail = it.value
+			}
+		}
+		personalDataChangeRequest.deletions.forEach {
+			when (it) {
+				PersonalDataCategoryEntryName("name") -> newName = PersonalDataCategoryEntryValue("")
+			}
+		}
+		if (newName == null && newEmail == null) return
+		val patchRequest = UpdateUserRequest(name = newName?.s, email = newEmail?.s)
+		when (val user = patchUser(userContext, patchRequest)) {
+			is AeonSuccessResponse -> return
+			is AeonErrorResponse   -> throw Exception("Updating personal data failed with: $user")
+		}
+	}
+
 	private fun mapUserToPersonalData(user: UserDTO): PersonalData {
-		val name = PersonalDataCategoryName("Profile Data")
 		val entries = listOf(
-			PersonalDataCategoryEntry(PersonalDataCategoryEntryName("email"), PersonalDataCategoryEntryValue(user.email)),
+			PersonalDataCategoryEntry(PersonalDataCategoryEntryName("email"), PersonalDataCategoryEntryValue(user.email), false),
 			PersonalDataCategoryEntry(PersonalDataCategoryEntryName("name"), PersonalDataCategoryEntryValue(user.name)),
 		)
-		return PersonalData(listOf(PersonalDataCategory(name, entries.filter { it.value.s.isNotBlank() })))
+		return PersonalData(
+			listOf(
+				PersonalDataCategory(
+					PersonalDataCategoryKey.PROFILE,
+					PersonalDataCategoryName.PROFILE,
+					entries.filter { it.value.s.isNotBlank() })
+			)
+		)
 	}
 
 }
