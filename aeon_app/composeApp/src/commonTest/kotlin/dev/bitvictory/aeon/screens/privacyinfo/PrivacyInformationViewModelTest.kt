@@ -51,7 +51,7 @@ class PrivacyInformationViewModelTest {
 		val dto = PrivacyInformationDTO(
 			listOf(
 				PrivacyInformationGroupDTO(
-					"test", listOf(
+					"Key", "test", listOf(
 						PrivacyInformationEntryDTO("key", "value")
 					)
 				)

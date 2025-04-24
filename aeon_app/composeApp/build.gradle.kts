@@ -74,6 +74,7 @@ kotlin {
 			implementation(libs.kotest.assert)
 			@OptIn(ExperimentalComposeLibrary::class)
 			implementation(compose.uiTest)
+			implementation(libs.ktor.client.tests)
 //			implementation(libs.mockative )
 		}
 	}

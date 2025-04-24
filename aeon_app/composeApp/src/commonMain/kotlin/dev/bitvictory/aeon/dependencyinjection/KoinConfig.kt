@@ -8,6 +8,7 @@ import dev.bitvictory.aeon.screens.HomeViewModel
 import dev.bitvictory.aeon.screens.login.LoginViewModel
 import dev.bitvictory.aeon.screens.privacyinfo.PrivacyInformationViewModel
 import dev.bitvictory.aeon.screens.profile.ProfileViewModel
+import dev.bitvictory.aeon.service.IPrivacyService
 import dev.bitvictory.aeon.service.IUserService
 import dev.bitvictory.aeon.service.PrivacyService
 import dev.bitvictory.aeon.service.UserService
@@ -47,7 +48,7 @@ private val clientModule = module {
 
 private val serviceModel = module {
 	single { UserService(get(), get()) } bind IUserService::class
-	single { PrivacyService(get()) }
+	single { PrivacyService(get()) } bind IPrivacyService::class
 }
 
 private val uiModule = module {

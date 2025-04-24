@@ -58,7 +58,7 @@ fun MainScreen(
 
 	NavigationSuiteScaffold(
 		modifier = Modifier.fillMaxSize(),
-		navigationSuiteItems = NavigationSuiteItems(currentDestination, mainNavController, menuItems)
+		navigationSuiteItems = NavigationSuiteItems(currentDestination, mainNavController, menuItems),
 	) { //innerPadding ->
 		NavHost(
 			navController = mainNavController,

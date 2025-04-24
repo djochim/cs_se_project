@@ -50,7 +50,7 @@ fun PersonalData.toDTO() = PrivacyInformationDTO(this.categories.map { it.toDTO(
 
 fun PersonalDataCategory.toDTO() = PrivacyInformationGroupDTO(this.key.s, this.name.s, this.entries.map { it.toDTO() })
 
-fun PersonalDataCategoryEntry.toDTO() = PrivacyInformationEntryDTO(this.name.s, this.value.s)
+fun PersonalDataCategoryEntry.toDTO() = PrivacyInformationEntryDTO(this.name.s, this.value.s, this.isDeletable)
 
 fun PrivacyInformationPatchDTO.toDomain() =
 	PersonalDataChangeRequest(PersonalDataCategoryKey(this.key), this.deletions.map { it.toDomain() }, this.changes.map { it.toDomain() })

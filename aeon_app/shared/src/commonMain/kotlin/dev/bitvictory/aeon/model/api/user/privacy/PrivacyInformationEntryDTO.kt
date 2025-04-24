@@ -5,5 +5,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class PrivacyInformationEntryDTO(
 	val key: String,
-	val value: String
+	val value: String,
+	val isDeletable: Boolean = true,
 )

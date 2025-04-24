@@ -36,7 +36,7 @@ class PrivacyServiceTest {
 	@Test
 	fun getPrivacyInformation() {
 		runBlocking {
-			val info = PrivacyInformationDTO(listOf(PrivacyInformationGroupDTO("test", listOf(PrivacyInformationEntryDTO("key", "value")))))
+			val info = PrivacyInformationDTO(listOf(PrivacyInformationGroupDTO("Key", "test", listOf(PrivacyInformationEntryDTO("key", "value")))))
 			everySuspend { aeonApi.getPrivacyInformation() } returns AeonSuccessResponse(info)
 			val result = privacyService.getPrivacyInformation()
 
