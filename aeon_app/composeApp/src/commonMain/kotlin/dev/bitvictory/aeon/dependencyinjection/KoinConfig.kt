@@ -1,13 +1,15 @@
 package dev.bitvictory.aeon.dependencyinjection
 
-import dev.bitvictory.aeon.client.AeonApi
-import dev.bitvictory.aeon.client.AeonApiClient
 import dev.bitvictory.aeon.client.AuthClient
 import dev.bitvictory.aeon.client.IAMApi
+import dev.bitvictory.aeon.client.aeon.AeonApi
+import dev.bitvictory.aeon.client.aeon.AeonApiClient
+import dev.bitvictory.aeon.client.aeon.AeonHttpClientFactory
 import dev.bitvictory.aeon.screens.HomeViewModel
 import dev.bitvictory.aeon.screens.login.LoginViewModel
 import dev.bitvictory.aeon.screens.privacyinfo.PrivacyInformationViewModel
 import dev.bitvictory.aeon.screens.profile.ProfileViewModel
+import dev.bitvictory.aeon.service.IPrivacyService
 import dev.bitvictory.aeon.service.IUserService
 import dev.bitvictory.aeon.service.PrivacyService
 import dev.bitvictory.aeon.service.UserService
@@ -42,12 +44,12 @@ private val coreModule = module {
 
 private val clientModule = module {
 	single { AuthClient("http://192.168.178.30:8070/v1", get()) } bind IAMApi::class
-	single { AeonApiClient("http://192.168.178.30:8080", get()) } bind AeonApi::class
+	single { AeonApiClient("http://192.168.178.30:8080", AeonHttpClientFactory.create(get(IUserService::class))) } bind AeonApi::class
 }
 
 private val serviceModel = module {
 	single { UserService(get(), get()) } bind IUserService::class
-	single { PrivacyService(get()) }
+	single { PrivacyService(get()) } bind IPrivacyService::class
 }
 
 private val uiModule = module {

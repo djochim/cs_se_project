@@ -6,13 +6,17 @@ import dev.bitvictory.aeon.core.domain.entities.user.personaldata.PersonalDataCa
 import dev.bitvictory.aeon.core.domain.entities.user.personaldata.PersonalDataCategoryEntry
 import dev.bitvictory.aeon.core.domain.entities.user.personaldata.PersonalDataCategoryEntryName
 import dev.bitvictory.aeon.core.domain.entities.user.personaldata.PersonalDataCategoryEntryValue
+import dev.bitvictory.aeon.core.domain.entities.user.personaldata.PersonalDataCategoryKey
 import dev.bitvictory.aeon.core.domain.entities.user.personaldata.PersonalDataCategoryName
+import dev.bitvictory.aeon.core.domain.entities.user.personaldata.PersonalDataChangeRequest
 import dev.bitvictory.aeon.core.domain.usecases.user.PersonaDataProvider
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.test.Test
 
@@ -24,6 +28,7 @@ class UserServiceTest {
 		val personalData = PersonalData(
 			listOf(
 				PersonalDataCategory(
+					PersonalDataCategoryKey("key"),
 					PersonalDataCategoryName("cat"),
 					listOf(PersonalDataCategoryEntry(PersonalDataCategoryEntryName("entr"), PersonalDataCategoryEntryValue("value")))
 				)
@@ -60,7 +65,7 @@ class UserServiceTest {
 	}
 
 	@Test
-	fun `Multiple data providers`(
+	fun `GET Multiple data providers`(
 		@MockK personalDataProvider1: PersonaDataProvider,
 		@MockK personalDataProvider2: PersonaDataProvider,
 		@MockK userContext: UserContext
@@ -68,6 +73,7 @@ class UserServiceTest {
 		val personalData1 = PersonalData(
 			listOf(
 				PersonalDataCategory(
+					PersonalDataCategoryKey("key"),
 					PersonalDataCategoryName("cat"),
 					listOf(PersonalDataCategoryEntry(PersonalDataCategoryEntryName("entr"), PersonalDataCategoryEntryValue("value")))
 				)
@@ -76,6 +82,7 @@ class UserServiceTest {
 		val personalData2 = PersonalData(
 			listOf(
 				PersonalDataCategory(
+					PersonalDataCategoryKey("key"),
 					PersonalDataCategoryName("cat2"),
 					listOf(PersonalDataCategoryEntry(PersonalDataCategoryEntryName("entr2"), PersonalDataCategoryEntryValue("value2")))
 				)
@@ -88,6 +95,53 @@ class UserServiceTest {
 		val result = userService.getPersonalData(userContext)
 
 		result shouldBe PersonalData(personalData1.categories + personalData2.categories)
+	}
+
+	@Test
+	fun `Change is only done to the key provider`(
+		@MockK personalDataProvider1: PersonaDataProvider,
+		@MockK personalDataProvider2: PersonaDataProvider,
+		@MockK userContext: UserContext
+	) = runTest {
+		val userService = UserService(listOf(personalDataProvider1, personalDataProvider2))
+		coEvery { personalDataProvider1.getCategories() } returns listOf(PersonalDataCategoryKey("key1"))
+		coEvery { personalDataProvider2.getCategories() } returns listOf(PersonalDataCategoryKey("key2"))
+		coEvery { personalDataProvider2.patchPersonalData(any(), any()) } returns Unit
+
+		val changeRequest = PersonalDataChangeRequest(
+			key = PersonalDataCategoryKey("key2"),
+			changes = listOf(PersonalDataCategoryEntry(PersonalDataCategoryEntryName("entr"), PersonalDataCategoryEntryValue("newvalue")))
+		)
+		userService.patchPersonalData(userContext, changeRequest)
+
+		coVerify {
+			personalDataProvider2.patchPersonalData(userContext, changeRequest)
+		}
+		coVerify(exactly = 0) { personalDataProvider1.patchPersonalData(any(), any()) }
+	}
+
+	@Test
+	fun `Exception is thrown on missing provider`(
+		@MockK personalDataProvider1: PersonaDataProvider,
+		@MockK personalDataProvider2: PersonaDataProvider,
+		@MockK userContext: UserContext
+	) = runTest {
+		val userService = UserService(listOf(personalDataProvider1, personalDataProvider2))
+		coEvery { personalDataProvider1.getCategories() } returns listOf(PersonalDataCategoryKey("key1"))
+		coEvery { personalDataProvider2.getCategories() } returns listOf(PersonalDataCategoryKey("key2"))
+		coEvery { personalDataProvider2.patchPersonalData(any(), any()) } returns Unit
+
+		val changeRequest = PersonalDataChangeRequest(
+			key = PersonalDataCategoryKey("key3"),
+			changes = listOf(PersonalDataCategoryEntry(PersonalDataCategoryEntryName("entr"), PersonalDataCategoryEntryValue("newvalue")))
+		)
+
+		assertThrows<Exception> { userService.patchPersonalData(userContext, changeRequest) }
+
+		coVerify(exactly = 0) {
+			personalDataProvider1.patchPersonalData(any(), any())
+			personalDataProvider2.patchPersonalData(userContext, changeRequest)
+		}
 	}
 
 }
