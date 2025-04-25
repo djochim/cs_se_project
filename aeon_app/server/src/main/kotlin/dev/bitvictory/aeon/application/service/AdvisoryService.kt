@@ -1,0 +1,107 @@
+package dev.bitvictory.aeon.application.service
+
+import com.aallam.openai.api.BetaOpenAI
+import com.aallam.openai.api.core.Status
+import dev.bitvictory.aeon.application.usecase.AdviseUser
+import dev.bitvictory.aeon.core.domain.entities.advisory.Advisory
+import dev.bitvictory.aeon.core.domain.entities.advisory.Message
+import dev.bitvictory.aeon.core.domain.entities.advisory.StringMessage
+import dev.bitvictory.aeon.core.domain.usecases.advisory.AdvisoryPersistence
+import dev.bitvictory.aeon.core.domain.usecases.assistant.AssistantExecution
+import dev.bitvictory.aeon.core.exceptions.InvalidMessageException
+import dev.bitvictory.aeon.infrastructure.network.dto.AssistantMessageDTO
+import io.ktor.util.logging.KtorSimpleLogger
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
+import org.bson.types.ObjectId
+import kotlin.time.Duration.Companion.seconds
+
+@OptIn(BetaOpenAI::class)
+class AdvisoryService(
+    private val advisoryPersistence: AdvisoryPersistence,
+    private val assistantExecution: AssistantExecution
+) : AdviseUser {
+
+    private val logger = KtorSimpleLogger(this.javaClass.name)
+
+    override suspend fun startNewAdvisory(message: Message): Advisory {
+        val stringMessage = when (val content = message.messageContent) {
+            is StringMessage -> content.content
+            else -> throw InvalidMessageException("Message content of type ${content.javaClass.kotlin}")
+        }
+        val threadId =
+            assistantExecution.initiateThread(
+                AssistantMessageDTO(
+                    message.author,
+                    stringMessage
+                )
+            ).id
+        val openAIMessage =
+            assistantExecution.fetchMessages(threadId, null)
+                .minByOrNull { message.creationDateTime }
+        val runId = assistantExecution.executeAssistant(threadId).id
+        val advisory = Advisory(ObjectId.get(), threadId, listOf(message.copy(runId = runId)))
+        advisoryPersistence.insert(advisory)
+        waitForCompletion(advisory.id, threadId, runId, openAIMessage?.messageId)
+        return advisory
+    }
+
+    override suspend fun retrieveAdvisoryById(id: ObjectId): Advisory {
+        return advisoryPersistence.getById(id)
+    }
+
+    override suspend fun retrieveMessages(id: ObjectId, lastTimestamp: Instant): List<Message> {
+        return advisoryPersistence.getNewMessages(id, lastTimestamp)
+    }
+
+    override suspend fun addMessage(advisoryId: ObjectId, message: Message): Message {
+        val stringMessage = when (val content = message.messageContent) {
+            is StringMessage -> content.content
+            else -> throw InvalidMessageException("Message content of type ${content.javaClass.kotlin}")
+        }
+        val threadId = advisoryPersistence.getThreadId(advisoryId)
+        val messageId = assistantExecution.writeMessageToThread(
+            threadId, AssistantMessageDTO(
+                message.author,
+                stringMessage
+            )
+        ).id
+        val runId = assistantExecution.executeAssistant(threadId).id
+        val executedMessage = message.copy(runId = runId, messageId = messageId)
+        advisoryPersistence.appendMessages(advisoryId, listOf(executedMessage))
+        waitForCompletion(advisoryId, threadId, runId, lastMessage = messageId)
+        return executedMessage
+    }
+
+    private fun waitForCompletion(
+        advisoryId: ObjectId,
+        threadId: String,
+        runId: String,
+        lastMessage: String?
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            do {
+                delay(1.seconds)
+                val retrievedRun = assistantExecution.fetchRun(threadId, runId)
+                advisoryPersistence.updateRunStatus(
+                    advisoryId,
+                    runId,
+                    retrievedRun.status.value,
+                    retrievedRun.error
+                )
+                logger.debug("Status is ${retrievedRun.status}")
+            } while (retrievedRun.status != Status.Completed)
+
+            val messages = assistantExecution.fetchMessages(threadId, lastMessage)
+            if (lastMessage == null) {
+                advisoryPersistence.setMessages(advisoryId, messages)
+            } else {
+                advisoryPersistence.appendMessages(advisoryId, messages)
+            }
+        }
+    }
+
+}
