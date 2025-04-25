@@ -1,4 +1,4 @@
-package dev.bitvictory.aeon.client
+package dev.bitvictory.aeon.client.aeon
 
 import dev.bitvictory.aeon.model.AeonError
 import dev.bitvictory.aeon.model.AeonErrorResponse
@@ -8,9 +8,6 @@ import dev.bitvictory.aeon.model.api.user.privacy.PrivacyInformationEntryDTO
 import dev.bitvictory.aeon.model.api.user.privacy.PrivacyInformationGroupDTO
 import dev.bitvictory.aeon.model.api.user.privacy.PrivacyInformationKeyDTO
 import dev.bitvictory.aeon.model.api.user.privacy.PrivacyInformationPatchDTO
-import dev.bitvictory.aeon.service.IUserService
-import dev.mokkery.MockMode
-import dev.mokkery.mock
 import io.kotest.matchers.nulls.beNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNot
@@ -27,6 +24,7 @@ import io.ktor.http.contentType
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.protobuf.protobuf
 import kotlinx.coroutines.test.runTest
+import kotlinx.io.IOException
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.encodeToByteArray
@@ -38,8 +36,6 @@ class AeonClientTest {
 	companion object {
 		const val BASE_URL = "http://localhost:8080"
 	}
-
-	private val userService: IUserService = mock(MockMode.autoUnit)
 
 	@OptIn(ExperimentalSerializationApi::class)
 	private fun getAeonClient(mockEngine: MockEngine): AeonApiClient {
@@ -55,7 +51,7 @@ class AeonClientTest {
 			}
 		}
 
-		return AeonApiClient(BASE_URL, userService, client)
+		return AeonApiClient(BASE_URL, client)
 	}
 
 	@OptIn(ExperimentalSerializationApi::class)
@@ -124,6 +120,16 @@ class AeonClientTest {
 		result.statusCode shouldBe 400
 	}
 
+	@Test
+	fun `get personal data connection error`() = runTest {
+		val mockEngine = MockEngine { _ ->
+			throw IOException("Connection error")
+		}
+		val aeonClient = getAeonClient(mockEngine)
+
+		aeonClient.getPrivacyInformation().shouldBeInstanceOf<AeonErrorResponse<PrivacyInformationDTO>>()
+	}
+
 	@OptIn(ExperimentalSerializationApi::class)
 	@Test
 	fun `patch personal data`() = runTest {
@@ -172,5 +178,20 @@ class AeonClientTest {
 
 		receivedBodyBytes shouldNot beNull()
 		ProtoBuf.decodeFromByteArray<PrivacyInformationPatchDTO>(receivedBodyBytes!!) shouldBe patchDTO
+	}
+
+	@Test
+	fun `patch personal data connection error`() = runTest {
+		val mockEngine = MockEngine { _ ->
+			throw IOException("Connection error")
+		}
+		val aeonClient = getAeonClient(mockEngine)
+
+		val patchDTO = PrivacyInformationPatchDTO(
+			"key",
+			listOf(PrivacyInformationKeyDTO("key1"), PrivacyInformationKeyDTO("key2")),
+			listOf(PrivacyInformationEntryDTO("key3", "value3"))
+		)
+		aeonClient.patchPrivacyInformation(patchDTO).shouldBeInstanceOf<AeonErrorResponse<Unit>>()
 	}
 }

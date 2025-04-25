@@ -57,9 +57,6 @@ class PrivacyInformationViewModel(private val privacyService: IPrivacyService, u
 					privacyInformation = oldPrivacyInformation
 				)
 				_snackbarEvent.emit("Failed to delete privacy information entry")
-			} else {
-
-				_snackbarEvent.emit("Not failed to delete privacy information entry")
 			}
 		}
 	}

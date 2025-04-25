@@ -1,4 +1,4 @@
-package dev.bitvictory.aeon.client
+package dev.bitvictory.aeon.client.aeon
 
 import dev.bitvictory.aeon.model.AeonResponse
 import dev.bitvictory.aeon.model.api.system.SystemHealthDTO
