@@ -6,6 +6,7 @@ import dev.bitvictory.aeon.application.usecases.advise.AdviseUser
 import dev.bitvictory.aeon.core.domain.entities.advisory.Advisory
 import dev.bitvictory.aeon.core.domain.entities.advisory.Message
 import dev.bitvictory.aeon.core.domain.entities.advisory.StringMessage
+import dev.bitvictory.aeon.core.domain.entities.advisory.ThreadContext
 import dev.bitvictory.aeon.core.domain.entities.user.User
 import dev.bitvictory.aeon.core.domain.usecases.advisory.AdvisoryPersistence
 import dev.bitvictory.aeon.core.domain.usecases.assistant.AssistantExecution
@@ -42,12 +43,12 @@ class AdvisoryService(
 				)
 			).id
 		val openAIMessage =
-			assistantExecution.fetchMessages(threadId, null)
+			assistantExecution.fetchMessages(threadId, null, message.user)
 				.minByOrNull { message.creationDateTime }
 		val runId = assistantExecution.executeAssistant(threadId).id
 		val advisory = Advisory(ObjectId.get(), threadId, message.user, listOf(message.copy(runId = runId)))
 		advisoryPersistence.insert(advisory)
-		waitForCompletion(advisory.id, threadId, runId, openAIMessage?.messageId)
+		waitForCompletion(advisory.id, ThreadContext(threadId, message.user), runId, openAIMessage?.messageId)
 		return advisory
 	}
 
@@ -81,20 +82,20 @@ class AdvisoryService(
 		val runId = assistantExecution.executeAssistant(threadContext.threadId).id
 		val executedMessage = message.copy(runId = runId, messageId = messageId)
 		advisoryPersistence.appendMessages(advisoryId, listOf(executedMessage))
-		waitForCompletion(advisoryId, threadContext.threadId, runId, lastMessage = messageId)
+		waitForCompletion(advisoryId, threadContext, runId, lastMessage = messageId)
 		return executedMessage
 	}
 
 	private fun waitForCompletion(
 		advisoryId: ObjectId,
-		threadId: String,
+		threadContext: ThreadContext,
 		runId: String,
 		lastMessage: String?
 	) {
 		CoroutineScope(Dispatchers.IO).launch {
 			do {
 				delay(1.seconds)
-				val retrievedRun = assistantExecution.fetchRun(threadId, runId)
+				val retrievedRun = assistantExecution.fetchRun(threadContext.threadId, runId)
 				advisoryPersistence.updateRunStatus(
 					advisoryId,
 					runId,
@@ -104,7 +105,7 @@ class AdvisoryService(
 				logger.debug("Status is ${retrievedRun.status}")
 			} while (retrievedRun.status != Status.Completed)
 
-			val messages = assistantExecution.fetchMessages(threadId, lastMessage)
+			val messages = assistantExecution.fetchMessages(threadContext.threadId, lastMessage, threadContext.user)
 			if (lastMessage == null) {
 				advisoryPersistence.setMessages(advisoryId, messages)
 			} else {
