@@ -73,10 +73,12 @@ class AssistantClient(private val openAI: OpenAI, private val assistantName: Str
 		).flatMap { message ->
 			message.content.map { content ->
 				Message(
-					Instant.fromEpochSeconds(message.createdAt.toLong()),
-					message.role.toAuthor(),
-					user,
-					content.toAssistantMessage()
+					messageId = message.id.id,
+					creationDateTime = Instant.fromEpochSeconds(message.createdAt.toLong()),
+					author = message.role.toAuthor(),
+					user = user,
+					messageContent = content.toAssistantMessage(),
+					runId = message.runId?.id
 				)
 			}
 		}

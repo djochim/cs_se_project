@@ -25,7 +25,8 @@ import kotlin.time.Duration.Companion.seconds
 @OptIn(BetaOpenAI::class)
 class AdvisoryService(
 	private val advisoryPersistence: AdvisoryPersistence,
-	private val assistantExecution: AssistantExecution
+	private val assistantExecution: AssistantExecution,
+	private val waitForCompletion: Boolean = true
 ): AdviseUser {
 
 	private val logger = KtorSimpleLogger(this.javaClass.name)
@@ -33,7 +34,6 @@ class AdvisoryService(
 	override suspend fun startNewAdvisory(message: Message): Advisory {
 		val stringMessage = when (val content = message.messageContent) {
 			is StringMessage -> content.content
-			else             -> throw InvalidMessageException("Message content of type ${content.javaClass.kotlin}")
 		}
 		val threadId =
 			assistantExecution.initiateThread(
@@ -46,7 +46,7 @@ class AdvisoryService(
 			assistantExecution.fetchMessages(threadId, null, message.user)
 				.minByOrNull { message.creationDateTime }
 		val runId = assistantExecution.executeAssistant(threadId).id
-		val advisory = Advisory(ObjectId.get(), threadId, message.user, listOf(message.copy(runId = runId)))
+		val advisory = Advisory(ObjectId.get(), threadId, message.user, listOf((openAIMessage ?: message).copy(runId = runId)))
 		advisoryPersistence.insert(advisory)
 		waitForCompletion(advisory.id, ThreadContext(threadId, message.user), runId, openAIMessage?.messageId)
 		return advisory
@@ -92,6 +92,9 @@ class AdvisoryService(
 		runId: String,
 		lastMessage: String?
 	) {
+		if (!waitForCompletion) {
+			return
+		}
 		CoroutineScope(Dispatchers.IO).launch {
 			do {
 				delay(1.seconds)
