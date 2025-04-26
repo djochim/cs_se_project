@@ -41,5 +41,6 @@ fun Application.module() {
 	routing {
 		system()
 		user()
+		advisories()
 	}
 }
