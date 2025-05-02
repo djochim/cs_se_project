@@ -33,11 +33,13 @@ object AeonHttpClientFactory {
 			})
 		}
 		install(HttpTimeout) {
-			requestTimeoutMillis = 10_000
-			connectTimeoutMillis = 1_000
+			requestTimeoutMillis = 10_000 // 10 seconds
+			connectTimeoutMillis = 5_000   // 5 seconds
+			socketTimeoutMillis = 15_000   // 15 seconds
 		}
 		install(HttpRequestRetry) {
-			retryOnServerErrors(maxRetries = 1)
+			retryOnServerErrors(maxRetries = 3)
+			retryOnException(maxRetries = 3)
 			exponentialDelay()
 			modifyRequest { request ->
 				request.headers.append("X-Retry-Count", retryCount.toString())

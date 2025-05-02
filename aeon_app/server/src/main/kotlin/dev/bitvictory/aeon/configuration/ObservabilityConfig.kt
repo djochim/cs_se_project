@@ -30,8 +30,10 @@ fun Application.configureObservability() {
 		}
 	}
 
-	install(KtorServerTelemetry) {
-		setOpenTelemetry(OtelEnvironment.openTelemetry)
+	if (false) {
+		install(KtorServerTelemetry) {
+			setOpenTelemetry(OtelEnvironment.openTelemetry)
+		}
 	}
 
 }

@@ -5,10 +5,13 @@ import dev.bitvictory.aeon.client.IAMApi
 import dev.bitvictory.aeon.client.aeon.AeonApi
 import dev.bitvictory.aeon.client.aeon.AeonApiClient
 import dev.bitvictory.aeon.client.aeon.AeonHttpClientFactory
-import dev.bitvictory.aeon.screens.HomeViewModel
+import dev.bitvictory.aeon.screens.chat.ChatViewModel
+import dev.bitvictory.aeon.screens.home.HomeViewModel
 import dev.bitvictory.aeon.screens.login.LoginViewModel
 import dev.bitvictory.aeon.screens.privacyinfo.PrivacyInformationViewModel
 import dev.bitvictory.aeon.screens.profile.ProfileViewModel
+import dev.bitvictory.aeon.service.AdvisorService
+import dev.bitvictory.aeon.service.IAdvisorService
 import dev.bitvictory.aeon.service.IPrivacyService
 import dev.bitvictory.aeon.service.IUserService
 import dev.bitvictory.aeon.service.PrivacyService
@@ -50,6 +53,7 @@ private val clientModule = module {
 private val serviceModel = module {
 	single { UserService(get(), get()) } bind IUserService::class
 	single { PrivacyService(get()) } bind IPrivacyService::class
+	single { AdvisorService(get()) } bind IAdvisorService::class
 }
 
 private val uiModule = module {
@@ -57,6 +61,7 @@ private val uiModule = module {
 	viewModel { LoginViewModel(get()) }
 	viewModel { ProfileViewModel(get()) }
 	viewModel { PrivacyInformationViewModel(get(), get()) }
+	viewModel { ChatViewModel(get(), get()) }
 }
 
 expect val platformModule: Module

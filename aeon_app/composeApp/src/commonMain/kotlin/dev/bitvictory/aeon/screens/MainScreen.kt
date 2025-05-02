@@ -19,6 +19,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dev.bitvictory.aeon.components.NavigationSuiteItems
 import dev.bitvictory.aeon.navigation.MenuItem
+import dev.bitvictory.aeon.screens.chat.chatDestination
+import dev.bitvictory.aeon.screens.chat.navigateToChat
+import dev.bitvictory.aeon.screens.home.Home
+import dev.bitvictory.aeon.screens.home.homeDestination
 import dev.bitvictory.aeon.screens.login.navigateToLogin
 import dev.bitvictory.aeon.screens.privacyinfo.navigateToPrivacyInformation
 import dev.bitvictory.aeon.screens.privacyinfo.privacyInformationDestination
@@ -64,7 +68,9 @@ fun MainScreen(
 			navController = mainNavController,
 			startDestination = Home,
 		) {
-			homeDestination()
+			homeDestination {
+				mainNavController.navigateToChat(it)
+			}
 			recipesDestination()
 			profileDestination(onLogout = {
 				rootNavHost.navigateToLogin()
@@ -72,6 +78,9 @@ fun MainScreen(
 				mainNavController.navigateToPrivacyInformation()
 			})
 			privacyInformationDestination {
+				mainNavController.popBackStack()
+			}
+			chatDestination {
 				mainNavController.popBackStack()
 			}
 		}
