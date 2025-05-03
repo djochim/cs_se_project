@@ -75,7 +75,6 @@ kotlin {
 			@OptIn(ExperimentalComposeLibrary::class)
 			implementation(compose.uiTest)
 			implementation(libs.ktor.client.tests)
-//			implementation(libs.mockative )
 		}
 	}
 }
@@ -106,6 +105,7 @@ android {
 	buildTypes {
 		getByName("release") {
 			isMinifyEnabled = false
+			isDebuggable = false
 		}
 	}
 	compileOptions {
