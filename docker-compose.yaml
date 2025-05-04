@@ -57,6 +57,9 @@ services:
       - "443:443"
     networks:
       - aeon-net
+    depends_on:
+      - bitauth1
+      - aeon1
     restart: always
     volumes:
       - type: bind

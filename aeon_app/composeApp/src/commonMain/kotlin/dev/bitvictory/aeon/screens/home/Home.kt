@@ -49,7 +49,7 @@ fun HomeScreen(onQuerySubmit: (query: String) -> Unit, viewModel: HomeViewModel 
 	) {
 		Text(
 			modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 24.dp),
-			text = "How can I help you?",
+			text = "Your health coach is here — what’s on your mind?",
 			style = MaterialTheme.typography.headlineSmall,
 			textAlign = TextAlign.Center
 		)
@@ -63,7 +63,7 @@ fun HomeScreen(onQuerySubmit: (query: String) -> Unit, viewModel: HomeViewModel 
 					value = homeUIState.query,
 					onValueChange = viewModel::changeQuery,
 					maxLines = 500,
-					placeholder = { Text("Ask aeon") },
+					placeholder = { Text("Ask Aeon...") },
 					modifier = Modifier.weight(1f)
 				)
 				FilledIconButton(
@@ -75,6 +75,17 @@ fun HomeScreen(onQuerySubmit: (query: String) -> Unit, viewModel: HomeViewModel 
 				) {
 					Icon(Icons.AutoMirrored.Outlined.Send, contentDescription = "Send query")
 				}
+			}
+			Row(
+				modifier = Modifier.fillMaxWidth()
+					.widthIn(max = 400.dp)
+			) {
+				Text(
+					modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 24.dp),
+					text = "Powered by Aeon AI • Responses are for informational use only",
+					style = MaterialTheme.typography.labelSmall,
+					textAlign = TextAlign.Center
+				)
 			}
 		}
 	}
