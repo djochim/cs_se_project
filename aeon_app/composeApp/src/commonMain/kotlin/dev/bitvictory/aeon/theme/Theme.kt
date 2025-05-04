@@ -258,6 +258,7 @@ fun AppTheme(
 		else      -> lightScheme
 	}
 
+
 	MaterialTheme(
 		colorScheme = colorScheme,
 		typography = AppTypography,

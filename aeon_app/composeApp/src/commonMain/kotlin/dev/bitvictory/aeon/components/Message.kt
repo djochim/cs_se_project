@@ -23,53 +23,65 @@ private val ChatBubbleShapeRight = RoundedCornerShape(20.dp, 0.dp, 20.dp, 20.dp)
 
 @Composable
 fun ChatMessage(
-    message: MessageDTO,
-    isCurrentUser: Boolean,
-    isPreviousMessageBySameAuthor: Boolean,
-    isNextMessageBySameAuthor: Boolean
+	message: MessageDTO,
+	isCurrentUser: Boolean,
+	isPreviousMessageBySameAuthor: Boolean,
+	isNextMessageBySameAuthor: Boolean
 ) {
-    val arrangement = if (isCurrentUser)
-        Arrangement.End
-    else
-        Arrangement.Start
-    Row(
-        modifier = Modifier.padding(top = 8.dp).fillMaxWidth(),
-        horizontalArrangement = arrangement
-    ) {
-        ChatItemBubble(message, isCurrentUser)
-    }
+	val arrangement = if (isCurrentUser)
+		Arrangement.End
+	else
+		Arrangement.Start
+	Row(
+		modifier = Modifier.padding(top = 8.dp).fillMaxWidth(),
+		horizontalArrangement = arrangement
+	) {
+		ChatItemBubble(message, isCurrentUser)
+	}
 }
 
 @Composable
 fun ChatItemBubble(
-    message: MessageDTO,
-    isCurrentUser: Boolean,
+	message: MessageDTO,
+	isCurrentUser: Boolean,
 ) {
-    val backgroundBubbleColor = if (isCurrentUser) {
-        MaterialTheme.colorScheme.primary
-    } else {
-        MaterialTheme.colorScheme.surfaceVariant
-    }
+	val backgroundBubbleColor = if (isCurrentUser) {
+		MaterialTheme.colorScheme.surfaceContainer
+	} else {
+		MaterialTheme.colorScheme.surfaceVariant
+	}
 
-    val shape = if (isCurrentUser) {
-        ChatBubbleShapeRight
-    } else {
-        ChatBubbleShapeLeft
-    }
+	val textColor = if (isCurrentUser) {
+		MaterialTheme.colorScheme.onSurface
+	} else {
+		MaterialTheme.colorScheme.onSurfaceVariant
+	}
 
-    Surface(
-        color = backgroundBubbleColor,
-        shape = shape
-    ) {
-        val text = when (val content = message.messageContent) {
-            is StringMessageDTO -> content.content
-        }
-        Markdown(
-            text,
-            colors = markdownColor(),
-            components = markdownComponents(),
-            typography = markdownTypography(),
-            modifier = Modifier.padding(16.dp).defaultMinSize(minWidth = 100.dp)
-        )
-    }
+	val shape = if (isCurrentUser) {
+		ChatBubbleShapeRight
+	} else {
+		ChatBubbleShapeLeft
+	}
+
+	Surface(
+		color = backgroundBubbleColor,
+		shape = shape
+	) {
+		val text = when (val content = message.messageContent) {
+			is StringMessageDTO -> content.content
+		}
+		Markdown(
+			text,
+			colors = markdownColor(
+				text = textColor,
+				codeText = textColor,
+				codeBackground = textColor.copy(alpha = 0.1f),
+				dividerColor = MaterialTheme.colorScheme.outlineVariant,
+				tableBackground = textColor.copy(alpha = 0.02f)
+			),
+			components = markdownComponents(),
+			typography = markdownTypography(),
+			modifier = Modifier.padding(16.dp).defaultMinSize(minWidth = 100.dp)
+		)
+	}
 }

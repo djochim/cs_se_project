@@ -43,6 +43,7 @@ kotlin {
 			implementation(compose.preview)
 			implementation(libs.androidx.activity.compose)
 			implementation(libs.androidx.crypto)
+			implementation(libs.material)
 		}
 		commonMain.dependencies {
 			implementation(projects.shared)
@@ -52,13 +53,13 @@ kotlin {
 			implementation(compose.ui)
 			implementation(compose.components.resources)
 			implementation(compose.components.uiToolingPreview)
+			implementation(compose.material3AdaptiveNavigationSuite)
+			implementation(compose.materialIconsExtended)
 			implementation(libs.compose.navigation)
 			implementation(libs.androidx.lifecycle.viewmodel)
 			implementation(libs.androidx.lifecycle.viewmodel.compose)
 			implementation(libs.androidx.lifecycle.runtime.compose)
 			implementation(libs.markdown.renderer)
-			implementation(compose.material3AdaptiveNavigationSuite)
-			implementation(compose.materialIconsExtended)
 			implementation(libs.multiplatform.settings)
 			implementation(libs.multiplatform.settings.serialization)
 			implementation(libs.koin.android.core)
