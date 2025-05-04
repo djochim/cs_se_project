@@ -103,10 +103,10 @@ loki.source.docker "default" {
 }
 
 loki.process "docker" {
-    attributes_map {
-        "container_name" = "$.attrs.container.name"
-        "job" = "$.attrs.container.labels.loki_job"
-        "env" = "$.attrs.container.labels.loki_env"
+    attributes_map = {
+        "container_name" = "$.attrs.container.name",
+        "job" = "$.attrs.container.labels.loki_job",
+        "env" = "$.attrs.container.labels.loki_env",
     }
     forward_to = [log.write.grafana_cloud_loki.receiver]
 }

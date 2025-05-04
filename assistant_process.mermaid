@@ -1,0 +1,49 @@
+---
+title: Assistance Process
+---
+sequenceDiagram
+   participant User
+   box Green Aeon
+   participant App
+   participant Backend
+   participant DB
+   end
+   participant OpenAI
+   User->>+App: Ask first question
+   App->>+Backend: Creates a new conversation session
+   Backend ->> OpenAI: Creates new Thread
+   Backend ->> OpenAI: Runs Assistant on Thread
+   Backend ->> DB: Saves conversation details
+   par Background Job
+      loop until thread run is finished
+       Backend ->> OpenAI: Get messages from Thread
+       OpenAI -->> Backend: Returns messages
+       Backend ->> DB: Updates conversation with new messages
+      end
+    and
+      Backend ->>- App: Returns conversation details
+    end
+   App->>-User: Shows conversation
+   loop until conversation closed
+      activate App
+      App ->>+ Backend: Get messages from conversation
+      Backend ->>+ DB: Get messages from conversation
+      DB -->>- Backend: Returns messages
+      Backend ->>- App: Returns messages
+      App -->>- User: Shows conversation
+   end
+   User->>+App: Ask next question
+   App->>+Backend: Add message to conversation
+   Backend ->> OpenAI: Add message to Thread
+   Backend ->> OpenAI: Runs Assistant on Thread
+   Backend ->> DB: Updates conversation with new messages
+   par Background Job
+      loop until thread run is finished
+       Backend ->> OpenAI: Get messages from Thread
+       OpenAI -->> Backend: Returns messages
+       Backend ->> DB: Updates conversation with new messages
+      end
+    and
+      Backend ->>- App: Returns conversation details
+    end
+    deactivate App
