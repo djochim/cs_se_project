@@ -108,3 +108,4 @@ jobs:
               export ADMIN_EMAIL="${{ secrets.ADMIN_EMAIL }}"
               export ADMIN_PASSWORD="${{ secrets.ADMIN_PASSWORD }}"
               docker-compose up -d
+              docker-compose restart ngnix-proxy
