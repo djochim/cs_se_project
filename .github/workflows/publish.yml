@@ -78,7 +78,7 @@ jobs:
           username: developer
           key: ${{ secrets.DEVELOPER_SSH }}
           passphrase: ${{ secrets.DEVELOPER_SSH_PASS }}
-          source: "monitoring/alloy.conf,docker-compose.yaml"
+          source: "monitoring/conf.alloy,docker-compose.yaml,gateway/nginx.conf"
           target: aeon
 
   deploy:

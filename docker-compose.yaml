@@ -64,7 +64,7 @@ services:
         target: /etc/nginx/certs
         read_only: true
       - type: bind
-        source: /etc/nginx/nginx.conf
+        source: ./gateway/nginx.conf
         target: /etc/nginx/nginx.conf
         read_only: true
     labels:
@@ -89,7 +89,7 @@ services:
       - aeon-net
     volumes:
       - type: bind
-        source: ./monitoring/alloy.conf
+        source: ./monitoring/conf.alloy
         target: /etc/alloy/config.alloy
         read_only: true
       - type: bind
