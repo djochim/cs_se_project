@@ -1,5 +1,5 @@
 #
-name: Create Docker image
+name: Build Pipeline
 
 # Configures this workflow to run every time a change is pushed to the branch called `release`.
 on:
@@ -15,6 +15,8 @@ env:
 jobs:
   server-unit-test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -32,10 +34,12 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Unit test reports
+          name: Server unit-test reports
           path: ./aeon_app/server/build/reports
   app-unit-test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -51,7 +55,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Unit test reports
+          name: App unit-test reports
           path: ./aeon_app/composeApp/build/reports        
   build-image:
     runs-on: ubuntu-latest
