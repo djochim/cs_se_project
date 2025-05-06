@@ -108,7 +108,7 @@ loki.process "docker" {
         "job" = "$.attrs.container.labels.loki_job",
         "env" = "$.attrs.container.labels.loki_env",
     }
-    forward_to = [log.write.grafana_cloud_loki.receiver]
+    forward_to = [loki.write.grafana_cloud_loki.receiver]
 }
 
 loki.write "grafana_cloud_loki" {
