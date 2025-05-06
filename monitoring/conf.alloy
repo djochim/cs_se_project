@@ -103,7 +103,7 @@ loki.source.docker "default" {
 }
 
 loki.process "docker" {
-    attributes_map = {
+    stage.labels = {
         "container_name" = "$.attrs.container.name",
         "job" = "$.attrs.container.labels.loki_job",
         "env" = "$.attrs.container.labels.loki_env",
