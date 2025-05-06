@@ -103,10 +103,12 @@ loki.source.docker "default" {
 }
 
 loki.process "docker" {
-    stage.labels = {
-        "container_name" = "$.attrs.container.name",
-        "job" = "$.attrs.container.labels.loki_job",
-        "env" = "$.attrs.container.labels.loki_env",
+    stage.labels {
+		values = {
+			"container_name" = "$.attrs.container.name",
+			"job" = "$.attrs.container.labels.loki_job",
+			"env" = "$.attrs.container.labels.loki_env",
+		}
     }
     forward_to = [loki.write.grafana_cloud_loki.receiver]
 }
