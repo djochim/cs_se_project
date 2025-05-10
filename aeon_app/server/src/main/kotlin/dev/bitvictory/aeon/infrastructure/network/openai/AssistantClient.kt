@@ -86,7 +86,7 @@ class AssistantClient(private val openAI: OpenAI, private val assistantName: Str
 	private suspend fun initAssistant(): Assistant {
 		val existingAssistant =
 			openAI.assistants(limit = 5).firstOrNull { it.name == assistantName }
-		if (existingAssistant == null) {
+		if (existingAssistant == null || existingAssistant.tools.isEmpty()) {
 			return openAI.assistant(
 				request = AssistantRequest(
 					name = assistantName,
@@ -94,7 +94,8 @@ class AssistantClient(private val openAI: OpenAI, private val assistantName: Str
 							"answer questions about healthy food choices, and help users maintain a balanced diet. Users can share links," +
 							"which you will analyze and assess for healthiness, highlighting any potential issues and suggesting improvements where necessary." +
 							"Please note, that you are not a doctor and do not provide medical advice",
-					model = ModelId("gpt-4o")
+					model = ModelId("gpt-4o"),
+					tools = listOf(StoreRecipeFunction.tool())
 				)
 			)
 		}

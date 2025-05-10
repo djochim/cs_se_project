@@ -96,15 +96,21 @@ class AdvisoryService(
 			return
 		}
 		CoroutineScope(Dispatchers.IO).launch {
+			var lastRunStatus = Status.InProgress
+			var lastRunError: String? = null
 			do {
 				delay(1.seconds)
 				val retrievedRun = assistantExecution.fetchRun(threadContext.threadId, runId)
-				advisoryPersistence.updateRunStatus(
-					advisoryId,
-					runId,
-					retrievedRun.status.value,
-					retrievedRun.error
-				)
+				if (retrievedRun.status != lastRunStatus || retrievedRun.error != lastRunError) {
+					lastRunStatus = retrievedRun.status
+					lastRunError = retrievedRun.error
+					advisoryPersistence.updateRunStatus(
+						advisoryId,
+						runId,
+						retrievedRun.status.value,
+						retrievedRun.error
+					)
+				}
 				logger.debug("Status is ${retrievedRun.status}")
 			} while (retrievedRun.status != Status.Completed)
 
