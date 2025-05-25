@@ -1,6 +1,6 @@
 package dev.bitvictory.aeon.core.domain.entities.advisory
 
-import dev.bitvictory.aeon.core.domain.entities.assistant.Author
+import dev.bitvictory.aeon.core.domain.entities.assistant.message.Author
 import dev.bitvictory.aeon.core.domain.entities.user.User
 import dev.bitvictory.aeon.infrastructure.database.InstantAsBsonDateTime
 import kotlinx.datetime.Instant

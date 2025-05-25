@@ -8,29 +8,20 @@ import org.bson.types.ObjectId
 const val LIMIT_SCORE = 0.9
 
 class FoodService(
-    private val foodCollection: FoodCollection
+	private val foodCollection: FoodCollection
 ) {
 
-    suspend fun insert(food: Food) = foodCollection.insert(food)
+	suspend fun insert(food: Food) = foodCollection.insert(food)
 
-    suspend fun getAll(page: Page) = foodCollection.getAll(page)
+	suspend fun getAll(page: Page) = foodCollection.getAll(page)
 
-    suspend fun getById(id: ObjectId) = foodCollection.getById(id)
+	suspend fun getById(id: ObjectId) = foodCollection.getById(id)
 
-    suspend fun delete(id: ObjectId) = foodCollection.delete(id)
+	suspend fun delete(id: ObjectId) = foodCollection.delete(id)
 
-    suspend fun search(searchQuery: String, page: Page) = foodCollection.search(searchQuery, page)
+	suspend fun search(searchQuery: String, page: Page) = foodCollection.search(searchQuery, page)
 
-    suspend fun findSimilar(searchQuery: String, page: Page) =
-        foodCollection.findSimilar(searchQuery, page)
-
-    suspend fun findBest(searchQuery: String): Food? {
-        val best = findSimilar(searchQuery, Page(limit = 1)).firstOrNull()
-        return if (best != null && best.score > LIMIT_SCORE) {
-            best.toFood()
-        } else {
-            null
-        }
-    }
+	suspend fun findSimilar(searchQuery: String, page: Page) =
+		foodCollection.search(searchQuery, page)
 
 }

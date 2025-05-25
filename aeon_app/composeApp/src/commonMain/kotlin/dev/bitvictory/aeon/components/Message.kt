@@ -67,21 +67,23 @@ fun ChatItemBubble(
 		color = backgroundBubbleColor,
 		shape = shape
 	) {
-		val text = when (val content = message.messageContent) {
-			is StringMessageDTO -> content.content
+		message.messageContents.forEach { content ->
+			val text = when (content) {
+				is StringMessageDTO -> content.content
+			}
+			Markdown(
+				text,
+				colors = markdownColor(
+					text = textColor,
+					codeText = textColor,
+					codeBackground = textColor.copy(alpha = 0.1f),
+					dividerColor = MaterialTheme.colorScheme.outlineVariant,
+					tableBackground = textColor.copy(alpha = 0.02f)
+				),
+				components = markdownComponents(),
+				typography = markdownTypography(),
+				modifier = Modifier.padding(16.dp).defaultMinSize(minWidth = 100.dp)
+			)
 		}
-		Markdown(
-			text,
-			colors = markdownColor(
-				text = textColor,
-				codeText = textColor,
-				codeBackground = textColor.copy(alpha = 0.1f),
-				dividerColor = MaterialTheme.colorScheme.outlineVariant,
-				tableBackground = textColor.copy(alpha = 0.02f)
-			),
-			components = markdownComponents(),
-			typography = markdownTypography(),
-			modifier = Modifier.padding(16.dp).defaultMinSize(minWidth = 100.dp)
-		)
 	}
 }

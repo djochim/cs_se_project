@@ -1,19 +1,10 @@
-package dev.bitvictory.aeon.infrastructure.network.openai
+package dev.bitvictory.aeon.core.domain.entities.assistant.action
 
-import com.aallam.openai.api.BetaOpenAI
-import com.aallam.openai.api.assistant.AssistantTool
-import com.aallam.openai.api.assistant.Function
-import com.aallam.openai.api.core.Parameters
-
-@OptIn(BetaOpenAI::class)
-object StoreRecipeFunction {
-
-	fun tool() = AssistantTool.FunctionTool(Function(name = NAME, description = DESCRIPTION, parameters = Parameters.fromJsonString(PARAMETERS)))
-
-	const val NAME = "storeRecipe"
-	const val DESCRIPTION = "Stores a recipe into the database if is is commanded."
-	const val STRICT_MODE = true
-	const val PARAMETERS = """
+data object StoreRecipeFunction: AeonFunction(
+	name = "storeRecipe",
+	description = "Stores a recipe into the database if is is commanded.",
+	strictMode = true,
+	parameters = """
 		{
 			"type": "object",
 			"properties": {
@@ -93,4 +84,4 @@ object StoreRecipeFunction {
 			"additionalProperties": false
 	  	}
 	"""
-}
+)

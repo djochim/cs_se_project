@@ -5,6 +5,7 @@ import com.mongodb.client.model.Indexes
 import com.mongodb.client.model.Sorts
 import com.mongodb.client.model.TextSearchOptions
 import dev.bitvictory.aeon.core.domain.entities.recipe.Recipe
+import dev.bitvictory.aeon.core.domain.usecases.recipe.RecipePersistence
 import dev.bitvictory.aeon.infrastructure.database.Database
 import dev.bitvictory.aeon.model.primitive.Page
 import io.ktor.util.logging.KtorSimpleLogger
@@ -16,7 +17,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import org.bson.types.ObjectId
 
-class RecipeCollection(database: Database) {
+class RecipeCollection(database: Database): RecipePersistence {
 
 	companion object {
 		const val COLLECTION_NAME = "recipes"
@@ -32,7 +33,7 @@ class RecipeCollection(database: Database) {
 		}
 	}
 
-	suspend fun insert(recipe: Recipe) {
+	override suspend fun insert(recipe: Recipe) {
 		logger.debug("Insert food ${recipe.id}")
 		collection.insertOne(recipe)
 	}

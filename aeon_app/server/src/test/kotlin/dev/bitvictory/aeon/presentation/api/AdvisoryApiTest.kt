@@ -3,7 +3,8 @@ package dev.bitvictory.aeon.presentation.api
 import dev.bitvictory.aeon.core.domain.entities.advisory.Advisory
 import dev.bitvictory.aeon.core.domain.entities.advisory.Message
 import dev.bitvictory.aeon.core.domain.entities.advisory.StringMessage
-import dev.bitvictory.aeon.core.domain.entities.assistant.Author
+import dev.bitvictory.aeon.core.domain.entities.assistant.message.Author
+import dev.bitvictory.aeon.core.domain.entities.assistant.thread.AeonStatus
 import dev.bitvictory.aeon.core.domain.entities.user.User
 import dev.bitvictory.aeon.model.api.AuthorDTO
 import dev.bitvictory.aeon.model.api.advisory.StringMessageDTO
@@ -50,8 +51,8 @@ class AdvisoryApiTest {
 
 		val messageDTO = message.toDTO()
 		messageDTO.id shouldBe "mid"
-		messageDTO.messageContent.shouldBeInstanceOf<StringMessageDTO>()
-		(messageDTO.messageContent as StringMessageDTO).content shouldBe "Hello"
+		messageDTO.messageContents[0].shouldBeInstanceOf<StringMessageDTO>()
+		(messageDTO.messageContents[0] as StringMessageDTO).content shouldBe "Hello"
 		messageDTO.creationDateTime shouldBe message.creationDateTime
 		messageDTO.author shouldBe AuthorDTO.USER
 		messageDTO.status shouldBe "status"
@@ -69,7 +70,7 @@ class AdvisoryApiTest {
 			status = "status",
 			error = "error"
 		)
-		val advisory = Advisory(id = ObjectId.get(), threadId = "tid", messages = listOf(message), user = user)
+		val advisory = Advisory(id = ObjectId.get(), threadId = "tid", messages = listOf(), user = user, events = listOf(), status = AeonStatus.UNKNOWN)
 
 		val advisoryDTO = advisory.toDTO()
 
