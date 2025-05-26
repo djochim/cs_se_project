@@ -32,7 +32,7 @@ markdown = "0.29.0"
 material = "1.12.0"
 multiplatformSettigs = "1.3.0"
 navigation = "2.8.0-alpha10"
-openai = "4.0.1-local2"
+openai = "4.0.1-aeon-SNAPSHOT"
 securityCryptoKtx = "1.0.0"
 uiTest = "1.7.8"
 
@@ -90,7 +90,7 @@ markdown-renderer = { module = "com.mikepenz:multiplatform-markdown-renderer-m3"
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatformSettigs" }
 multiplatform-settings-serialization = { module = "com.russhwolf:multiplatform-settings-serialization", version.ref = "multiplatformSettigs" }
 compose-navigation = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation" }
-openai-client = { module = "com.aallam.openai:openai-client", version.ref = "openai" }
+openai-client = { module = "dev.jochim.openai:openai-client", version.ref = "openai" }
 otel-bom = { module = "io.opentelemetry:opentelemetry-bom", version.ref = "otel" }
 otel-sdk-configure = { module = "io.opentelemetry:opentelemetry-sdk-extension-autoconfigure" }
 otel-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp" }
