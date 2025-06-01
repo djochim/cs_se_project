@@ -69,7 +69,7 @@ class AeonClientTest {
 		val advisoryResponse = AdvisoryDTO(
 			id = "id",
 			threadId = "tId",
-			messages = listOf(MessageDTO(messageContent = StringMessageDTO("message"), creationDateTime = Clock.System.now(), author = AuthorDTO.USER))
+			messages = listOf(MessageDTO(messageContents = listOf(StringMessageDTO("message")), creationDateTime = Clock.System.now(), author = AuthorDTO.USER))
 		)
 		val jsonResponse = ProtoBuf.encodeToByteArray(advisoryResponse)
 
@@ -147,7 +147,7 @@ class AeonClientTest {
 		val advisoryResponse = AdvisoryDTO(
 			id = "id",
 			threadId = "tId",
-			messages = listOf(MessageDTO(messageContent = StringMessageDTO("message"), creationDateTime = Clock.System.now(), author = AuthorDTO.USER))
+			messages = listOf(MessageDTO(messageContents = listOf(StringMessageDTO("message")), creationDateTime = Clock.System.now(), author = AuthorDTO.USER))
 		)
 		val jsonResponse = ProtoBuf.encodeToByteArray(advisoryResponse)
 
@@ -213,7 +213,7 @@ class AeonClientTest {
 	@Test
 	fun `post new message`() = runTest {
 		var receivedBodyBytes: ByteArray? = null
-		val messageDTO = MessageDTO(messageContent = StringMessageDTO("message"), creationDateTime = Clock.System.now(), author = AuthorDTO.USER)
+		val messageDTO = MessageDTO(messageContents = listOf(StringMessageDTO("message")), creationDateTime = Clock.System.now(), author = AuthorDTO.USER)
 		val jsonResponse = ProtoBuf.encodeToByteArray(messageDTO)
 
 		val advisoryId = "advId"

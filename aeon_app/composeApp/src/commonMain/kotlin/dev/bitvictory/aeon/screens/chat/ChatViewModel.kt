@@ -77,10 +77,7 @@ class ChatViewModel(private val advisorService: IAdvisorService, userService: IU
 			when (val messageResponse =
 				advisorService.addMessage(_uiState.value.advisoryId!!, AdvisoryMessageRequest(StringMessageDTO(messageContent)))) {
 				is AeonSuccessResponse -> {
-					_uiState.value =
-						_uiState.value.copy(
-							messages = _uiState.value.messages.filter { it.id != "new" }.plus(messageResponse.data),
-						)
+					
 				}
 
 				is AeonErrorResponse   -> {
