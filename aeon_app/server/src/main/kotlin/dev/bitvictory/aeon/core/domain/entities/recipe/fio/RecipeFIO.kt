@@ -6,6 +6,8 @@ import kotlinx.serialization.Serializable
 data class RecipeFIO(
 	val id: String? = null,
 	val name: String,
+	val language: String,
+	val description: String,
 	val ingredients: List<IngredientFIO>,
 	val steps: List<StepFIO>,
 	val tips: List<String>?

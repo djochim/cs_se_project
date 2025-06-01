@@ -63,9 +63,12 @@ class OpenAIClient(private val openAI: OpenAI): SystemComponentHealthProvider {
 			name = aeonAssistant.name,
 			instructions = aeonAssistant.instructions,
 			model = ModelId(aeonAssistant.model),
-			tools = aeonAssistant.tools.map { it.toOpenAI() }
+			tools = aeonAssistant.tools.map { it.toOpenAI() },
+			metadata = mapOf("version" to aeonAssistant.version)
 		)
 	)
+
+	suspend fun deleteAssistant(assistantId: AssistantId) = openAI.delete(assistantId)
 
 	override suspend fun getHealth(): SystemComponentHealth {
 		logger.debug("Checking OpenAI health")

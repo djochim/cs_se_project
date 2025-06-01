@@ -1,11 +1,13 @@
 package dev.bitvictory.aeon.model.api.recipes
 
+import dev.bitvictory.aeon.model.api.TranslationDTO
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class IngredientDTO(
 	val foodId: String,
-	val foodName: String,
+	val canonicalFoodName: String,
+	val translations: List<TranslationDTO?>,
 	val quantity: QuantityDTO,
 	val note: String?
 )

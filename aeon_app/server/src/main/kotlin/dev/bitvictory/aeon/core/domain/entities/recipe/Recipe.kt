@@ -7,6 +7,8 @@ import org.bson.types.ObjectId
 data class Recipe(
 	@BsonId val id: ObjectId = ObjectId(),
 	val name: String,
+	val language: String,
+	val description: String,
 	val user: User,
 	val ingredients: List<Ingredient>,
 	val steps: List<Step>,

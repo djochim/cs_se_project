@@ -6,22 +6,15 @@ import java.util.regex.*
 
 @Serializable
 data class IngredientFIO(
-	val name: String,
+	val canonicalName: String,
+	val localizations: List<LocalizationFIO>,
 	val quantity: String,
+	val canonicalUnitOfMeasure: String?,
 	val unitOfMeasure: String?,
 	val note: String? = null
 ) {
 	fun parsedQuantity(): Quantity {
 		val trimmedInput = quantity.trim()
-
-		// Handle common non-numeric quantities first (extend this list as needed)
-		val nonNumericMap = mapOf(
-			"a pinch" to Quantity(1.0, "pinch"),
-			"to taste" to Quantity(0.0, "to taste"),
-			"a dash" to Quantity(1.0, "dash")
-			// Add more specific non-numeric phrases if the LLM often produces them
-		)
-		nonNumericMap[trimmedInput.lowercase()]?.let { return it }
 
 		// Regex to find a number (integer or decimal) optionally followed by a unit.
 		// This regex tries to capture:
@@ -45,7 +38,6 @@ data class IngredientFIO(
 			val fractionStr = matcher.group(1)?.replace("\\s".toRegex(), "") // e.g., "1/2"
 			val mixedWholeStr = matcher.group(2) // e.g., "1" from "1 1/2 cups"
 			val numberStr = matcher.group(3) // e.g., "0.5" or "2"
-			val unitStr = matcher.group(4)?.trim()
 			var totalNumericValue: Double? = null
 
 			try {
@@ -76,22 +68,21 @@ data class IngredientFIO(
 				// though the regex tries to prevent this for numeric groups.
 				// If totalNumericValue is still null, it means no valid number was parsed.
 			}
-			val unit = unitOfMeasure?.ifBlank { unitStr }
 
 			// If no numeric value was found at all by the regex, but it matched (e.g. only unit was found)
 			if (totalNumericValue == null && numberStr == null && fractionStr == null && mixedWholeStr == null) {
 				// This might mean the input was just a unit, or a non-numeric quantity that wasn't in our initial map
 				// For example "cups" or "some"
-				return Quantity(0.0, unit)
+				return Quantity(0.0, canonicalUnitOfMeasure, unitOfMeasure)
 			}
 
 
-			return Quantity(totalNumericValue ?: 0.0, unit)
+			return Quantity(totalNumericValue ?: 0.0, canonicalUnitOfMeasure, unitOfMeasure)
 		}
 
 		// If regex doesn't match, it might be just a unit or a phrase we don't understand numerically
 		// or the LLM gave something completely unexpected.
 		// We can assume the whole string is a non-numeric quantity or unit if it's not empty.
-		return Quantity(0.0, unitOfMeasure)
+		return Quantity(0.0, canonicalUnitOfMeasure, unitOfMeasure)
 	}
 }

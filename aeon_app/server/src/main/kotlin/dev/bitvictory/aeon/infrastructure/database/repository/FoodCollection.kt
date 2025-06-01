@@ -5,8 +5,10 @@ import com.mongodb.client.model.Indexes
 import com.mongodb.client.model.Projections
 import com.mongodb.client.model.Sorts
 import com.mongodb.client.model.TextSearchOptions
+import com.mongodb.client.model.Updates
 import dev.bitvictory.aeon.core.domain.entities.food.Food
 import dev.bitvictory.aeon.core.domain.entities.food.FoodScore
+import dev.bitvictory.aeon.core.domain.entities.food.Translation
 import dev.bitvictory.aeon.core.domain.usecases.food.FoodPersistence
 import dev.bitvictory.aeon.infrastructure.database.Database
 import dev.bitvictory.aeon.model.primitive.Page
@@ -16,6 +18,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
@@ -33,17 +36,17 @@ class FoodCollection(database: Database): FoodPersistence {
 	init {
 		val scope = CoroutineScope(Job() + Dispatchers.IO)
 		scope.launch {
-			collection.createIndex(Indexes.text(Food::name.name))
+			collection.createIndex(Indexes.text(Food::canonicalName.name))
 		}
 	}
 
 	override suspend fun insert(food: Food) {
-		logger.debug("Insert food ${food.name}")
+		logger.debug("Insert food ${food.canonicalName}")
 		collection.insertOne(food)
 	}
 
 	override suspend fun insertAll(foods: List<Food>) {
-		logger.debug("Insert foods ${foods.map { it.name }}")
+		logger.debug("Insert foods ${foods.map { it.canonicalName }}")
 		if (foods.isEmpty()) return
 		collection.insertMany(foods)
 	}
@@ -74,16 +77,27 @@ class FoodCollection(database: Database): FoodPersistence {
 			.skip(page.offset).toList()
 	}
 
-	override suspend fun searchAll(searchQuery: List<String>): Map<String, FoodScore?> {
+	override suspend fun searchAll(searchQuery: List<String>, language: String): Map<String, FoodScore?> {
 		if (searchQuery.isEmpty()) return emptyMap()
-		return searchQuery.map { search(it) }.associate { it.await() }
+		return searchQuery.filter { it.isNotBlank() }.map { search(it, language) }.associate { it.await() }
 	}
 
-	private fun search(searchQuery: String): Deferred<Pair<String, FoodScore?>> {
+	override suspend fun addTranslations(missingTranslations: Map<ObjectId, List<Translation>>) {
+		missingTranslations.map { addTranslations(it.key, it.value) }.awaitAll()
+	}
+
+	private fun addTranslations(foodId: ObjectId, translations: List<Translation>): Deferred<Unit> = CoroutineScope(Dispatchers.IO).async {
+		val filter = Filters.eq("_id", foodId)
+		val update = Updates.pushEach(Food::translations.name, translations)
+		collection.updateOne(filter, update)
+	}
+
+	private fun search(searchQuery: String, language: String): Deferred<Pair<String, FoodScore?>> {
 		val options = TextSearchOptions().caseSensitive(false).diacriticSensitive(false)
 		val projection = Projections.fields(
 			Projections.include(Food::id.name),
-			Projections.include(Food::name.name),
+			Projections.include(Food::canonicalName.name),
+			Projections.include(Food::translations.name),
 			Projections.metaTextScore("score")
 		)
 		val filter = Filters.text(searchQuery, options)

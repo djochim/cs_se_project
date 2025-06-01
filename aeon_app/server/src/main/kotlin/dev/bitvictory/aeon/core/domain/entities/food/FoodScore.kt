@@ -4,9 +4,10 @@ import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.types.ObjectId
 
 data class FoodScore(
-    @BsonId val id: ObjectId = ObjectId(),
-    val name: String,
-    val score: Double
+	@BsonId val id: ObjectId = ObjectId(),
+	val canonicalName: String,
+	val translations: List<Translation>,
+	val score: Double
 ) {
-    fun toFood() = Food(id, name)
+	fun toFood() = Food(id, canonicalName, translations)
 }

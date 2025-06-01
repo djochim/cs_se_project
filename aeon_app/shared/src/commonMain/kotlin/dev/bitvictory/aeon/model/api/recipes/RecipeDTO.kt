@@ -8,6 +8,8 @@ import kotlinx.serialization.Serializable
 data class RecipeDTO(
 	val id: String,
 	val name: String,
+	val description: String,
+	val language: String,
 	val userId: String,
 	val ingredients: List<IngredientDTO>,
 	val steps: List<StepDTO>,

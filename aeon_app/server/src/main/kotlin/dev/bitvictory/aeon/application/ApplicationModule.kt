@@ -17,5 +17,5 @@ fun applicationModule(): Module = module {
 	includes(infrastructureModule(), actionCallModule(), eventProcessorModule())
 	single { SystemInformationService(getAll()) }.bind(ProvideSystemInformation::class)
 	single { UserService(getAll()) }.bind(ManagePersonalData::class)
-	single { AdvisoryService(get(), get(), get(), get(), get()) }.bind(AdviseUser::class)
+	single { AdvisoryService(get(), get(), get(), get()) }.bind(AdviseUser::class)
 }
