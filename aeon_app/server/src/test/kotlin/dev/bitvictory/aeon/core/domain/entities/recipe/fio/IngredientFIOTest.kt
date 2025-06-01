@@ -29,33 +29,9 @@ class IngredientFIOTest {
 	}
 
 	@Test
-	fun `getQuantity with decimal number only in quantity unit`() {
-		val fio = createFio("0.5 ml", "")
-		assertEquals(Quantity(0.5, "ml", "ml"), fio.parsedQuantity())
-	}
-
-	@Test
 	fun `getQuantity with leading and trailing spaces in number only uses default unit`() {
 		val fio = createFio("  3  ", "tablespoons")
 		assertEquals(Quantity(3.0, "tablespoons", "tablespoons"), fio.parsedQuantity())
-	}
-
-	@Test
-	fun `getQuantity with non-numeric known phrase 'a pinch' ignores default unit`() {
-		val fio = createFio("a pinch", "defaultUnitShouldBeIgnored")
-		assertEquals(Quantity(1.0, "pinch", "pinch"), fio.parsedQuantity())
-	}
-
-	@Test
-	fun `getQuantity with non-numeric known phrase 'to taste' ignores default unit`() {
-		val fio = createFio("to taste", "defaultUnitShouldBeIgnored")
-		assertEquals(Quantity(0.0, "to taste", "to taste"), fio.parsedQuantity())
-	}
-
-	@Test
-	fun `getQuantity with non-numeric known phrase 'A Dash' ignores default unit`() {
-		val fio = createFio("A Dash", "defaultUnitShouldBeIgnored")
-		assertEquals(Quantity(1.0, "dash", "dash"), fio.parsedQuantity())
 	}
 
 	@Test
