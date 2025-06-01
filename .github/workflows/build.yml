@@ -68,7 +68,8 @@ jobs:
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
       contents: read
-      id-token: write
+      id-token: 
+      packages: read
       #
     steps:
       - name: Checkout repository
