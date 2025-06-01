@@ -8,8 +8,15 @@ import dev.bitvictory.aeon.core.domain.entities.advisory.Advisory
 import dev.bitvictory.aeon.core.domain.entities.advisory.AdvisoryMessages
 import dev.bitvictory.aeon.core.domain.entities.advisory.Message
 import dev.bitvictory.aeon.core.domain.entities.advisory.ThreadContext
+import dev.bitvictory.aeon.core.domain.entities.assistant.event.AeonAssistantEvent
+import dev.bitvictory.aeon.core.domain.entities.assistant.event.AeonMessageEvent
+import dev.bitvictory.aeon.core.domain.entities.assistant.event.AeonThreadEvent
+import dev.bitvictory.aeon.core.domain.entities.assistant.event.ErrorEvent
+import dev.bitvictory.aeon.core.domain.entities.assistant.message.AeonMessage
+import dev.bitvictory.aeon.core.domain.entities.assistant.thread.AeonStatus
 import dev.bitvictory.aeon.core.domain.usecases.advisory.AdvisoryPersistence
 import dev.bitvictory.aeon.infrastructure.database.Database
+import dev.bitvictory.aeon.model.AeonError
 import dev.bitvictory.aeon.model.primitive.Page
 import io.ktor.util.logging.KtorSimpleLogger
 import kotlinx.coroutines.flow.first
@@ -24,6 +31,7 @@ class AdvisoryCollection(database: Database): AdvisoryPersistence {
 	}
 
 	private val collection = database.value.getCollection<Advisory>(COLLECTION_NAME)
+	private val client = database.client
 	private val logger = KtorSimpleLogger(this.javaClass.name)
 
 	override suspend fun insert(advisory: Advisory) {
@@ -31,10 +39,10 @@ class AdvisoryCollection(database: Database): AdvisoryPersistence {
 		collection.insertOne(advisory)
 	}
 
-	override suspend fun appendMessages(advisoryId: ObjectId, messages: List<Message>) {
+	override suspend fun appendMessages(advisoryId: ObjectId, messages: List<AeonMessage>) {
 		logger.debug("Write message to advisory {}", advisoryId)
 		val filter = Filters.eq("_id", advisoryId)
-		val update = Updates.addEachToSet(Advisory::messages.name, messages)
+		val update = Updates.pushEach(Advisory::messages.name, messages)
 		collection.updateOne(filter, update)
 	}
 
@@ -103,7 +111,11 @@ class AdvisoryCollection(database: Database): AdvisoryPersistence {
 	override suspend fun getById(id: ObjectId): Advisory {
 		logger.debug("Get Advisory by id {}", id)
 		val filter = Filters.eq("_id", id)
-		return collection.find<Advisory>(filter).first()
+		// Do not load events, as they are only used for debugging and can be very large
+		val projection = Projections.fields(
+			Projections.exclude(Advisory::events.name)
+		)
+		return collection.find<Advisory>(filter).projection(projection).first()
 	}
 
 	override suspend fun delete(id: ObjectId) {
@@ -112,4 +124,55 @@ class AdvisoryCollection(database: Database): AdvisoryPersistence {
 		collection.deleteOne(filter)
 	}
 
+	override suspend fun createThread(advisoryId: ObjectId, event: AeonThreadEvent.Created) {
+		val filter = Filters.eq("_id", advisoryId)
+		val updates = mutableListOf(Updates.addToSet(Advisory::events.name, event), Updates.set(Advisory::status.name, AeonStatus.PENDING))
+		event.thread?.also { updates.add(Updates.set(Advisory::threadId.name, it.id)) }
+		collection.updateOne(filter, Updates.combine(updates))
+	}
+
+	override suspend fun addEvent(advisoryId: ObjectId, event: AeonAssistantEvent) {
+		val filter = Filters.eq("_id", advisoryId)
+		val update = Updates.push(Advisory::events.name, event)
+		collection.updateOne(filter, update)
+	}
+
+	override suspend fun logErrorEvent(advisoryId: ObjectId, event: ErrorEvent) {
+		val filter = Filters.eq("_id", advisoryId)
+		val updates = mutableListOf(Updates.addToSet(Advisory::events.name, event), Updates.set(Advisory::status.name, AeonStatus.FAILED_OR_CANCELLED))
+		event.data?.also { updates.add(Updates.addToSet(Advisory::errors.name, AeonError(message = it))) }
+		collection.updateOne(filter, Updates.combine(updates))
+	}
+
+	override suspend fun updateStatus(advisoryId: ObjectId, status: AeonStatus, event: AeonAssistantEvent) {
+		val filter = Filters.eq("_id", advisoryId)
+		val updates = mutableListOf(Updates.addToSet(Advisory::events.name, event), Updates.set(Advisory::status.name, status))
+		collection.updateOne(filter, Updates.combine(updates))
+	}
+
+	override suspend fun upsertMessage(advisoryId: ObjectId, message: AeonMessage?, event: AeonMessageEvent) {
+		if (message == null) {
+			addEvent(advisoryId, event)
+			return
+		}
+
+		val pullFilter = Filters.eq("_id", advisoryId)
+		val pullUpdate = Updates.pull(
+			Advisory::messages.name,
+			Filters.eq(
+				AeonMessage::id.name,
+				message.id
+			)
+		)
+		val pullResult = collection.updateOne(pullFilter, pullUpdate)
+		if (!pullResult.wasAcknowledged()) {
+			logger.warn("Pull operation for message {} in advisory {} was not acknowledged.", message.id, advisoryId)
+			// Consider error handling or retrying
+		}
+
+		val filter = Filters.eq("_id", advisoryId)
+
+		val updates = mutableListOf(Updates.push(Advisory::events.name, event), Updates.push(Advisory::messages.name, message))
+		collection.updateOne(filter, Updates.combine(updates))
+	}
 }

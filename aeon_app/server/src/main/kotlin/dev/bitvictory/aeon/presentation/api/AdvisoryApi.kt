@@ -6,7 +6,12 @@ import dev.bitvictory.aeon.core.domain.entities.advisory.Advisory
 import dev.bitvictory.aeon.core.domain.entities.advisory.Message
 import dev.bitvictory.aeon.core.domain.entities.advisory.MessageContent
 import dev.bitvictory.aeon.core.domain.entities.advisory.StringMessage
-import dev.bitvictory.aeon.core.domain.entities.assistant.Author
+import dev.bitvictory.aeon.core.domain.entities.assistant.message.AeonMessage
+import dev.bitvictory.aeon.core.domain.entities.assistant.message.AeonMessageContent
+import dev.bitvictory.aeon.core.domain.entities.assistant.message.Author
+import dev.bitvictory.aeon.core.domain.entities.assistant.message.ImageMessageContent
+import dev.bitvictory.aeon.core.domain.entities.assistant.message.ImageURLMessageContent
+import dev.bitvictory.aeon.core.domain.entities.assistant.message.TextMessageContent
 import dev.bitvictory.aeon.model.api.AuthorDTO
 import dev.bitvictory.aeon.model.api.advisory.AdvisoryDTO
 import dev.bitvictory.aeon.model.api.advisory.MessageContentDTO
@@ -52,6 +57,9 @@ fun Route.advisories() {
 								?: throw IllegalArgumentException("Missing request id")
 						val request = call.receive<AdvisoryMessageRequest>()
 						val messageContent = request.message.toMessageContent()
+						if (messageContent.content.isBlank()) {
+							throw IllegalArgumentException("Message content cannot be blank")
+						}
 						val message =
 							Message(
 								Clock.System.now(),
@@ -79,7 +87,7 @@ fun MessageContent.toDTO() = when (this) {
 @OptIn(ExperimentalUuidApi::class)
 fun Message.toDTO() = MessageDTO(
 	this.messageId ?: Uuid.NIL.toHexString(),
-	this.messageContent.toDTO(),
+	listOf(this.messageContent.toDTO()),
 	this.creationDateTime,
 	AuthorDTO.valueOf(this.author.name),
 	this.status ?: "",
@@ -88,3 +96,17 @@ fun Message.toDTO() = MessageDTO(
 
 fun Advisory.toDTO() =
 	AdvisoryDTO(this.id.toHexString(), this.threadId, this.messages.map { it.toDTO() })
+
+fun AeonMessage.toDTO() = MessageDTO(
+	id = this.id,
+	messageContents = this.content.map { it.toDTO() },
+	creationDateTime = this.createdAt,
+	author = AuthorDTO.valueOf(this.role.name),
+	status = this.status.value
+)
+
+fun AeonMessageContent.toDTO() = when (this) {
+	is TextMessageContent     -> StringMessageDTO(this.value)
+	is ImageMessageContent    -> throw UnsupportedOperationException("Image content is not yet supported.")
+	is ImageURLMessageContent -> throw UnsupportedOperationException("Image content is not yet supported.")
+}

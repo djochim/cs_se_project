@@ -44,6 +44,9 @@ jobs:
       - name: Build and push Docker image
         id: push
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        env:
+          GITHUB_PACKAGES_USER: ${{ github.actor }}
+          GITHUB_PACKAGES_PW: ${{ secrets.GITHUB_TOKEN }}
         with:
           context: ./aeon_app
           push: true
@@ -89,6 +92,9 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     needs: [build-and-push-image, prepare_server]
+    env:
+      GITHUB_PACKAGES_USER: ${{ github.actor }}
+      GITHUB_PACKAGES_PW: ${{ secrets.GITHUB_TOKEN }}
     steps:
       # connect to server
       - uses: appleboy/ssh-action@master

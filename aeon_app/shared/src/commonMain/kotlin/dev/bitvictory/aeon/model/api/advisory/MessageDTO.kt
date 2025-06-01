@@ -8,10 +8,10 @@ import kotlin.uuid.Uuid
 
 @Serializable
 data class MessageDTO @OptIn(ExperimentalUuidApi::class) constructor(
-    val id: String? = Uuid.NIL.toHexString(),
-    val messageContent: MessageContentDTO,
-    val creationDateTime: Instant,
-    val author: AuthorDTO,
-    val status: String = "",
-    val error: String = ""
+	val id: String? = Uuid.NIL.toHexString(),
+	val messageContents: List<MessageContentDTO>,
+	val creationDateTime: Instant,
+	val author: AuthorDTO,
+	val status: String = "",
+	val error: String = ""
 )

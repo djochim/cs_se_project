@@ -3,12 +3,12 @@ title: Assistance Process
 ---
 sequenceDiagram
    participant User
-   box Green Aeon
-   participant App
+   box LightGreen Aeon
+   participant App as Android/iOS App
    participant Backend
-   participant DB
+   participant DB as Mongo DB
    end
-   participant OpenAI
+   participant OpenAI as Open AI
    User->>+App: Ask first question
    App->>+Backend: Creates a new conversation session
    Backend ->> OpenAI: Creates new Thread

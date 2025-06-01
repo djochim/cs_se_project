@@ -43,10 +43,10 @@ class ChatViewModel(private val advisorService: IAdvisorService, userService: IU
 	 * Launches a coroutine to initiate a new advisory.
 	 */
 	fun submitNewAdvisory(initialMessageText: String) {
-		val message = MessageDTO(messageContent = StringMessageDTO(initialMessageText), author = AuthorDTO.USER, creationDateTime = Clock.System.now())
+		val message = MessageDTO(messageContents = listOf(StringMessageDTO(initialMessageText)), author = AuthorDTO.USER, creationDateTime = Clock.System.now())
 		_uiState.value = _uiState.value.copy(assistantIsTyping = true, error = "", newMessage = "", messages = listOf(message))
 		viewModelScope.launch {
-			when (val advisory = advisorService.initiateAdvisory(AdvisoryMessageRequest(message.messageContent))) {
+			when (val advisory = advisorService.initiateAdvisory(AdvisoryMessageRequest(StringMessageDTO(initialMessageText)))) {
 				is AeonSuccessResponse -> {
 					_uiState.value =
 						_uiState.value.copy(messages = advisory.data.messages, advisoryId = AdvisoryIdDTO(advisory.data.id))
@@ -64,17 +64,20 @@ class ChatViewModel(private val advisorService: IAdvisorService, userService: IU
 	 * Launches a coroutine to login the user. During that time the UI state is updated with loading and afterwards back.
 	 */
 	fun submitMessage() {
-		if (_uiState.value.newMessage.isBlank() || _uiState.value.assistantIsTyping) return
+		val messageContent = _uiState.value.newMessage
+		if (messageContent.isBlank() || _uiState.value.assistantIsTyping) return
 		val message =
-			MessageDTO(id = "new", messageContent = StringMessageDTO(_uiState.value.newMessage), author = AuthorDTO.USER, creationDateTime = Clock.System.now())
-		_uiState.value = _uiState.value.copy(assistantIsTyping = true, error = "", newMessage = "", messages = _uiState.value.messages.plus(message))
+			MessageDTO(
+				id = "new",
+				messageContents = listOf(StringMessageDTO(messageContent)),
+				author = AuthorDTO.USER,
+				creationDateTime = Clock.System.now()
+			)
 		viewModelScope.launch {
-			when (val messageResponse = advisorService.addMessage(_uiState.value.advisoryId!!, AdvisoryMessageRequest(message.messageContent))) {
+			when (val messageResponse =
+				advisorService.addMessage(_uiState.value.advisoryId!!, AdvisoryMessageRequest(StringMessageDTO(messageContent)))) {
 				is AeonSuccessResponse -> {
-					_uiState.value =
-						_uiState.value.copy(
-							messages = _uiState.value.messages.filter { it.id != "new" }.plus(messageResponse.data),
-						)
+					
 				}
 
 				is AeonErrorResponse   -> {
@@ -83,6 +86,7 @@ class ChatViewModel(private val advisorService: IAdvisorService, userService: IU
 				}
 			}
 		}
+		_uiState.value = _uiState.value.copy(assistantIsTyping = true, error = "", newMessage = "", messages = _uiState.value.messages.plus(message))
 	}
 
 	fun refreshChat() {
@@ -128,7 +132,7 @@ class ChatViewModel(private val advisorService: IAdvisorService, userService: IU
 
 		is AeonErrorResponse   -> {
 			val errorMessage = MessageDTO(
-				messageContent = StringMessageDTO(advisoryResult.error.message),
+				messageContents = listOf(StringMessageDTO(advisoryResult.error.message)),
 				author = AuthorDTO.ASSISTANT,
 				creationDateTime = Clock.System.now()
 			)

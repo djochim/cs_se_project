@@ -1,0 +1,121 @@
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of the recipe."
+    },
+    "language": {
+      "type": "string",
+      "description": "Two-letter language code"
+    },
+    "ingredients": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "canonical_name": {
+            "type": "string",
+            "description": "English name of the ingredient."
+          },
+          "localizations": {
+            "type": "array",
+            "description": "name of the ingredient in other languages",
+            "items": {
+              "type": "object",
+              "properties": {
+                "lang": {
+                  "type": "string",
+                  "description": "Two-letter language code"
+                },
+                "name": {
+                  "type": "string",
+                  "description": "translated name"
+                }
+              },
+              "required": [
+                "lang",
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "quantity": {
+            "type": "number",
+            "description": "The quantity value (e.g., 200, 0.5)."
+          },
+          "canonical_unitOfMeasure": {
+            "type": "string",
+            "description": "The unit for the quantity in english (e.g., grams, ml, pieces)."
+          },
+          "unitOfMeasure": {
+            "type": "string",
+            "description": "The unit for the quantity in users language."
+          },
+          "note": {
+            "type": "string",
+            "description": "Additional details (e.g., 'chopped', 'divided').",
+            "nullable": true
+          }
+        },
+        "required": [
+          "canonical_name",
+          "localizations",
+          "quantity",
+          "canonical_unitOfMeasure",
+          "unitOfMeasure",
+          "note"
+        ],
+        "additionalProperties": false
+      },
+      "description": "List of ingredients required for the recipe."
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stepNumber": {
+            "type": "integer",
+            "description": "The order number of the step."
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of what to do in this step."
+          }
+        },
+        "required": [
+          "stepNumber",
+          "description"
+        ],
+        "additionalProperties": false
+      },
+      "description": "List of steps to prepare the recipe."
+    },
+    "tips": {
+      "type": "array",
+      "description": "Optional list of tips for preparing or serving the recipe.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "description of the tip"
+          }
+        },
+        "required": [
+          "description"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "name",
+    "language",
+    "ingredients",
+    "steps",
+    "tips"
+  ],
+  "additionalProperties": false
+}

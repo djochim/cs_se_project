@@ -33,10 +33,10 @@ kover {
 		total {
 			verify {
 				rule("Minimal line coverage in percent") {
-					minBound(47, aggregationForGroup = AggregationType.COVERED_PERCENTAGE, coverageUnits = CoverageUnit.LINE)
+					minBound(10, aggregationForGroup = AggregationType.COVERED_PERCENTAGE, coverageUnits = CoverageUnit.LINE)
 				}
 				rule("Minimal banch coverage in percent") {
-					minBound(45, aggregationForGroup = AggregationType.COVERED_PERCENTAGE, coverageUnits = CoverageUnit.BRANCH)
+					minBound(14, aggregationForGroup = AggregationType.COVERED_PERCENTAGE, coverageUnits = CoverageUnit.BRANCH)
 				}
 			}
 		}

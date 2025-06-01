@@ -7,10 +7,11 @@ import dev.bitvictory.aeon.infrastructure.environment.DatabaseEnvironment
 
 class Database {
 	private val connectionString =
-		ConnectionString("mongodb://${DatabaseEnvironment.user}:${DatabaseEnvironment.password}@${DatabaseEnvironment.url}")
+		ConnectionString("mongodb://${DatabaseEnvironment.user}:${DatabaseEnvironment.password}@${DatabaseEnvironment.url}??replicaSet=rs0")
 	private val clientSettings = MongoClientSettings.builder()
 		.applyConnectionString(connectionString)
+		.retryWrites(false)
 		.build()
-	private val client = MongoClient.create(clientSettings)
+	val client = MongoClient.create(clientSettings)
 	val value = client.getDatabase(DatabaseEnvironment.database)
 }
