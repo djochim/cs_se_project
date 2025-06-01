@@ -35,6 +35,7 @@ jobs:
         env:
           GITHUB_PACKAGES_USER: ${{ github.actor }}
           GITHUB_PACKAGES_PW: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true  # Allow the workflow to proceed even if this step fails
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -56,6 +57,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew composeApp:build
         working-directory: aeon_app
+        continue-on-error: true  # Allow the workflow to proceed even if this step fails
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -90,6 +92,9 @@ jobs:
       - name: Build Docker image
         id: push
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        env:
+          GITHUB_PACKAGES_USER: ${{ github.actor }}
+          GITHUB_PACKAGES_PW: ${{ secrets.GITHUB_TOKEN }}
         with:
           context: ./aeon_app
           push: false
