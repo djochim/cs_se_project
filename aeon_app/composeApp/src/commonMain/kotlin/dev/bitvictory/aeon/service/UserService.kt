@@ -13,6 +13,12 @@ import dev.bitvictory.aeon.storage.LocalKeyValueStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
+/**
+ * Interface defining the contract for user-related operations.
+ *
+ * This interface provides methods for managing user authentication,
+ * retrieving user information, and observing user state.
+ */
 interface IUserService {
 	val userState: StateFlow<UserState>
 	fun isAuthenticated(): Boolean

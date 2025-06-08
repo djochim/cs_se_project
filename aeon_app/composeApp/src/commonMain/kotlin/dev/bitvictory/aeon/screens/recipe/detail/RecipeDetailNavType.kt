@@ -12,6 +12,15 @@ val NavTypeJson = Json {
 	explicitNulls = true
 }
 
+/**
+ * Custom [NavType] for [RecipeHeaderDTO] objects.
+ *
+ * This NavType allows passing [RecipeHeaderDTO] objects as navigation arguments.
+ * It handles the serialization and deserialization of the [RecipeHeaderDTO] to and from JSON strings
+ * for storage in [Bundle] objects and for use in deep links.
+ *
+ * This NavType does not allow null values (`isNullableAllowed = false`).
+ */
 val RecipeHeaderNavType: NavType<RecipeHeaderDTO> = object: NavType<RecipeHeaderDTO>(
 	isNullableAllowed = false
 ) {

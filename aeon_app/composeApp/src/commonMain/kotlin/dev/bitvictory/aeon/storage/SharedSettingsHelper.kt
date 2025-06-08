@@ -14,6 +14,16 @@ interface LocalKeyValueStore {
 	var user: UserDTO?
 }
 
+/**
+ * A helper class for managing shared settings, specifically for storing and retrieving
+ * encrypted data like authentication tokens and user information.
+ *
+ * This class implements the [LocalKeyValueStore] interface, providing a standardized
+ * way to access these settings.
+ *
+ * @property encryptedSettings An instance of [Settings] that handles the actual
+ * storage and encryption/decryption of the data.
+ */
 class SharedSettingsHelper(
 	private val encryptedSettings: Settings
 ): LocalKeyValueStore {

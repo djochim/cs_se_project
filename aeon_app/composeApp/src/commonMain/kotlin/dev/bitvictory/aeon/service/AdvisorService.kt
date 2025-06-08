@@ -7,6 +7,11 @@ import dev.bitvictory.aeon.model.api.advisory.AdvisoryIdDTO
 import dev.bitvictory.aeon.model.api.advisory.MessageDTO
 import dev.bitvictory.aeon.model.api.advisory.request.AdvisoryMessageRequest
 
+/**
+ * Interface defining the contract for advisor-related services.
+ * This service handles operations such as initiating advisories, retrieving advisory details,
+ * and adding messages to existing advisories.
+ */
 interface IAdvisorService {
 	suspend fun initiateAdvisory(advisoryMessageRequest: AdvisoryMessageRequest): AeonResponse<AdvisoryDTO>
 

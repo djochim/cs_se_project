@@ -57,6 +57,15 @@ fun NavController.navigateToRecipeDetail(recipeHeaderDTO: RecipeHeaderDTO) {
 	navigate(route = RecipeDetail(recipeHeaderDTO))
 }
 
+/**
+ * Composable function for the Recipe Detail Screen.
+ *
+ * This screen displays the details of a specific recipe, including its header (name and description)
+ * and the main body content. It utilizes a [RecipeDetailViewModel] to fetch and manage the recipe data.
+ *
+ * @param onClose A lambda function to be invoked when the close button is clicked. Defaults to an empty lambda.
+ * @param recipesViewModel An instance of [RecipeDetailViewModel] responsible for providing the recipe data and handling UI state.
+ */
 @Composable
 fun RecipeDetailScreen(onClose: () -> Unit = {}, recipesViewModel: RecipeDetailViewModel) {
 	val uiState = recipesViewModel.uiState.collectAsStateWithLifecycle()

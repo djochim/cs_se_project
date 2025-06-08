@@ -48,6 +48,12 @@ fun NavHostController.navigateToMain() {
 	}
 }
 
+/**
+ * Main screen of the application, containing the bottom navigation bar and the content of the
+ * selected tab.
+ *
+ * @param rootNavHost The navigation controller for the root of the application.
+ */
 @Composable
 fun MainScreen(
 	rootNavHost: NavHostController,

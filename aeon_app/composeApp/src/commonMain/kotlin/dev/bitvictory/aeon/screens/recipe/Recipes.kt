@@ -53,6 +53,19 @@ fun NavController.navigateToRecipes() {
 	navigate(route = Recipes)
 }
 
+/**
+ * Composable function that displays the main screen of the Recipes application.
+ *
+ * This screen includes a search bar to filter recipes and a list of available recipes.
+ * It observes the UI state from the [RecipesViewModel] to update the displayed data.
+ * It also handles showing snackbar messages for events like errors or information.
+ *
+ * @param onRecipeClick A lambda function that is invoked when a recipe is clicked.
+ *                      It receives the [RecipeHeaderDTO] of the clicked recipe as a parameter.
+ * @param recipesViewModel An instance of [RecipesViewModel] that provides the UI state
+ *                         and handles business logic for this screen. Defaults to an instance
+ *                         injected by Koin.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipesScreen(onRecipeClick: (recipeHeader: RecipeHeaderDTO) -> Unit, recipesViewModel: RecipesViewModel = koinInject()) {

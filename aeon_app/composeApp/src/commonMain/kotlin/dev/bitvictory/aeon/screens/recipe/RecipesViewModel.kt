@@ -14,6 +14,15 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel for the Recipes screen.
+ *
+ * This ViewModel is responsible for fetching and managing the list of recipes,
+ * handling search queries, and communicating UI state and events to the view.
+ *
+ * @param recipeService The service responsible for fetching recipe data.
+ * @param userService The service responsible for managing user-related data.
+ */
 class RecipesViewModel(private val recipeService: IRecipeService, userService: IUserService): AbstractViewModel(userService) {
 	private val _uiState = MutableStateFlow(RecipesUIState())
 	val uiState: StateFlow<RecipesUIState> = _uiState.asStateFlow()
@@ -25,6 +34,15 @@ class RecipesViewModel(private val recipeService: IRecipeService, userService: I
 		loadRecipes(Page(), null)
 	}
 
+	/**
+	 * Handles changes to the search query.
+	 *
+	 * Updates the UI state with the new search query. If the query is longer than 3 characters,
+	 * it triggers a search for recipes matching the query. If the query is blank, it loads all
+	 * recipes.
+	 *
+	 * @param query The new search query string.
+	 */
 	fun onSearchQueryChange(query: String) {
 		_uiState.value = _uiState.value.copy(searchQuery = query)
 		if (query.length > 3) {

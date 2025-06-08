@@ -45,6 +45,16 @@ fun NavController.navigateToPrivacyInformation() {
 	navigate(route = PrivacyInformation)
 }
 
+/**
+ * Composable function for the Privacy Information screen.
+ * This screen displays the user's personal information stored by the application
+ * and provides an option to delete it.
+ *
+ * @param onClose A lambda function to be invoked when the close button is clicked.
+ *                Defaults to an empty lambda.
+ * @param profileViewModel The view model for managing the privacy information data.
+ *                         It is injected using Koin by default.
+ */
 @Composable
 fun PrivacyInformationScreen(onClose: () -> Unit = {}, profileViewModel: PrivacyInformationViewModel = koinInject()) {
 

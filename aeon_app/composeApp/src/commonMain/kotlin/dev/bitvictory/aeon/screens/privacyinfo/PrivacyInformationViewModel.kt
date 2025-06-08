@@ -15,6 +15,16 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel for managing and displaying privacy information.
+ *
+ * This ViewModel is responsible for fetching privacy information from the [IPrivacyService],
+ * managing the UI state related to privacy data, and handling user actions such as deleting
+ * privacy information entries.
+ *
+ * @property privacyService An instance of [IPrivacyService] used to interact with the privacy data source.
+ * @property userService An instance of [IUserService] (inherited from [AbstractViewModel]) for user-related operations.
+ */
 class PrivacyInformationViewModel(private val privacyService: IPrivacyService, userService: IUserService): AbstractViewModel(userService) {
 	private val _uiState = MutableStateFlow(PrivacyInformationUIState())
 	val uiState: StateFlow<PrivacyInformationUIState> = _uiState.asStateFlow()

@@ -31,6 +31,24 @@ import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
+/**
+ * Initializes Koin for dependency injection.
+ *
+ * This function sets up the Koin application by loading necessary modules.
+ * It allows for custom Koin application configuration via the `appDeclaration` parameter.
+ *
+ * The following modules are loaded by default:
+ * - `platformModule`: Contains platform-specific dependencies (e.g., Android, iOS).
+ * - `coreModule`: Provides core application logic and utilities.
+ * - `clientModule`: Handles network communication and API client setup.
+ * - `serviceModel`: Defines data models and services for interacting with the backend.
+ * - `uiModule`: Contains UI-related components and view models.
+ *
+ * @param appDeclaration A lambda function to further configure the Koin application.
+ *                       This allows for adding custom modules, properties, or other
+ *                       Koin-specific configurations. Defaults to an empty lambda.
+ * @return The started Koin application instance.
+ */
 fun initKoin(appDeclaration: KoinAppDeclaration = {}) = startKoin {
 	appDeclaration()
 	modules(

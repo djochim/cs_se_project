@@ -1,10 +1,6 @@
 package dev.bitvictory.aeon.client.aeon
 
-import dev.bitvictory.aeon.model.AeonError
-import dev.bitvictory.aeon.model.AeonErrorResponse
 import dev.bitvictory.aeon.model.AeonResponse
-import dev.bitvictory.aeon.model.ErrorType
-import dev.bitvictory.aeon.model.aeonBody
 import dev.bitvictory.aeon.model.api.advisory.AdvisoryDTO
 import dev.bitvictory.aeon.model.api.advisory.AdvisoryIdDTO
 import dev.bitvictory.aeon.model.api.advisory.MessageDTO
@@ -14,6 +10,7 @@ import dev.bitvictory.aeon.model.api.recipes.RecipesDTO
 import dev.bitvictory.aeon.model.api.system.SystemHealthDTO
 import dev.bitvictory.aeon.model.api.user.privacy.PrivacyInformationDTO
 import dev.bitvictory.aeon.model.api.user.privacy.PrivacyInformationPatchDTO
+import dev.bitvictory.aeon.model.common.util.requestWrapper
 import dev.bitvictory.aeon.model.primitive.Page
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
@@ -21,8 +18,6 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.HttpResponse
-import kotlinx.io.IOException
 
 class AeonApiClient internal constructor(
 	private val baseUrl: String,
@@ -72,16 +67,6 @@ class AeonApiClient internal constructor(
 
 	override suspend fun getRecipe(id: String): AeonResponse<RecipeDTO> = requestWrapper {
 		client.get("$baseUrl/recipes/$id")
-	}
-
-	private suspend inline fun <reified T> requestWrapper(request: () -> HttpResponse): AeonResponse<T> {
-		try {
-			val response = request()
-			return response.aeonBody()
-		} catch (e: IOException) {
-			e.printStackTrace()
-			return AeonErrorResponse(500, AeonError(message = "Error connecting to the server"), ErrorType.UNAVAILABLE_SERVER)
-		}
 	}
 
 }

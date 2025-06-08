@@ -1,17 +1,15 @@
 package dev.bitvictory.aeon.client
 
 import dev.bitvictory.aeon.exceptions.AuthException
-import dev.bitvictory.aeon.model.AeonError
 import dev.bitvictory.aeon.model.AeonErrorResponse
 import dev.bitvictory.aeon.model.AeonResponse
 import dev.bitvictory.aeon.model.AeonSuccessResponse
-import dev.bitvictory.aeon.model.ErrorType
-import dev.bitvictory.aeon.model.aeonBody
 import dev.bitvictory.aeon.model.api.user.UpdateUserRequest
 import dev.bitvictory.aeon.model.api.user.UserDTO
 import dev.bitvictory.aeon.model.api.user.auth.LoginDTO
 import dev.bitvictory.aeon.model.api.user.auth.LoginRefreshDTO
 import dev.bitvictory.aeon.model.api.user.auth.TokenDTO
+import dev.bitvictory.aeon.model.common.util.requestWrapper
 import dev.bitvictory.aeon.storage.LocalKeyValueStore
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpRequestRetry
@@ -33,7 +31,6 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.io.IOException
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 
@@ -46,6 +43,19 @@ class AuthClient(
 	private val _tokenRefreshEvents = MutableSharedFlow<AeonResponse<TokenDTO>>()
 	override val tokenRefreshEvents: SharedFlow<AeonResponse<TokenDTO>> = _tokenRefreshEvents
 
+	/**
+	 * The HTTP client used for making API requests.
+	 *
+	 * It is configured with the following features:
+	 * - Logging: Logs all requests and responses, sanitizing the Authorization header.
+	 * - ContentNegotiation: Uses JSON for serialization and deserialization, with lenient parsing and ignoring unknown keys.
+	 * - HttpTimeout: Sets a request timeout of 10 seconds and a connect timeout of 1 second.
+	 * - HttpRequestRetry: Retries requests once on server errors with exponential backoff, adding an "X-Retry-Count" header.
+	 * - Auth: Handles Bearer token authentication, loading tokens from [localKeyValueStore] and refreshing them when necessary.
+	 * - DefaultRequest: Sets the default content type to "application/json".
+	 * - FollowRedirects: Allows following redirects.
+	 * - ExpectSuccess: Does not throw an exception on non-2xx responses.
+	 */
 	private val client = HttpClient {
 		install(Logging) {
 			level = LogLevel.ALL
@@ -104,52 +114,28 @@ class AuthClient(
 		expectSuccess = false
 	}
 
-	override suspend fun login(login: LoginDTO): AeonResponse<TokenDTO> {
-		try {
-			val response = client.post("$baseUrl/login") {
-				contentType(ContentType.Application.Json)
-				setBody(login)
-			}
-			return response.aeonBody<TokenDTO>()
-		} catch (e: IOException) {
-			e.printStackTrace()
-			return AeonErrorResponse(500, AeonError(message = "Error connecting to the server"), ErrorType.UNAVAILABLE_SERVER)
+	override suspend fun login(login: LoginDTO): AeonResponse<TokenDTO> = requestWrapper {
+		client.post("$baseUrl/login") {
+			contentType(ContentType.Application.Json)
+			setBody(login)
 		}
 	}
 
-	override suspend fun refreshLogin(refresh: LoginRefreshDTO): AeonResponse<TokenDTO> {
-		try {
-			val response = client.post("$baseUrl/login/refresh") {
-				contentType(ContentType.Application.Json)
-				setBody(refresh)
-			}
-			return response.aeonBody<TokenDTO>()
-		} catch (e: IOException) {
-			e.printStackTrace()
-			return AeonErrorResponse(500, AeonError(message = "Error connecting to the server"), ErrorType.UNAVAILABLE_SERVER)
+	override suspend fun refreshLogin(refresh: LoginRefreshDTO): AeonResponse<TokenDTO> = requestWrapper {
+		client.post("$baseUrl/login/refresh") {
+			contentType(ContentType.Application.Json)
+			setBody(refresh)
 		}
 	}
 
-	override suspend fun getUser(): AeonResponse<UserDTO> {
-		try {
-			val response = client.get("$baseUrl/users")
-			return response.aeonBody<UserDTO>()
-		} catch (e: IOException) {
-			e.printStackTrace()
-			return AeonErrorResponse(500, AeonError(message = "Error connecting to the server"), ErrorType.UNAVAILABLE_SERVER)
-		}
+	override suspend fun getUser(): AeonResponse<UserDTO> = requestWrapper {
+		client.get("$baseUrl/users")
 	}
 
-	override suspend fun updateUser(user: UpdateUserRequest): AeonResponse<Any> {
-		try {
-			val response = client.patch("$baseUrl/users") {
-				contentType(ContentType.Application.Json)
-				setBody(user)
-			}
-			return response.aeonBody<Any>()
-		} catch (e: IOException) {
-			e.printStackTrace()
-			return AeonErrorResponse(500, AeonError(message = "Error connecting to the server"), ErrorType.UNAVAILABLE_SERVER)
+	override suspend fun updateUser(user: UpdateUserRequest): AeonResponse<Any> = requestWrapper {
+		client.patch("$baseUrl/users") {
+			contentType(ContentType.Application.Json)
+			setBody(user)
 		}
 	}
 
