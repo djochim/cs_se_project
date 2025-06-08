@@ -1,29 +1,21 @@
 package dev.bitvictory.aeon.application.service
 
-import dev.bitvictory.aeon.core.domain.entities.recipe.Recipe
-import dev.bitvictory.aeon.infrastructure.database.repository.RecipeCollection
+import dev.bitvictory.aeon.application.usecases.recipes.ManageRecipes
+import dev.bitvictory.aeon.core.domain.entities.user.User
+import dev.bitvictory.aeon.core.domain.usecases.recipe.RecipePersistence
 import dev.bitvictory.aeon.model.primitive.Page
 import org.bson.types.ObjectId
-import java.time.*
-import java.util.*
-
-val DEFAULT_INGREDIENT_ID: ObjectId = ObjectId.getSmallestWithDate(Date.from(Instant.EPOCH))
 
 class RecipeService(
-	private val recipeCollection: RecipeCollection,
-	private val foodService: FoodService
-) {
+	private val recipePersistence: RecipePersistence
+): ManageRecipes {
 
-	suspend fun insert(recipe: Recipe) {
-//        recipeCollection.insert(recipe.copy(ingredients = replacedIngredients))
-	}
+	override suspend fun getAll(page: Page, user: User) = recipePersistence.getAll(page, user)
 
-	suspend fun getAll(page: Page) = recipeCollection.getAll(page)
+	override suspend fun search(searchQuery: String, page: Page, user: User) = recipePersistence.search(searchQuery, page, user)
 
-	suspend fun getById(id: ObjectId) = recipeCollection.getById(id)
+	override suspend fun getById(id: String, user: User) = recipePersistence.getById(ObjectId(id), user)
 
-	suspend fun delete(id: ObjectId) = recipeCollection.delete(id)
-
-	suspend fun search(searchQuery: String, page: Page) = recipeCollection.search(searchQuery, page)
+	override suspend fun delete(id: String, user: User) = recipePersistence.delete(ObjectId(id), user)
 
 }

@@ -8,6 +8,7 @@ import dev.bitvictory.aeon.configuration.configureContentNegotiation
 import dev.bitvictory.aeon.configuration.configureErrorHandling
 import dev.bitvictory.aeon.configuration.configureObservability
 import dev.bitvictory.aeon.presentation.api.advisories
+import dev.bitvictory.aeon.presentation.api.recipes
 import dev.bitvictory.aeon.presentation.api.system
 import dev.bitvictory.aeon.presentation.api.user
 import io.ktor.server.application.Application
@@ -43,5 +44,6 @@ fun Application.module() {
 		system()
 		user()
 		advisories()
+		recipes()
 	}
 }

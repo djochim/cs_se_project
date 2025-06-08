@@ -3,6 +3,7 @@ package dev.bitvictory.aeon.model.api.recipes
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RecipesDTO(
-	val items: List<RecipeHeaderDTO>
+data class PreparationDTO(
+	val durationMinutes: Int = 0,
+	val complexity: Int = 0
 )
