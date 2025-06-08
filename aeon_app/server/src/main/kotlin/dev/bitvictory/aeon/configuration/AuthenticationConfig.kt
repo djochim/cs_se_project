@@ -9,6 +9,23 @@ import io.ktor.server.auth.Authentication
 import io.ktor.server.auth.jwt.JWTCredential
 import io.ktor.server.auth.jwt.jwt
 
+/**
+ * Configures JWT authentication for the Ktor application.
+ *
+ * This function installs the Ktor Authentication feature and configures it to use JWT (JSON Web Token)
+ * for authenticating requests. It sets up the realm, verifier, and validation logic.
+ *
+ * The configuration relies on values provided by `AuthenticationEnvironment` for:
+ * - `jwkRealm`: The realm string to be used in WWW-Authenticate headers.
+ * - `jwkProvider`: The JWK (JSON Web Key) provider URL used to fetch public keys for signature verification.
+ * - `jwkIssuer`: The expected issuer of the JWT.
+ *
+ * It also allows for a small leeway (3 seconds) in token expiration to account for clock skew.
+ *
+ * The `validateCredentials` function (not shown in this snippet) is responsible for any additional
+ * validation of the decoded JWT payload (e.g., checking user existence, roles, etc.) and
+ * returning a `Principal` if the credentials are valid, or `null` otherwise.
+ */
 fun Application.configureAuthentication() {
 	install(Authentication) {
 		jwt {
@@ -50,7 +67,7 @@ internal suspend fun validateCredentials(credentials: JWTCredential): User? {
 		validToken = false
 		logger.error("Token subject missing")
 	}
-	
+
 	return if (validToken) {
 		User(userId)
 	} else {

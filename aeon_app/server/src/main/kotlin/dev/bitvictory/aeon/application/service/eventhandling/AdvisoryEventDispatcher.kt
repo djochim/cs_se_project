@@ -14,6 +14,20 @@ import dev.bitvictory.aeon.core.domain.entities.assistant.event.UnknownEvent
 import io.ktor.util.logging.KtorSimpleLogger
 import org.bson.types.ObjectId
 
+/**
+ * AdvisoryEventDispatcher is responsible for dispatching AeonAssistantEvents to their respective processors.
+ * It takes an advisoryId and an AeonAssistantEvent as input, and returns an AeonActionCallWrapper.
+ *
+ * @property threadEventProcessor Processor for AeonThreadEvents.
+ * @property messageEventProcessor Processor for AeonMessageEvents.
+ * @property messageDeltaEventProcessor Processor for AeonMessageDeltaEvents.
+ * @property runEventProcessor Processor for AeonRunEvents.
+ * @property runStepEventProcessor Processor for AeonRunStepEvents.
+ * @property runStepDeltaEventProcessor Processor for AeonRunStepDeltaEvents.
+ * @property doneEventProcessor Processor for DoneEvents.
+ * @property errorEventProcessor Processor for ErrorEvents.
+ * @property unknownEventProcessor Processor for UnknownEvents.
+ */
 class AdvisoryEventDispatcher(
 	private val threadEventProcessor: ThreadEventProcessor,
 	private val messageEventProcessor: MessageEventProcessor,

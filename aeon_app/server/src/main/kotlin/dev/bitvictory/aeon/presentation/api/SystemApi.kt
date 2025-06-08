@@ -12,6 +12,12 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import org.koin.ktor.ext.inject
 
+/**
+ * Defines routes related to system information and health checks.
+ *
+ * This extension function on [Route] sets up a nested route structure under `/system`.
+ * Currently, it exposes a health check endpoint at `/system/health`.
+ */
 fun Route.system() {
 	route("/system") {
 		val provideSystemInformation: ProvideSystemInformation by inject()

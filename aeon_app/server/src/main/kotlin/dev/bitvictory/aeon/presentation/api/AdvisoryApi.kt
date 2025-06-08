@@ -32,6 +32,35 @@ import org.koin.ktor.ext.inject
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+/**
+ * Defines the routes for handling advisories within the application.
+ *
+ * This function sets up the following authenticated endpoints:
+ *
+ * - **POST /advisories**: Creates a new advisory.
+ *   - Expects a JSON request body of type `AdvisoryMessageRequest`.
+ *   - Initializes a new advisory with the provided message.
+ *   - The message author is set to `Author.USER` and the principal is taken from the authenticated user.
+ *   - Returns HTTP status `201 Created` with the DTO representation of the newly created advisory.
+ *
+ * - **GET /advisories/{id}**: Retrieves a specific advisory by its ID.
+ *   - `{id}`: The unique identifier of the advisory to retrieve.
+ *   - Ensures that the authenticated user has permission to access the advisory.
+ *   - Returns HTTP status `200 OK` with the DTO representation of the advisory if found and accessible.
+ *   - Throws `IllegalArgumentException` if the `id` parameter is missing.
+ *
+ * - **POST /advisories/{id}/messages**: Adds a new message to an existing advisory.
+ *   - `{id}`: The unique identifier of the advisory to which the message will be added.
+ *   - Expects a JSON request body of type `AdvisoryMessageRequest`.
+ *   - The message author is set to `Author.USER` and the principal is taken from the authenticated user.
+ *   - Validates that the message content is not blank.
+ *   - Returns HTTP status `201 Created` with the DTO representation of the newly added message.
+ *   - Throws `IllegalArgumentException` if the `id` parameter is missing or if the message content is blank.
+ *
+ * Authentication is required for all routes defined within this function.
+ * It utilizes an `AdvisoryService` (injected via Koin) to handle the business logic
+ * for creating, retrieving, and updating advisories and their messages.
+ */
 fun Route.advisories() {
 	authenticate {
 		route("/advisories") {

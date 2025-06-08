@@ -29,6 +29,11 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import org.koin.ktor.ext.inject
 
+/**
+ * Defines the routes for recipe-related operations.
+ *
+ * All routes under "/recipes" require authentication.
+ */
 fun Route.recipes() {
 	authenticate {
 		route("/recipes") {

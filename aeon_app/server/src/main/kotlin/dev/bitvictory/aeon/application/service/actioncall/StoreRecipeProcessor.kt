@@ -20,6 +20,18 @@ import dev.bitvictory.aeon.core.domain.usecases.food.FoodPersistence
 import dev.bitvictory.aeon.core.domain.usecases.recipe.RecipePersistence
 import org.bson.types.ObjectId
 
+/**
+ * Processes actions related to storing recipes.
+ *
+ * This class is responsible for handling the "StoreRecipe" action, which involves:
+ * 1. Parsing the recipe details from the action.
+ * 2. Retrieving or creating food items for the ingredients.
+ * 3. Persisting the recipe to the database.
+ * 4. Returning a confirmation message.
+ *
+ * @property recipePersistence The persistence layer for recipes.
+ * @property foodPersistence The persistence layer for food items.
+ */
 class StoreRecipeProcessor(private val recipePersistence: RecipePersistence, private val foodPersistence: FoodPersistence): AeonActionProcessor {
 
 	override fun actionName(): String = StoreRecipeFunction.name
@@ -49,6 +61,26 @@ class StoreRecipeProcessor(private val recipePersistence: RecipePersistence, pri
 
 	private fun getSteps(steps: List<StepFIO>): List<Step> = steps.map { Step(it.stepNumber, it.description) }
 
+	/**
+	 * Retrieves or creates ingredients based on the provided list of [IngredientFIO] objects and language.
+	 *
+	 * This function performs the following steps:
+	 * 1. Searches for existing foods in the persistence layer based on the canonical names and language.
+	 * 2. Identifies ingredients that are missing from the persistence layer.
+	 * 3. Identifies existing foods that are missing translations for the specified language.
+	 * 4. Creates new food entries for the missing ingredients.
+	 * 5. Adds missing translations to existing food entries.
+	 * 6. Constructs and returns a list of [Ingredient] objects, ensuring each ingredient has a corresponding food ID,
+	 *    canonical name, parsed quantity, note, and relevant translations.
+	 *
+	 * @param ingredients A list of [IngredientFIO] objects representing the ingredients to process.
+	 *                    [IngredientFIO] likely contains the canonical name and raw quantity/note information.
+	 * @param language The target language for translations.
+	 * @return A list of [Ingredient] objects, where each object represents a processed ingredient
+	 *         with its associated food information and translations.
+	 * @throws IllegalStateException if, after attempting to create missing foods, an unknown food is encountered.
+	 *                               This indicates an unexpected state where a food that should have been created was not.
+	 */
 	private suspend fun getIngredients(ingredients: List<IngredientFIO>, language: String): List<Ingredient> {
 		val persistedFood = foodPersistence.searchAll(ingredients.map { it.canonicalName }, language).filter { (it.value?.score ?: 0).toDouble() > 0.5 }
 		val missingIngredients = ingredients.filter { !persistedFood.containsKey(it.canonicalName) }

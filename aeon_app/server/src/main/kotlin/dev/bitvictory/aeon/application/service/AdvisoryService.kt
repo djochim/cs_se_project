@@ -42,6 +42,26 @@ class AdvisoryService(
 
 	private val logger = KtorSimpleLogger(this.javaClass.name)
 
+	/**
+	 * Starts a new advisory based on the provided message.
+	 *
+	 * This function performs the following steps:
+	 * 1. Extracts the string content from the input `Message`.
+	 * 2. Creates a new `Advisory` object with an initial `AeonMessage` based on the input.
+	 *    - The advisory is initialized with a status of `CREATED`.
+	 *    - The initial message is from the `USER` and has a status of `FINALIZED`.
+	 * 3. Persists the newly created `Advisory` using `advisoryPersistence`.
+	 * 4. Launches a background coroutine to handle the event flow.
+	 *    - This involves executing an assistant (specifically `HealthAssistant`) with the message content.
+	 *    - The `handleEventFlow` function is called to process the assistant's response.
+	 * 5. Returns the newly created `Advisory` object.
+	 *
+	 * @param message The initial message from the user that triggers the new advisory.
+	 * @return The newly created `Advisory` object.
+	 * @throws IllegalArgumentException if the `message.messageContent` is not a `StringMessage`.
+	 *                                  (Implicitly, as the `when` expression is not exhaustive,
+	 *                                  though in this specific implementation it only handles `StringMessage`.)
+	 */
 	@OptIn(ExperimentalUuidApi::class)
 	override suspend fun startNewAdvisory(message: Message): Advisory {
 		val stringMessage = when (val content = message.messageContent) {
@@ -84,6 +104,23 @@ class AdvisoryService(
 		return advisoryPersistence.getNewMessages(id, lastTimestamp)
 	}
 
+	/**
+	 * Adds a new message to an existing advisory.
+	 *
+	 * The message content must be a String. It validates that the user adding the message
+	 * is the same user associated with the advisory's thread context.
+	 *
+	 * The message is then sent to an assistant (HealthAssistant in this case) for processing
+	 * in a background coroutine. Simultaneously, the message is persisted to the advisory's
+	 * message history.
+	 *
+	 * @param advisoryId The ObjectId of the advisory to which the message will be added.
+	 * @param message The Message object containing the content, author, user, and creation timestamp.
+	 * @return The original Message object that was added.
+	 * @throws InvalidMessageException if the message content is not a String.
+	 * @throws AuthorizationException if the user attempting to add the message is not authorized
+	 *                                for the advisory's thread.
+	 */
 	@OptIn(ExperimentalUuidApi::class)
 	override suspend fun addMessage(advisoryId: ObjectId, message: Message): Message {
 		val stringMessage = when (val content = message.messageContent) {
@@ -119,6 +156,17 @@ class AdvisoryService(
 		return message
 	}
 
+	/**
+	 * Handles the flow of Aeon Assistant events.
+	 *
+	 * This function processes a stream of events, dispatches them, executes associated actions,
+	 * submits results, and recursively handles any further event flows generated.
+	 * It includes error handling at each stage of the processing pipeline.
+	 *
+	 * @param advisoryId The ObjectId of the advisory associated with these events.
+	 * @param user The User initiating or involved in the event flow.
+	 * @param eventFlow A Flow of [AeonAssistantEvent] to be processed.
+	 */
 	private suspend fun handleEventFlow(advisoryId: ObjectId, user: User, eventFlow: Flow<AeonAssistantEvent>) {
 		eventFlow.catch { e -> logger.error("Error executing event flow", e) }
 			.map { advisoryEventDispatcher.dispatch(advisoryId = advisoryId, it) }
