@@ -1,5 +1,14 @@
 # Stage 1: Cache Gradle dependencies
 FROM gradle:8.12.1-jdk21 AS cache
+
+# Accept build arguments for GitHub Packages credentials
+ARG GITHUB_PACKAGES_USER
+ARG GITHUB_PACKAGES_PW
+
+# Use the credentials in the Gradle build process
+ENV GITHUB_PACKAGES_USER=${GITHUB_PACKAGES_USER}
+ENV GITHUB_PACKAGES_PW=${GITHUB_PACKAGES_PW}
+
 RUN mkdir -p /home/gradle/cache_home
 ENV GRADLE_USER_HOME=/home/gradle/cache_home
 COPY build.gradle.kts gradle.properties settings.gradle.kts /home/gradle/app/
