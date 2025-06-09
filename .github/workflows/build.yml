@@ -101,3 +101,6 @@ jobs:
           push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            GITHUB_PACKAGES_USER=${{ github.actor }}
+            GITHUB_PACKAGES_PW=${{ secrets.GITHUB_TOKEN }}
