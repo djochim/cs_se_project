@@ -35,6 +35,13 @@ fun ProfileSetting(label: String, value: String) {
 	}
 }
 
+/**
+ * Composable function that displays the user's profile screen.
+ *
+ * @param onLogout Callback function to be invoked when the user logs out.
+ * @param onPrivacyInformation Callback function to be invoked when the user clicks on the privacy information link.
+ * @param profileViewModel The view model for the profile screen.
+ */
 @Composable
 fun ProfileScreen(onLogout: () -> Unit, onPrivacyInformation: () -> Unit, profileViewModel: ProfileViewModel = koinInject()) {
 

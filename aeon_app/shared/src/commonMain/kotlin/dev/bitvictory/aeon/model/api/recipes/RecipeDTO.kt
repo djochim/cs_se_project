@@ -13,5 +13,6 @@ data class RecipeDTO(
 	val userId: String,
 	val ingredients: List<IngredientDTO>,
 	val steps: List<StepDTO>,
-	val tips: List<TipDTO>
+	val tips: List<TipDTO>,
+	val preparation: PreparationDTO = PreparationDTO()
 )

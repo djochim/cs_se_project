@@ -10,7 +10,10 @@ data class IngredientDTO(
 	val translations: List<TranslationDTO?>,
 	val quantity: QuantityDTO,
 	val note: String?
-)
+) {
+	val name: String
+		get() = translations.firstOrNull()?.text ?: canonicalFoodName
+}
 
 @Serializable
 data class QuantityDTO(

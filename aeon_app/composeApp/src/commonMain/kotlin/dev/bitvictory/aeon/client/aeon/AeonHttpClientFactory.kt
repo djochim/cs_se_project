@@ -20,6 +20,21 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.protobuf.protobuf
 import kotlinx.serialization.protobuf.ProtoBuf
 
+/**
+ * Factory object for creating instances of `HttpClient` configured for Aeon services.
+ *
+ * This factory provides a pre-configured `HttpClient` with common settings, including:
+ * - **Logging:** Logs all HTTP requests and responses, sanitizing the Authorization header.
+ * - **Content Negotiation:** Uses Protocol Buffers (ProtoBuf) for serialization and deserialization.
+ * - **Timeouts:** Configures request, connection, and socket timeouts.
+ * - **Request Retry:** Implements retry logic for server errors and exceptions with exponential backoff.
+ * - **Authentication:** Integrates with `IUserService` to automatically handle Bearer token authentication
+ *   and token refresh.
+ * - **Default Request Headers:** Sets the default `Content-Type` to `application/x-protobuf`.
+ * - **Redirects:** Enables following HTTP redirects.
+ * - **Expect Success:** Disables the default behavior of throwing exceptions for non-2xx responses,
+ *   allowing for more granular error handling by the caller.
+ */
 object AeonHttpClientFactory {
 
 	fun create(userService: IUserService) = HttpClient {

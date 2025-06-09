@@ -8,6 +8,7 @@ import dev.bitvictory.aeon.configuration.configureContentNegotiation
 import dev.bitvictory.aeon.configuration.configureErrorHandling
 import dev.bitvictory.aeon.configuration.configureObservability
 import dev.bitvictory.aeon.presentation.api.advisories
+import dev.bitvictory.aeon.presentation.api.recipes
 import dev.bitvictory.aeon.presentation.api.system
 import dev.bitvictory.aeon.presentation.api.user
 import io.ktor.server.application.Application
@@ -20,6 +21,12 @@ import org.slf4j.LoggerFactory
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
+/**
+ * Configures the Ktor application.
+ *
+ * This function is the main entry point for configuring the Ktor application. It sets up the application environment,
+ * logging, observability, dependency injection, error handling, content negotiation, authentication, and routing.
+ */
 fun Application.module() {
 	val serverConfig = HoconApplicationConfig(ConfigFactory.load())
 	applicationEnvironment {
@@ -43,5 +50,6 @@ fun Application.module() {
 		system()
 		user()
 		advisories()
+		recipes()
 	}
 }

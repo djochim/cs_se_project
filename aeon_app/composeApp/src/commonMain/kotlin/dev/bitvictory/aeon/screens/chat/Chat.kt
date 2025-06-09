@@ -59,6 +59,13 @@ fun NavController.navigateToChat(query: String) {
 	navigate(route = Chat(query))
 }
 
+/**
+ * Composable function for the chat screen.
+ *
+ * @param initialChat The initial chat to display.
+ * @param onClose Callback to close the chat screen.
+ * @param chatViewModel The view model for the chat screen.
+ */
 @Composable
 fun ChatScreen(initialChat: Chat, onClose: () -> Unit, chatViewModel: ChatViewModel = koinInject()) {
 

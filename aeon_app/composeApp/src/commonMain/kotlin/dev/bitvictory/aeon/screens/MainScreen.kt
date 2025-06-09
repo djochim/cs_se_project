@@ -28,6 +28,10 @@ import dev.bitvictory.aeon.screens.privacyinfo.navigateToPrivacyInformation
 import dev.bitvictory.aeon.screens.privacyinfo.privacyInformationDestination
 import dev.bitvictory.aeon.screens.profile.Profile
 import dev.bitvictory.aeon.screens.profile.profileDestination
+import dev.bitvictory.aeon.screens.recipe.Recipes
+import dev.bitvictory.aeon.screens.recipe.detail.navigateToRecipeDetail
+import dev.bitvictory.aeon.screens.recipe.detail.recipeDetailDestination
+import dev.bitvictory.aeon.screens.recipe.recipesDestination
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -44,6 +48,12 @@ fun NavHostController.navigateToMain() {
 	}
 }
 
+/**
+ * Main screen of the application, containing the bottom navigation bar and the content of the
+ * selected tab.
+ *
+ * @param rootNavHost The navigation controller for the root of the application.
+ */
 @Composable
 fun MainScreen(
 	rootNavHost: NavHostController,
@@ -71,7 +81,12 @@ fun MainScreen(
 			homeDestination {
 				mainNavController.navigateToChat(it)
 			}
-			recipesDestination()
+			recipesDestination(onRecipeClick = { recipeHeader ->
+				mainNavController.navigateToRecipeDetail(recipeHeader)
+			})
+			recipeDetailDestination {
+				mainNavController.popBackStack()
+			}
 			profileDestination(onLogout = {
 				rootNavHost.navigateToLogin()
 			}, onPrivacyInformation = {

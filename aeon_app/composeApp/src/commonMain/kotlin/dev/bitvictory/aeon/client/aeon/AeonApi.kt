@@ -5,10 +5,18 @@ import dev.bitvictory.aeon.model.api.advisory.AdvisoryDTO
 import dev.bitvictory.aeon.model.api.advisory.AdvisoryIdDTO
 import dev.bitvictory.aeon.model.api.advisory.MessageDTO
 import dev.bitvictory.aeon.model.api.advisory.request.AdvisoryMessageRequest
+import dev.bitvictory.aeon.model.api.recipes.RecipeDTO
+import dev.bitvictory.aeon.model.api.recipes.RecipesDTO
 import dev.bitvictory.aeon.model.api.system.SystemHealthDTO
 import dev.bitvictory.aeon.model.api.user.privacy.PrivacyInformationDTO
 import dev.bitvictory.aeon.model.api.user.privacy.PrivacyInformationPatchDTO
+import dev.bitvictory.aeon.model.primitive.Page
 
+/**
+ * Interface defining the API for interacting with the Aeon service.
+ * This interface outlines the available suspend functions for various operations
+ * related to advisories, messages, privacy information, system status, and recipes.
+ */
 interface AeonApi {
 
 	suspend fun postAdvisory(advisoryMessageRequest: AdvisoryMessageRequest): AeonResponse<AdvisoryDTO>
@@ -22,4 +30,6 @@ interface AeonApi {
 	suspend fun patchPrivacyInformation(privacyInformationPatchDTO: PrivacyInformationPatchDTO): AeonResponse<Unit>
 
 	suspend fun getStatus(): AeonResponse<SystemHealthDTO>
+	suspend fun getRecipes(page: Page, searchQuery: String?): AeonResponse<RecipesDTO>
+	suspend fun getRecipe(id: String): AeonResponse<RecipeDTO>
 }

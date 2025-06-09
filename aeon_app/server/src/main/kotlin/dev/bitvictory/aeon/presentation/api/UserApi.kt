@@ -24,6 +24,10 @@ import io.ktor.server.routing.patch
 import io.ktor.server.routing.route
 import org.koin.ktor.ext.inject
 
+/**
+ * Defines routes related to user operations.
+ * Requires authentication for all routes within this scope.
+ */
 fun Route.user() {
 	authenticate {
 		route("/user") {

@@ -11,14 +11,13 @@ sequenceDiagram
    participant OpenAI as Open AI
    User->>+App: Ask first question
    App->>+Backend: Creates a new conversation session
+   Backend ->> DB: Saves conversation details
    Backend ->> OpenAI: Creates new Thread
    Backend ->> OpenAI: Runs Assistant on Thread
-   Backend ->> DB: Saves conversation details
    par Background Job
       loop until thread run is finished
-       Backend ->> OpenAI: Get messages from Thread
-       OpenAI -->> Backend: Returns messages
-       Backend ->> DB: Updates conversation with new messages
+       OpenAI ->> Backend: send updates on Thread
+       Backend ->> DB: Updates conversation with updates
       end
     and
       Backend ->>- App: Returns conversation details
@@ -39,8 +38,7 @@ sequenceDiagram
    Backend ->> DB: Updates conversation with new messages
    par Background Job
       loop until thread run is finished
-       Backend ->> OpenAI: Get messages from Thread
-       OpenAI -->> Backend: Returns messages
+       OpenAI -->> Backend: Get new messages from Thread
        Backend ->> DB: Updates conversation with new messages
       end
     and

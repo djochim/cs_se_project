@@ -12,6 +12,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import org.bson.types.ObjectId
 
+/**
+ * Dispatches action calls to the appropriate [AeonActionProcessor].
+ *
+ * This class is responsible for receiving a wrapper containing multiple action calls,
+ * finding the correct processor for each action based on its name, and then executing
+ * the action using that processor. It aggregates the results of all processed actions.
+ *
+ * @property actionProcessors A list of [AeonActionProcessor] instances that this dispatcher can use.
+ */
 class ActionCallDispatcher(private val actionProcessors: List<AeonActionProcessor>) {
 
 	suspend fun dispatch(advisoryId: ObjectId, user: User, actionWrapper: AeonActionCallWrapper): AeonToolOutputs {

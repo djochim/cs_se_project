@@ -26,6 +26,16 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlin.time.Duration.Companion.milliseconds
 
+/**
+ * ViewModel for the Chat screen.
+ *
+ * This ViewModel is responsible for managing the state of the chat UI,
+ * handling user interactions, and communicating with the [IAdvisorService]
+ * and [IUserService].
+ *
+ * @param advisorService The service responsible for handling advisory-related operations.
+ * @param userService The service responsible for handling user-related operations.
+ */
 class ChatViewModel(private val advisorService: IAdvisorService, userService: IUserService): AbstractViewModel(userService) {
 	private val _uiState = MutableStateFlow(ChatUIState())
 	val uiState: StateFlow<ChatUIState> = _uiState.asStateFlow()
@@ -77,7 +87,7 @@ class ChatViewModel(private val advisorService: IAdvisorService, userService: IU
 			when (val messageResponse =
 				advisorService.addMessage(_uiState.value.advisoryId!!, AdvisoryMessageRequest(StringMessageDTO(messageContent)))) {
 				is AeonSuccessResponse -> {
-					
+
 				}
 
 				is AeonErrorResponse   -> {

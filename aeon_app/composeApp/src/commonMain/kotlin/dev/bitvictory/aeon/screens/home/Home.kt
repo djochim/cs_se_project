@@ -38,6 +38,17 @@ fun NavController.navigateToHome() {
 	navigate(route = Home)
 }
 
+/**
+ * Composable function for the home screen of the application.
+ *
+ * This screen displays a text field for users to input queries and a button to submit them.
+ * It also shows a title and a disclaimer.
+ *
+ * @param onQuerySubmit A lambda function that is invoked when the user submits a query.
+ *                      It takes the query string as a parameter.
+ * @param viewModel An instance of [HomeViewModel] used to manage the UI state of this screen.
+ *                  It is injected by default using Koin.
+ */
 @Composable
 fun HomeScreen(onQuerySubmit: (query: String) -> Unit, viewModel: HomeViewModel = koinViewModel()) {
 	val homeUIState by viewModel.uiState.collectAsState()
