@@ -21,6 +21,15 @@ RUN gradle build -i --stacktrace
 
 # Stage 2: Build Application
 FROM gradle:8.12.1-jdk21 AS build
+
+# Accept build arguments for GitHub Packages credentials
+ARG GITHUB_PACKAGES_USER
+ARG GITHUB_PACKAGES_PW
+
+# Use the credentials in the Gradle build process
+ENV GITHUB_PACKAGES_USER=${GITHUB_PACKAGES_USER}
+ENV GITHUB_PACKAGES_PW=${GITHUB_PACKAGES_PW}
+
 COPY --from=cache /home/gradle/cache_home /home/gradle/.gradle
 COPY . /usr/src/app/
 WORKDIR /usr/src/app
