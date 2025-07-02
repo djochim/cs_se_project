@@ -69,8 +69,8 @@ private val coreModule = module {
 }
 
 private val clientModule = module {
-	single { AuthClient("http://192.168.178.75:8070/v1", get()) } bind IAMApi::class
-	single { AeonApiClient("http://192.168.178.75:8080", AeonHttpClientFactory.create(get(IUserService::class))) } bind AeonApi::class
+	single { AuthClient("http://192.168.80.150:8070/v1", get()) } bind IAMApi::class
+	single { AeonApiClient("http://192.168.80.150:8080", AeonHttpClientFactory.create(get(IUserService::class))) } bind AeonApi::class
 }
 
 private val serviceModel = module {
