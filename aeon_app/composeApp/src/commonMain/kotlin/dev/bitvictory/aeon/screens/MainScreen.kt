@@ -78,8 +78,8 @@ fun MainScreen(
 			navController = mainNavController,
 			startDestination = Home,
 		) {
-			homeDestination {
-				mainNavController.navigateToChat(it)
+			homeDestination { query, images ->
+				mainNavController.navigateToChat(query, images)
 			}
 			recipesDestination(onRecipeClick = { recipeHeader ->
 				mainNavController.navigateToRecipeDetail(recipeHeader)

@@ -108,7 +108,7 @@ class ChatViewModelTest {
 			}
 		}
 		advanceUntilIdle()
-		chatViewModel.submitNewAdvisory(message)
+		chatViewModel.submitNewAdvisory(message, initialChat.images)
 		advanceUntilIdle()
 		job.cancel()
 
@@ -155,7 +155,7 @@ class ChatViewModelTest {
 		}
 
 		advanceUntilIdle()
-		chatViewModel.submitNewAdvisory(message)
+		chatViewModel.submitNewAdvisory(message, initialChat.images)
 		advanceUntilIdle()
 		job.cancel()
 		snackjob.cancel()
@@ -326,7 +326,7 @@ class ChatViewModelTest {
 		}
 
 		advanceUntilIdle()
-		chatViewModel.submitNewAdvisory(message)
+		chatViewModel.submitNewAdvisory(message, initialChat.images)
 		advanceUntilIdle()
 		chatViewModel.refreshChat()
 		advanceUntilIdle()

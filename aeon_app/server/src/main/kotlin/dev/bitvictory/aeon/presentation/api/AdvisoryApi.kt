@@ -3,17 +3,22 @@ package dev.bitvictory.aeon.presentation.api
 import dev.bitvictory.aeon.application.service.AdvisoryService
 import dev.bitvictory.aeon.configuration.userPrincipal
 import dev.bitvictory.aeon.core.domain.entities.advisory.Advisory
+import dev.bitvictory.aeon.core.domain.entities.advisory.ImageIdMessageContent
+import dev.bitvictory.aeon.core.domain.entities.advisory.ImageMessage
+import dev.bitvictory.aeon.core.domain.entities.advisory.ImageURLMessageContent
 import dev.bitvictory.aeon.core.domain.entities.advisory.Message
 import dev.bitvictory.aeon.core.domain.entities.advisory.MessageContent
 import dev.bitvictory.aeon.core.domain.entities.advisory.StringMessage
-import dev.bitvictory.aeon.core.domain.entities.assistant.message.AeonMessage
-import dev.bitvictory.aeon.core.domain.entities.assistant.message.AeonMessageContent
+import dev.bitvictory.aeon.core.domain.entities.assistant.message.AiImageIdMessageContent
+import dev.bitvictory.aeon.core.domain.entities.assistant.message.AiImageMessageContent
+import dev.bitvictory.aeon.core.domain.entities.assistant.message.AiImageURLMessageContent
+import dev.bitvictory.aeon.core.domain.entities.assistant.message.AiMessage
+import dev.bitvictory.aeon.core.domain.entities.assistant.message.AiMessageContent
+import dev.bitvictory.aeon.core.domain.entities.assistant.message.AiTextMessageContent
 import dev.bitvictory.aeon.core.domain.entities.assistant.message.Author
-import dev.bitvictory.aeon.core.domain.entities.assistant.message.ImageMessageContent
-import dev.bitvictory.aeon.core.domain.entities.assistant.message.ImageURLMessageContent
-import dev.bitvictory.aeon.core.domain.entities.assistant.message.TextMessageContent
 import dev.bitvictory.aeon.model.api.AuthorDTO
 import dev.bitvictory.aeon.model.api.advisory.AdvisoryDTO
+import dev.bitvictory.aeon.model.api.advisory.ImageMessageDTO
 import dev.bitvictory.aeon.model.api.advisory.MessageContentDTO
 import dev.bitvictory.aeon.model.api.advisory.MessageDTO
 import dev.bitvictory.aeon.model.api.advisory.StringMessageDTO
@@ -62,80 +67,97 @@ import kotlin.uuid.Uuid
  * for creating, retrieving, and updating advisories and their messages.
  */
 fun Route.advisories() {
-	authenticate {
-		route("/advisories") {
-			val advisoryService by inject<AdvisoryService>()
-			post {
-				val request = call.receive<AdvisoryMessageRequest>()
-				val messageContent = request.message.toMessageContent()
-				val message = Message(Clock.System.now(), Author.USER, call.userPrincipal(), messageContent)
-				val advisory = advisoryService.startNewAdvisory(message)
-				call.respond(HttpStatusCode.Created, advisory.toDTO())
-			}
-			route("/{id}") {
-				get {
-					val id =
-						call.parameters["id"] ?: throw IllegalArgumentException("Missing request id")
-					val advisory = advisoryService.retrieveAdvisoryById(ObjectId(id), call.userPrincipal())
-					call.respond(HttpStatusCode.OK, advisory.toDTO())
-				}
-				route("/messages") {
-					post {
-						val id =
-							call.parameters["id"]
-								?: throw IllegalArgumentException("Missing request id")
-						val request = call.receive<AdvisoryMessageRequest>()
-						val messageContent = request.message.toMessageContent()
-						if (messageContent.content.isBlank()) {
-							throw IllegalArgumentException("Message content cannot be blank")
-						}
-						val message =
-							Message(
-								Clock.System.now(),
-								Author.USER,
-								call.userPrincipal(),
-								messageContent
-							)
-						advisoryService.addMessage(ObjectId(id), message)
-						call.respond(HttpStatusCode.Created, message.toDTO())
-					}
-				}
-			}
-		}
-	}
+    authenticate {
+        route("/advisories") {
+            val advisoryService by inject<AdvisoryService>()
+            post {
+                val request = call.receive<AdvisoryMessageRequest>()
+                val messageContent = request.messageContents.toMessageContents()
+                val message =
+                    Message(Clock.System.now(), Author.USER, call.userPrincipal(), messageContent)
+                val advisory = advisoryService.startNewAdvisory(message)
+                call.respond(HttpStatusCode.Created, advisory.toDTO())
+            }
+            route("/{id}") {
+                get {
+                    val id =
+                        call.parameters["id"]
+                            ?: throw IllegalArgumentException("Missing request id")
+                    val advisory =
+                        advisoryService.retrieveAdvisoryById(ObjectId(id), call.userPrincipal())
+                    call.respond(HttpStatusCode.OK, advisory.toDTO())
+                }
+                route("/messages") {
+                    post {
+                        val id =
+                            call.parameters["id"]
+                                ?: throw IllegalArgumentException("Missing request id")
+                        val request = call.receive<AdvisoryMessageRequest>()
+                        val messageContent = request.messageContents.toMessageContents()
+                        val message =
+                            Message(
+                                Clock.System.now(),
+                                Author.USER,
+                                call.userPrincipal(),
+                                messageContent
+                            )
+                        advisoryService.addMessage(ObjectId(id), message)
+                        call.respond(HttpStatusCode.Created, message.toDTO())
+                    }
+                }
+            }
+        }
+    }
+}
+
+fun List<MessageContentDTO>.toMessageContents() = this.map {
+    return@map if (it.isValid()) {
+        it.toMessageContent()
+    } else {
+        throw IllegalArgumentException("Message content cannot be blank")
+    }
 }
 
 fun MessageContentDTO.toMessageContent() = when (this) {
-	is StringMessageDTO -> StringMessage(this.content)
+    is StringMessageDTO -> StringMessage(this.content)
+    is ImageMessageDTO -> ImageMessage(this.content)
+}
+
+fun List<MessageContent>.toDTO() = this.map {
+    it.toDTO()
 }
 
 fun MessageContent.toDTO() = when (this) {
-	is StringMessage -> StringMessageDTO(this.content)
+    is StringMessage -> StringMessageDTO(this.content)
+    is ImageMessage -> ImageMessageDTO(this.content)
+    is ImageIdMessageContent -> throw UnsupportedOperationException("Image URL content is not yet supported.")
+    is ImageURLMessageContent -> throw UnsupportedOperationException("Image ID content is not yet supported.")
 }
 
 @OptIn(ExperimentalUuidApi::class)
 fun Message.toDTO() = MessageDTO(
-	this.messageId ?: Uuid.NIL.toHexString(),
-	listOf(this.messageContent.toDTO()),
-	this.creationDateTime,
-	AuthorDTO.valueOf(this.author.name),
-	this.status ?: "",
-	this.error ?: ""
+    this.messageId ?: Uuid.NIL.toHexString(),
+    this.messageContents.toDTO(),
+    this.creationDateTime,
+    AuthorDTO.valueOf(this.author.name),
+    this.status ?: "",
+    this.error ?: ""
 )
 
 fun Advisory.toDTO() =
-	AdvisoryDTO(this.id.toHexString(), this.threadId, this.messages.map { it.toDTO() })
+    AdvisoryDTO(this.id.toHexString(), this.threadId, this.messages.map { it.toDTO() })
 
-fun AeonMessage.toDTO() = MessageDTO(
-	id = this.id,
-	messageContents = this.content.map { it.toDTO() },
-	creationDateTime = this.createdAt,
-	author = AuthorDTO.valueOf(this.role.name),
-	status = this.status.value
+fun AiMessage.toDTO() = MessageDTO(
+    id = this.id,
+    messageContents = this.content.map { it.toDTO() },
+    creationDateTime = this.createdAt,
+    author = AuthorDTO.valueOf(this.role.name),
+    status = this.status.value
 )
 
-fun AeonMessageContent.toDTO() = when (this) {
-	is TextMessageContent     -> StringMessageDTO(this.value)
-	is ImageMessageContent    -> throw UnsupportedOperationException("Image content is not yet supported.")
-	is ImageURLMessageContent -> throw UnsupportedOperationException("Image content is not yet supported.")
+fun AiMessageContent.toDTO() = when (this) {
+    is AiTextMessageContent -> StringMessageDTO(this.value)
+    is AiImageIdMessageContent -> throw UnsupportedOperationException("Image ID content is not yet supported.")
+    is AiImageURLMessageContent -> throw UnsupportedOperationException("Image URL content is not yet supported.")
+    is AiImageMessageContent -> throw UnsupportedOperationException("Image content is not yet supported.")
 }

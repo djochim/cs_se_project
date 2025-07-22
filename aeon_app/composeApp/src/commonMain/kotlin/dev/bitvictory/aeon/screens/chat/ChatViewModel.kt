@@ -8,6 +8,7 @@ import dev.bitvictory.aeon.model.AeonErrorResponse
 import dev.bitvictory.aeon.model.AeonSuccessResponse
 import dev.bitvictory.aeon.model.api.AuthorDTO
 import dev.bitvictory.aeon.model.api.advisory.AdvisoryIdDTO
+import dev.bitvictory.aeon.model.api.advisory.ImageMessageDTO
 import dev.bitvictory.aeon.model.api.advisory.MessageDTO
 import dev.bitvictory.aeon.model.api.advisory.StringMessageDTO
 import dev.bitvictory.aeon.model.api.advisory.request.AdvisoryMessageRequest
@@ -36,118 +37,169 @@ import kotlin.time.Duration.Companion.milliseconds
  * @param advisorService The service responsible for handling advisory-related operations.
  * @param userService The service responsible for handling user-related operations.
  */
-class ChatViewModel(private val advisorService: IAdvisorService, userService: IUserService): AbstractViewModel(userService) {
-	private val _uiState = MutableStateFlow(ChatUIState())
-	val uiState: StateFlow<ChatUIState> = _uiState.asStateFlow()
+class ChatViewModel(private val advisorService: IAdvisorService, userService: IUserService) :
+    AbstractViewModel(userService) {
+    private val _uiState = MutableStateFlow(ChatUIState())
+    val uiState: StateFlow<ChatUIState> = _uiState.asStateFlow()
 
-	private val _snackbarEvent = MutableSharedFlow<String>()
-	val snackbarEvent = _snackbarEvent.asSharedFlow()
+    private val _snackbarEvent = MutableSharedFlow<String>()
+    val snackbarEvent = _snackbarEvent.asSharedFlow()
 
-	private var checkNewMessagesJob: Job? = null
+    private var checkNewMessagesJob: Job? = null
 
-	fun changeNewMessage(newMessageText: String) {
-		_uiState.value = _uiState.value.copy(newMessage = newMessageText)
-	}
+    fun changeNewMessage(newMessageText: String) {
+        _uiState.value = _uiState.value.copy(newMessage = newMessageText)
+    }
 
-	/**
-	 * Launches a coroutine to initiate a new advisory.
-	 */
-	fun submitNewAdvisory(initialMessageText: String) {
-		val message = MessageDTO(messageContents = listOf(StringMessageDTO(initialMessageText)), author = AuthorDTO.USER, creationDateTime = Clock.System.now())
-		_uiState.value = _uiState.value.copy(assistantIsTyping = true, error = "", newMessage = "", messages = listOf(message))
-		viewModelScope.launch {
-			when (val advisory = advisorService.initiateAdvisory(AdvisoryMessageRequest(StringMessageDTO(initialMessageText)))) {
-				is AeonSuccessResponse -> {
-					_uiState.value =
-						_uiState.value.copy(messages = advisory.data.messages, advisoryId = AdvisoryIdDTO(advisory.data.id))
-				}
+    fun addImage(image: ByteArray) {
+        _uiState.value = _uiState.value.copy(images = listOf(image))
+    }
 
-				is AeonErrorResponse   -> {
-					_snackbarEvent.emit("Failed to initiate advisory")
-					_uiState.value = _uiState.value.copy(assistantIsTyping = false, error = advisory.error.message)
-				}
-			}
-		}
-	}
+    fun clearSelectedImage() {
+        _uiState.value = _uiState.value.copy(images = listOf())
+    }
 
-	/**
-	 * Launches a coroutine to login the user. During that time the UI state is updated with loading and afterwards back.
-	 */
-	fun submitMessage() {
-		val messageContent = _uiState.value.newMessage
-		if (messageContent.isBlank() || _uiState.value.assistantIsTyping) return
-		val message =
-			MessageDTO(
-				id = "new",
-				messageContents = listOf(StringMessageDTO(messageContent)),
-				author = AuthorDTO.USER,
-				creationDateTime = Clock.System.now()
-			)
-		viewModelScope.launch {
-			when (val messageResponse =
-				advisorService.addMessage(_uiState.value.advisoryId!!, AdvisoryMessageRequest(StringMessageDTO(messageContent)))) {
-				is AeonSuccessResponse -> {
+    /**
+     * Launches a coroutine to initiate a new advisory.
+     */
+    fun submitNewAdvisory(initialMessageText: String, images: List<ByteArray>) {
+        val imageMessage = images.firstOrNull()?.let {
+            ImageMessageDTO(it)
+        }
+        val stringMessage =
+            if (initialMessageText.isNotBlank()) StringMessageDTO(initialMessageText) else null
+        val message = MessageDTO(
+            messageContents = listOfNotNull(imageMessage, stringMessage),
+            author = AuthorDTO.USER,
+            creationDateTime = Clock.System.now()
+        )
+        _uiState.value = _uiState.value.copy(
+            assistantIsTyping = true,
+            error = "",
+            newMessage = "",
+            messages = listOf(message)
+        )
+        viewModelScope.launch {
+            when (val advisory = advisorService.initiateAdvisory(
+                AdvisoryMessageRequest(
+                    message.messageContents
+                )
+            )) {
+                is AeonSuccessResponse -> {
+                    _uiState.value =
+                        _uiState.value.copy(
+                            messages = advisory.data.messages,
+                            advisoryId = AdvisoryIdDTO(advisory.data.id)
+                        )
+                }
 
-				}
+                is AeonErrorResponse -> {
+                    _snackbarEvent.emit("Failed to initiate advisory")
+                    _uiState.value = _uiState.value.copy(
+                        assistantIsTyping = false,
+                        error = advisory.error.message
+                    )
+                }
+            }
+        }
+    }
 
-				is AeonErrorResponse   -> {
-					_snackbarEvent.emit("Failed to add message to advisory")
-					_uiState.value = _uiState.value.copy(assistantIsTyping = false, error = messageResponse.error.message)
-				}
-			}
-		}
-		_uiState.value = _uiState.value.copy(assistantIsTyping = true, error = "", newMessage = "", messages = _uiState.value.messages.plus(message))
-	}
+    /**
+     * Launches a coroutine to login the user. During that time the UI state is updated with loading and afterwards back.
+     */
+    fun submitMessage() {
+        val messageContent = _uiState.value.newMessage
+        if (_uiState.value.assistantIsTyping || (messageContent.isBlank() && _uiState.value.images.isEmpty())) return
 
-	fun refreshChat() {
-		if (_uiState.value.advisoryId == null) return
-		viewModelScope.launch {
-			_uiState.value = _uiState.value.copy(isRefreshing = true)
-			_uiState.value = checkForNewMessages().copy(isRefreshing = false)
-		}
-	}
+        val imageContent =
+            _uiState.value.images.firstOrNull()?.let { ImageMessageDTO(it) }
+        val messageContentDTO =
+            if (messageContent.isNotBlank()) StringMessageDTO(messageContent) else null
 
-	fun onLifecycleOwner(owner: LifecycleOwner) {
-		if (checkNewMessagesJob?.isActive == true) return
-		checkNewMessagesJob = owner.lifecycleScope.launch(CoroutineExceptionHandler { _, throwable ->
-			println("Exception in check new messages ${throwable.message}")
-		}) {
-			while (isActive) {
-				_uiState.value.advisoryId?.let {
-					try {
-						_uiState.value = checkForNewMessages()
-					} catch (e: Exception) {
-						println("Error retrieving messages: ${e.message}")
-					}
-				}
-				delay(500.milliseconds)
-			}
-		}
-	}
+        val message = MessageDTO(
+            id = "new",
+            messageContents = listOfNotNull(imageContent, messageContentDTO),
+            author = AuthorDTO.USER,
+            creationDateTime = Clock.System.now()
+        )
+        viewModelScope.launch {
+            when (val messageResponse =
+                advisorService.addMessage(
+                    _uiState.value.advisoryId!!,
+                    AdvisoryMessageRequest(message.messageContents)
+                )) {
+                is AeonSuccessResponse -> {
 
-	override fun onCleared() {
-		super.onCleared()
-		checkNewMessagesJob?.cancel()
-	}
+                }
 
-	private suspend fun checkForNewMessages() = when (val advisoryResult = advisorService.getAdvisory(_uiState.value.advisoryId!!)) {
-		is AeonSuccessResponse -> {
-			_uiState.value.copy(
-				messages = advisoryResult.data.messages,
-				assistantIsTyping = advisoryResult.data.messages.maxByOrNull { it.creationDateTime }!!.author in listOf(
-					AuthorDTO.USER,
-				)
-			)
-		}
+                is AeonErrorResponse -> {
+                    _snackbarEvent.emit("Failed to add message to advisory")
+                    _uiState.value = _uiState.value.copy(
+                        assistantIsTyping = false,
+                        error = messageResponse.error.message
+                    )
+                }
+            }
+        }
+        _uiState.value = _uiState.value.copy(
+            assistantIsTyping = true,
+            error = "",
+            newMessage = "",
+            messages = _uiState.value.messages.plus(message)
+        )
+    }
 
-		is AeonErrorResponse   -> {
-			val errorMessage = MessageDTO(
-				messageContents = listOf(StringMessageDTO(advisoryResult.error.message)),
-				author = AuthorDTO.ASSISTANT,
-				creationDateTime = Clock.System.now()
-			)
-			_uiState.value.copy(messages = _uiState.value.messages.plus(errorMessage))
-		}
-	}
+    fun refreshChat() {
+        if (_uiState.value.advisoryId == null) return
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isRefreshing = true)
+            _uiState.value = checkForNewMessages().copy(isRefreshing = false)
+        }
+    }
+
+    fun onLifecycleOwner(owner: LifecycleOwner) {
+        if (checkNewMessagesJob?.isActive == true) return
+        checkNewMessagesJob =
+            owner.lifecycleScope.launch(CoroutineExceptionHandler { _, throwable ->
+                println("Exception in check new messages ${throwable.message}")
+            }) {
+                while (isActive) {
+                    _uiState.value.advisoryId?.let {
+                        try {
+                            _uiState.value = checkForNewMessages()
+                        } catch (e: Exception) {
+                            println("Error retrieving messages: ${e.message}")
+                        }
+                    }
+                    delay(500.milliseconds)
+                }
+            }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        checkNewMessagesJob?.cancel()
+    }
+
+    private suspend fun checkForNewMessages() =
+        when (val advisoryResult = advisorService.getAdvisory(_uiState.value.advisoryId!!)) {
+            is AeonSuccessResponse -> {
+                _uiState.value.copy(
+                    messages = advisoryResult.data.messages,
+                    assistantIsTyping = advisoryResult.data.messages.maxByOrNull { it.creationDateTime }!!.author in listOf(
+                        AuthorDTO.USER,
+                    )
+                )
+            }
+
+            is AeonErrorResponse -> {
+                val errorMessage = MessageDTO(
+                    messageContents = listOf(StringMessageDTO(advisoryResult.error.message)),
+                    author = AuthorDTO.ASSISTANT,
+                    creationDateTime = Clock.System.now()
+                )
+                _uiState.value.copy(messages = _uiState.value.messages.plus(errorMessage))
+            }
+        }
 
 }

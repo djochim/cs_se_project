@@ -19,18 +19,21 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import dev.bitvictory.aeon.components.ChatBar
 import kotlinx.serialization.Serializable
 import org.koin.compose.viewmodel.koinViewModel
 
 @Serializable
 object Home
 
-fun NavGraphBuilder.homeDestination(onQuerySubmit: (query: String) -> Unit) {
+fun NavGraphBuilder.homeDestination(onQuerySubmit: (query: String, images: List<ByteArray>) -> Unit) {
 	composable<Home> { HomeScreen(onQuerySubmit) }
 }
 
@@ -50,8 +53,8 @@ fun NavController.navigateToHome() {
  *                  It is injected by default using Koin.
  */
 @Composable
-fun HomeScreen(onQuerySubmit: (query: String) -> Unit, viewModel: HomeViewModel = koinViewModel()) {
-	val homeUIState by viewModel.uiState.collectAsState()
+fun HomeScreen(onQuerySubmit: (query: String, images: List<ByteArray>) -> Unit, viewModel: HomeViewModel = koinViewModel()) {
+	val homeUIState by viewModel.uiState.collectAsStateWithLifecycle()
 
 	Column(
 		Modifier.fillMaxWidth().fillMaxHeight().padding(8.dp),
@@ -65,28 +68,18 @@ fun HomeScreen(onQuerySubmit: (query: String) -> Unit, viewModel: HomeViewModel 
 			textAlign = TextAlign.Center
 		)
 		Column(horizontalAlignment = Alignment.CenterHorizontally) {
-			Row(
-				verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()
-					.widthIn(max = 400.dp),
-				horizontalArrangement = Arrangement.SpaceBetween
-			) {
-				OutlinedTextField(
-					value = homeUIState.query,
-					onValueChange = viewModel::changeQuery,
-					maxLines = 500,
-					placeholder = { Text("Ask Aeon...") },
-					modifier = Modifier.weight(1f)
-				)
-				FilledIconButton(
-					onClick = {
-						onQuerySubmit(viewModel.uiState.value.query)
-						viewModel.changeQuery("")
-					},
-					modifier = Modifier.padding(start = 8.dp)
-				) {
-					Icon(Icons.AutoMirrored.Outlined.Send, contentDescription = "Send query")
-				}
-			}
+			ChatBar(
+				homeUIState.query,
+				homeUIState.images,
+				viewModel::changeQuery,
+				{
+					onQuerySubmit(homeUIState.query, homeUIState.images)
+					viewModel.changeQuery("")
+					viewModel.clearSelectedImage()
+				},
+				viewModel::addImage,
+				viewModel::clearSelectedImage
+			)
 			Row(
 				modifier = Modifier.fillMaxWidth()
 					.widthIn(max = 400.dp)

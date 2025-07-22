@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AdvisoryMessageRequest(
-    val message: MessageContentDTO
+    val messageContents: List<MessageContentDTO>
 )

@@ -1,5 +1,6 @@
 package dev.bitvictory.aeon.core.domain.entities.advisory
 
+import dev.bitvictory.aeon.core.domain.entities.assistant.message.AiMessageContent
 import dev.bitvictory.aeon.core.domain.entities.assistant.message.Author
 import dev.bitvictory.aeon.core.domain.entities.user.User
 import dev.bitvictory.aeon.infrastructure.database.InstantAsBsonDateTime
@@ -9,12 +10,12 @@ import kotlin.uuid.ExperimentalUuidApi
 
 @Serializable
 data class Message @OptIn(ExperimentalUuidApi::class) constructor(
-	@Serializable(with = InstantAsBsonDateTime::class) val creationDateTime: Instant,
-	val author: Author,
-	val user: User,
-	val messageContent: MessageContent,
-	val runId: String? = null,
-	val messageId: String? = null,
-	val status: String? = null,
-	val error: String? = null
+    @Serializable(with = InstantAsBsonDateTime::class) val creationDateTime: Instant,
+    val author: Author,
+    val user: User,
+    val messageContents: List<AiMessageContent>,
+    val runId: String? = null,
+    val messageId: String? = null,
+    val status: String? = null,
+    val error: String? = null
 )

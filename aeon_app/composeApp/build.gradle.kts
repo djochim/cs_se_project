@@ -69,6 +69,8 @@ kotlin {
 			implementation(libs.kermit)
 			implementation(libs.coil)
 			implementation(libs.coil.compose)
+			implementation(libs.peekaboo.ui)
+			implementation(libs.peekaboo.image.picker)
 		}
 		commonTest.dependencies {
 			implementation(libs.kotlin.test)

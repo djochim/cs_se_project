@@ -20,63 +20,70 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(MockKExtension::class)
 class AdvisoryApiTest {
 
-	@Test
-	fun `test toMessageContent`() {
-		val stringMessageDTO = StringMessageDTO("Hello")
-		val stringMessage = stringMessageDTO.toMessageContent()
+    @Test
+    fun `test toMessageContent`() {
+        val stringMessageDTO = StringMessageDTO("Hello")
+        val stringMessage = stringMessageDTO.toMessageContent()
 
-		stringMessage.shouldBeInstanceOf<StringMessage>()
-		stringMessage.content shouldBe "Hello"
-	}
+        stringMessage.shouldBeInstanceOf<StringMessage>()
+        stringMessage.content shouldBe "Hello"
+    }
 
-	@Test
-	fun `test toDTO`() {
-		val stringMessage = StringMessage("Hello")
-		val stringMessageDTO = stringMessage.toDTO()
-		stringMessageDTO.shouldBeInstanceOf<StringMessageDTO>()
-		stringMessageDTO.content shouldBe "Hello"
-	}
+    @Test
+    fun `test toDTO`() {
+        val stringMessage = StringMessage("Hello")
+        val stringMessageDTO = stringMessage.toDTO()
+        stringMessageDTO.shouldBeInstanceOf<StringMessageDTO>()
+        stringMessageDTO.content shouldBe "Hello"
+    }
 
-	@Test
-	fun `test Message toDTO`(@MockK user: User) {
-		val message = Message(
-			messageId = "mid",
-			messageContent = StringMessage("Hello"),
-			user = user,
-			creationDateTime = Clock.System.now(),
-			author = Author.USER,
-			status = "status",
-			error = "error"
-		)
+    @Test
+    fun `test Message toDTO`(@MockK user: User) {
+        val message = Message(
+            messageId = "mid",
+            messageContents = StringMessage("Hello"),
+            user = user,
+            creationDateTime = Clock.System.now(),
+            author = Author.USER,
+            status = "status",
+            error = "error"
+        )
 
-		val messageDTO = message.toDTO()
-		messageDTO.id shouldBe "mid"
-		messageDTO.messageContents[0].shouldBeInstanceOf<StringMessageDTO>()
-		(messageDTO.messageContents[0] as StringMessageDTO).content shouldBe "Hello"
-		messageDTO.creationDateTime shouldBe message.creationDateTime
-		messageDTO.author shouldBe AuthorDTO.USER
-		messageDTO.status shouldBe "status"
-		messageDTO.error shouldBe "error"
-	}
+        val messageDTO = message.toDTO()
+        messageDTO.id shouldBe "mid"
+        messageDTO.messageContents[0].shouldBeInstanceOf<StringMessageDTO>()
+        (messageDTO.messageContents[0] as StringMessageDTO).content shouldBe "Hello"
+        messageDTO.creationDateTime shouldBe message.creationDateTime
+        messageDTO.author shouldBe AuthorDTO.USER
+        messageDTO.status shouldBe "status"
+        messageDTO.error shouldBe "error"
+    }
 
-	@Test
-	fun `Advisory toDTO`(@MockK user: User) {
-		val message = Message(
-			messageId = "mid",
-			messageContent = StringMessage("Hello"),
-			user = user,
-			creationDateTime = Clock.System.now(),
-			author = Author.USER,
-			status = "status",
-			error = "error"
-		)
-		val advisory = Advisory(id = ObjectId.get(), threadId = "tid", messages = listOf(), user = user, events = listOf(), status = AeonStatus.UNKNOWN)
+    @Test
+    fun `Advisory toDTO`(@MockK user: User) {
+        val message = Message(
+            messageId = "mid",
+            messageContents = StringMessage("Hello"),
+            user = user,
+            creationDateTime = Clock.System.now(),
+            author = Author.USER,
+            status = "status",
+            error = "error"
+        )
+        val advisory = Advisory(
+            id = ObjectId.get(),
+            threadId = "tid",
+            messages = listOf(),
+            user = user,
+            events = listOf(),
+            status = AeonStatus.UNKNOWN
+        )
 
-		val advisoryDTO = advisory.toDTO()
+        val advisoryDTO = advisory.toDTO()
 
-		advisoryDTO.id shouldBe advisory.id.toHexString()
-		advisoryDTO.threadId shouldBe advisory.threadId
-		advisoryDTO.messages.size shouldBe advisory.messages.size
-	}
+        advisoryDTO.id shouldBe advisory.id.toHexString()
+        advisoryDTO.threadId shouldBe advisory.threadId
+        advisoryDTO.messages.size shouldBe advisory.messages.size
+    }
 
 }

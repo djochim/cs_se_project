@@ -13,7 +13,7 @@ import dev.bitvictory.aeon.core.domain.entities.assistant.action.AeonFunctionCal
 import dev.bitvictory.aeon.core.domain.entities.assistant.action.AeonToolOutput
 import dev.bitvictory.aeon.core.domain.entities.assistant.action.AeonToolOutputs
 import dev.bitvictory.aeon.core.domain.entities.assistant.event.AeonAssistantEvent
-import dev.bitvictory.aeon.core.domain.entities.assistant.message.AeonMessage
+import dev.bitvictory.aeon.core.domain.entities.assistant.message.AiMessage
 import dev.bitvictory.aeon.core.domain.entities.assistant.message.Author
 import dev.bitvictory.aeon.core.domain.entities.assistant.thread.AeonStatus
 import dev.bitvictory.aeon.core.domain.entities.user.User
@@ -48,184 +48,273 @@ import kotlin.test.Test
 @ExtendWith(MockKExtension::class)
 class AdvisoryServiceTest {
 
-	@MockK
-	lateinit var advisoryPersistence: AdvisoryPersistence
+    @MockK
+    lateinit var advisoryPersistence: AdvisoryPersistence
 
-	@MockK
-	lateinit var asyncAssistantExecution: AsyncAssistantExecution
+    @MockK
+    lateinit var asyncAssistantExecution: AsyncAssistantExecution
 
-	@MockK
-	lateinit var advisoryEventDispatcher: AdvisoryEventDispatcher
+    @MockK
+    lateinit var advisoryEventDispatcher: AdvisoryEventDispatcher
 
-	@MockK
-	lateinit var actionCallDispatcher: ActionCallDispatcher
+    @MockK
+    lateinit var actionCallDispatcher: ActionCallDispatcher
 
-	lateinit var advisoryService: AdvisoryService
+    lateinit var advisoryService: AdvisoryService
 
-	@OptIn(ExperimentalCoroutinesApi::class)
-	@BeforeTest
-	fun setup() {
-		val testDispatcher = UnconfinedTestDispatcher()
-		Dispatchers.setMain(testDispatcher)
-		advisoryService = AdvisoryService(advisoryPersistence, asyncAssistantExecution, advisoryEventDispatcher, actionCallDispatcher, testDispatcher)
-	}
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @BeforeTest
+    fun setup() {
+        val testDispatcher = UnconfinedTestDispatcher()
+        Dispatchers.setMain(testDispatcher)
+        advisoryService = AdvisoryService(
+            advisoryPersistence,
+            asyncAssistantExecution,
+            advisoryEventDispatcher,
+            actionCallDispatcher,
+            testDispatcher
+        )
+    }
 
-	@OptIn(ExperimentalCoroutinesApi::class)
-	@AfterTest
-	fun tearDown() {
-		Dispatchers.resetMain()
-	}
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @AfterTest
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
 
-	@Nested
-	inner class NewAdvisories {
+    @Nested
+    inner class NewAdvisories {
 
-		@Test
-		fun `new advisory creates new thread and starts execution`(@MockK user: User) = runTest {
-			val now = Clock.System.now()
-			val message = Message(messageContent = StringMessage("Hello"), author = Author.USER, user = user, creationDateTime = now)
+        @Test
+        fun `new advisory creates new thread and starts execution`(@MockK user: User) = runTest {
+            val now = Clock.System.now()
+            val message = Message(
+                messageContents = StringMessage("Hello"),
+                author = Author.USER,
+                user = user,
+                creationDateTime = now
+            )
 
-			val event1 = mockk<AeonAssistantEvent>()
-			val event2 = mockk<AeonAssistantEvent>()
-			val event3 = mockk<AeonAssistantEvent>()
+            val event1 = mockk<AeonAssistantEvent>()
+            val event2 = mockk<AeonAssistantEvent>()
+            val event3 = mockk<AeonAssistantEvent>()
 
-			val emptyActionCallWrapper = AeonActionCallWrapper.empty()
+            val emptyActionCallWrapper = AeonActionCallWrapper.empty()
 
-			coEvery { asyncAssistantExecution.executeThread(any(), any()) } returns flowOf(event1, event2, event3)
-			coEvery { advisoryEventDispatcher.dispatch(any(), any()) } returns emptyActionCallWrapper
-			coEvery { advisoryPersistence.insert(any()) } returns Unit
+            coEvery { asyncAssistantExecution.executeThread(any(), any()) } returns flowOf(
+                event1,
+                event2,
+                event3
+            )
+            coEvery {
+                advisoryEventDispatcher.dispatch(
+                    any(),
+                    any()
+                )
+            } returns emptyActionCallWrapper
+            coEvery { advisoryPersistence.insert(any()) } returns Unit
 
-			advisoryService.startNewAdvisory(message)
+            advisoryService.startNewAdvisory(message)
 
-			coVerify {
-				asyncAssistantExecution.executeThread(
-					HealthAssistant,
-					AssistantMessageDTO(
-						message.author,
-						"Hello"
-					)
-				)
-			}
-			coVerify(exactly = 3) { advisoryEventDispatcher.dispatch(any(), any()) }
-			coVerify(exactly = 0) { actionCallDispatcher.dispatch(any(), any(), any()) }
-			coVerify(exactly = 0) { asyncAssistantExecution.submitActionResult(any(), any(), any()) }
+            coVerify {
+                asyncAssistantExecution.executeThread(
+                    HealthAssistant,
+                    AssistantMessageDTO(
+                        message.author,
+                        "Hello"
+                    )
+                )
+            }
+            coVerify(exactly = 3) { advisoryEventDispatcher.dispatch(any(), any()) }
+            coVerify(exactly = 0) { actionCallDispatcher.dispatch(any(), any(), any()) }
+            coVerify(exactly = 0) {
+                asyncAssistantExecution.submitActionResult(
+                    any(),
+                    any(),
+                    any()
+                )
+            }
 
-			val advisorySlot = slot<Advisory>()
-			coVerify { advisoryPersistence.insert(capture(advisorySlot)) }
-			advisorySlot.captured.user shouldBe user
-			advisorySlot.captured.threadId shouldBe ""
-		}
+            val advisorySlot = slot<Advisory>()
+            coVerify { advisoryPersistence.insert(capture(advisorySlot)) }
+            advisorySlot.captured.user shouldBe user
+            advisorySlot.captured.threadId shouldBe ""
+        }
 
-	}
+    }
 
-	@Nested
-	inner class ExistingAdvisories {
-		@Test
-		fun `add message existing advisory fetches messages and starts execution`(@MockK user: User) = runTest {
-			val now = Clock.System.now()
-			val advisoryId = ObjectId.get()
-			val threadId = "tId"
-			val runId = "rId"
-			val message = Message(messageContent = StringMessage("Hello"), author = Author.USER, user = user, creationDateTime = now)
+    @Nested
+    inner class ExistingAdvisories {
+        @Test
+        fun `add message existing advisory fetches messages and starts execution`(@MockK user: User) =
+            runTest {
+                val now = Clock.System.now()
+                val advisoryId = ObjectId.get()
+                val threadId = "tId"
+                val runId = "rId"
+                val message = Message(
+                    messageContents = StringMessage("Hello"),
+                    author = Author.USER,
+                    user = user,
+                    creationDateTime = now
+                )
 
-			val event1 = mockk<AeonAssistantEvent>()
-			val event2 = mockk<AeonAssistantEvent>()
-			val event3 = mockk<AeonAssistantEvent>()
+                val event1 = mockk<AeonAssistantEvent>()
+                val event2 = mockk<AeonAssistantEvent>()
+                val event3 = mockk<AeonAssistantEvent>()
 
-			val emptyActionCallWrapper = AeonActionCallWrapper.empty()
-			val actionCallWrapper = AeonActionCallWrapper(threadId, runId, AeonActionCalls(listOf(AeonFunctionCall("cId", "name", "args"))))
-			val toolOutputs = AeonToolOutputs(threadId, runId, listOf(AeonToolOutput("tId", "output")))
+                val emptyActionCallWrapper = AeonActionCallWrapper.empty()
+                val actionCallWrapper = AeonActionCallWrapper(
+                    threadId,
+                    runId,
+                    AeonActionCalls(listOf(AeonFunctionCall("cId", "name", "args")))
+                )
+                val toolOutputs =
+                    AeonToolOutputs(threadId, runId, listOf(AeonToolOutput("tId", "output")))
 
-			coEvery { advisoryPersistence.getThreadContext(any()) } returns ThreadContext(threadId, user)
-			coEvery { asyncAssistantExecution.writeMessageToThread(any(), any(), any()) } returns flowOf(event1, event2, event3)
-			coEvery { advisoryEventDispatcher.dispatch(any(), eq(event3, inverse = true)) } returns emptyActionCallWrapper
-			coEvery { advisoryEventDispatcher.dispatch(any(), eq(event3)) } returns actionCallWrapper
-			coEvery { actionCallDispatcher.dispatch(any(), any(), any()) } returns toolOutputs
-			coEvery { asyncAssistantExecution.submitActionResult(any(), any(), any()) } returns flowOf(event1, event2)
-			coEvery { advisoryPersistence.appendMessages(any(), any()) } returns Unit
+                coEvery { advisoryPersistence.getThreadContext(any()) } returns ThreadContext(
+                    threadId,
+                    user
+                )
+                coEvery {
+                    asyncAssistantExecution.writeMessageToThread(
+                        any(),
+                        any(),
+                        any()
+                    )
+                } returns flowOf(event1, event2, event3)
+                coEvery {
+                    advisoryEventDispatcher.dispatch(
+                        any(),
+                        eq(event3, inverse = true)
+                    )
+                } returns emptyActionCallWrapper
+                coEvery {
+                    advisoryEventDispatcher.dispatch(
+                        any(),
+                        eq(event3)
+                    )
+                } returns actionCallWrapper
+                coEvery { actionCallDispatcher.dispatch(any(), any(), any()) } returns toolOutputs
+                coEvery {
+                    asyncAssistantExecution.submitActionResult(
+                        any(),
+                        any(),
+                        any()
+                    )
+                } returns flowOf(event1, event2)
+                coEvery { advisoryPersistence.appendMessages(any(), any()) } returns Unit
 
-			advisoryService.addMessage(advisoryId, message)
+                advisoryService.addMessage(advisoryId, message)
 
-			coVerify { advisoryPersistence.getThreadContext(advisoryId) }
-			coVerify {
-				asyncAssistantExecution.writeMessageToThread(
-					HealthAssistant, threadId, AssistantMessageDTO(
-						message.author, "Hello"
-					)
-				)
-			}
-			coVerify(exactly = 5) { advisoryEventDispatcher.dispatch(any(), any()) }
-			coVerify(exactly = 1) { actionCallDispatcher.dispatch(any(), any(), any()) }
-			coVerify(exactly = 1) { asyncAssistantExecution.submitActionResult(any(), any(), any()) }
+                coVerify { advisoryPersistence.getThreadContext(advisoryId) }
+                coVerify {
+                    asyncAssistantExecution.writeMessageToThread(
+                        HealthAssistant, threadId, AssistantMessageDTO(
+                            message.author, "Hello"
+                        )
+                    )
+                }
+                coVerify(exactly = 5) { advisoryEventDispatcher.dispatch(any(), any()) }
+                coVerify(exactly = 1) { actionCallDispatcher.dispatch(any(), any(), any()) }
+                coVerify(exactly = 1) {
+                    asyncAssistantExecution.submitActionResult(
+                        any(),
+                        any(),
+                        any()
+                    )
+                }
 
-			val advisorySlot = slot<List<AeonMessage>>()
-			coVerify { advisoryPersistence.appendMessages(advisoryId, capture(advisorySlot)) }
-			advisorySlot.captured shouldHaveSize 1
-		}
+                val advisorySlot = slot<List<AiMessage>>()
+                coVerify { advisoryPersistence.appendMessages(advisoryId, capture(advisorySlot)) }
+                advisorySlot.captured shouldHaveSize 1
+            }
 
-		@Test
-		fun `add message existing advisory with different user fails`(@MockK user: User) = runTest {
-			val now = Clock.System.now()
-			val advisoryId = ObjectId.get()
-			val threadId = "tId"
-			val message = Message(messageContent = StringMessage("Hello"), author = Author.USER, user = user, creationDateTime = now)
+        @Test
+        fun `add message existing advisory with different user fails`(@MockK user: User) = runTest {
+            val now = Clock.System.now()
+            val advisoryId = ObjectId.get()
+            val threadId = "tId"
+            val message = Message(
+                messageContents = StringMessage("Hello"),
+                author = Author.USER,
+                user = user,
+                creationDateTime = now
+            )
 
-			coEvery { advisoryPersistence.getThreadContext(any()) } returns ThreadContext(threadId, mockk())
+            coEvery { advisoryPersistence.getThreadContext(any()) } returns ThreadContext(
+                threadId,
+                mockk()
+            )
 
-			shouldThrow<AuthorizationException> { advisoryService.addMessage(advisoryId, message) }
+            shouldThrow<AuthorizationException> { advisoryService.addMessage(advisoryId, message) }
 
-			coVerify { advisoryPersistence.getThreadContext(advisoryId) }
-			coVerify(exactly = 0) { asyncAssistantExecution.writeMessageToThread(any(), any(), any()) }
-			coVerify(exactly = 0) { advisoryPersistence.appendMessages(any(), any()) }
-		}
+            coVerify { advisoryPersistence.getThreadContext(advisoryId) }
+            coVerify(exactly = 0) {
+                asyncAssistantExecution.writeMessageToThread(
+                    any(),
+                    any(),
+                    any()
+                )
+            }
+            coVerify(exactly = 0) { advisoryPersistence.appendMessages(any(), any()) }
+        }
 
-		@Test
-		fun `fetch new messages`(@MockK user: User) = runTest {
-			val now = Clock.System.now()
-			val advisoryId = ObjectId.get()
-			val messageId = "mId"
-			val runId = "rId"
-			val messageExecuted =
-				Message(
-					messageContent = StringMessage("Hello"),
-					author = Author.USER,
-					user = user,
-					creationDateTime = now,
-					messageId = messageId,
-					runId = runId
-				)
+        @Test
+        fun `fetch new messages`(@MockK user: User) = runTest {
+            val now = Clock.System.now()
+            val advisoryId = ObjectId.get()
+            val messageId = "mId"
+            val runId = "rId"
+            val messageExecuted =
+                Message(
+                    messageContents = StringMessage("Hello"),
+                    author = Author.USER,
+                    user = user,
+                    creationDateTime = now,
+                    messageId = messageId,
+                    runId = runId
+                )
 
-			coEvery { advisoryPersistence.getNewMessages(any(), any()) } returns listOf(messageExecuted)
+            coEvery { advisoryPersistence.getNewMessages(any(), any()) } returns listOf(
+                messageExecuted
+            )
 
-			val messages = advisoryService.retrieveMessages(advisoryId, now)
+            val messages = advisoryService.retrieveMessages(advisoryId, now)
 
-			coVerify { advisoryPersistence.getNewMessages(advisoryId, now) }
-			messages shouldHaveSize 1
-			messages.first() shouldBe messageExecuted
-		}
+            coVerify { advisoryPersistence.getNewMessages(advisoryId, now) }
+            messages shouldHaveSize 1
+            messages.first() shouldBe messageExecuted
+        }
 
-		@Test
-		fun `get existing advisory`(@MockK user: User) = runTest {
-			val advisoryId = ObjectId.get()
-			val advisory = Advisory(advisoryId, "tId", user, AeonStatus.UNKNOWN, listOf(), listOf())
-
-
-			coEvery { advisoryPersistence.getById(any()) } returns advisory
-
-			val advisoryDB = advisoryService.retrieveAdvisoryById(advisoryId, user)
-
-			coVerify { advisoryPersistence.getById(advisoryId) }
-			advisoryDB shouldBe advisory
-		}
-
-		@Test
-		fun `get existing advisory with different user`(@MockK user: User) = runTest {
-			val advisoryId = ObjectId.get()
-			val advisory = Advisory(advisoryId, "tId", user, AeonStatus.UNKNOWN, listOf(), listOf())
+        @Test
+        fun `get existing advisory`(@MockK user: User) = runTest {
+            val advisoryId = ObjectId.get()
+            val advisory = Advisory(advisoryId, "tId", user, AeonStatus.UNKNOWN, listOf(), listOf())
 
 
-			coEvery { advisoryPersistence.getById(any()) } returns advisory
+            coEvery { advisoryPersistence.getById(any()) } returns advisory
 
-			shouldThrow<AuthorizationException> { advisoryService.retrieveAdvisoryById(advisoryId, mockk()) }
-		}
-	}
+            val advisoryDB = advisoryService.retrieveAdvisoryById(advisoryId, user)
+
+            coVerify { advisoryPersistence.getById(advisoryId) }
+            advisoryDB shouldBe advisory
+        }
+
+        @Test
+        fun `get existing advisory with different user`(@MockK user: User) = runTest {
+            val advisoryId = ObjectId.get()
+            val advisory = Advisory(advisoryId, "tId", user, AeonStatus.UNKNOWN, listOf(), listOf())
+
+
+            coEvery { advisoryPersistence.getById(any()) } returns advisory
+
+            shouldThrow<AuthorizationException> {
+                advisoryService.retrieveAdvisoryById(
+                    advisoryId,
+                    mockk()
+                )
+            }
+        }
+    }
 }

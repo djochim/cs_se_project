@@ -14,4 +14,12 @@ class HomeViewModel(userService: IUserService): AbstractViewModel(userService) {
 		_uiState.value = _uiState.value.copy(query = newQuery)
 	}
 
+	fun addImage(image: ByteArray) {
+		_uiState.value = _uiState.value.copy(images = listOf(image))
+	}
+
+	fun clearSelectedImage() {
+		_uiState.value = _uiState.value.copy(images = listOf())
+	}
+
 }

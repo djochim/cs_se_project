@@ -1,24 +1,18 @@
 package dev.bitvictory.aeon.screens.chat
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,6 +30,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import dev.bitvictory.aeon.components.ChatBar
 import dev.bitvictory.aeon.components.ChatMessage
 import dev.bitvictory.aeon.components.JumpToBottom
 import dev.bitvictory.aeon.components.TypingIndicator
@@ -44,19 +39,20 @@ import dev.bitvictory.aeon.model.api.advisory.MessageDTO
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import org.koin.compose.koinInject
+import kotlin.reflect.typeOf
 
 @Serializable
-data class Chat(val query: String)
+data class Chat(val params: ChatParameter)
 
 fun NavGraphBuilder.chatDestination(onClose: () -> Unit) {
-	composable<Chat> { backStackEntry ->
+	composable<Chat>(typeMap = mapOf(typeOf<ChatParameter>() to ChatParameterNavType)) { backStackEntry ->
 		val chat: Chat = backStackEntry.toRoute()
 		ChatScreen(chat, onClose)
 	}
 }
 
-fun NavController.navigateToChat(query: String) {
-	navigate(route = Chat(query))
+fun NavController.navigateToChat(query: String, images: List<ByteArray>) {
+	navigate(route = Chat(ChatParameter(query, images)))
 }
 
 /**
@@ -75,7 +71,7 @@ fun ChatScreen(initialChat: Chat, onClose: () -> Unit, chatViewModel: ChatViewMo
 	val lifecycleOwner = LocalLifecycleOwner.current
 
 	LaunchedEffect(key1 = lifecycleOwner) {
-		chatViewModel.submitNewAdvisory(initialChat.query)
+		chatViewModel.submitNewAdvisory(initialChat.params.query, initialChat.params.images)
 		chatViewModel.onLifecycleOwner(lifecycleOwner)
 	}
 
@@ -95,24 +91,14 @@ fun ChatScreen(initialChat: Chat, onClose: () -> Unit, chatViewModel: ChatViewMo
 			chatViewModel::refreshChat,
 			modifier = Modifier.weight(1f)
 		) // Push bottom row to the bottom
-		Row(
-			modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-			horizontalArrangement = Arrangement.SpaceBetween
-		) {
-			OutlinedTextField(
-				value = uiState.value.newMessage,
-				onValueChange = chatViewModel::changeNewMessage,
-				maxLines = 500,
-				placeholder = { Text("Ask aeon") },
-				modifier = Modifier.weight(1f)
-			)
-			FilledIconButton(
-				onClick = chatViewModel::submitMessage,
-				modifier = Modifier.padding(start = 8.dp, end = 8.dp)
-			) {
-				Icon(Icons.AutoMirrored.Outlined.Send, contentDescription = "Send query")
-			}
-		}
+		ChatBar(
+			uiState.value.newMessage,
+			uiState.value.images,
+			chatViewModel::changeNewMessage,
+			chatViewModel::submitMessage,
+			chatViewModel::addImage,
+			chatViewModel::clearSelectedImage
+		)
 	}
 }
 
